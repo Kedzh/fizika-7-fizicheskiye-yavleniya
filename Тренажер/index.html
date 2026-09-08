@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Тренажёр: Физические явления</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+:root {
+  --bg: #f0f4f8; --card: #ffffff; --primary: #3b82f6; --primary-light: #dbeafe;
+  --green: #22c55e; --red: #ef4444; --yellow: #eab308;
+  --text: #1e293b; --text-secondary: #64748b; --border: #e2e8f0;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08); --radius: 14px;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --card: #1e293b; --primary: #60a5fa; --primary-light: #1e3a5f;
+  --green: #4ade80; --red: #f87171; --yellow: #facc15;
+  --text: #f1f5f9; --text-secondary: #94a3b8; --border: #334155;
+  --shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden}
+.header{background:linear-gradient(135deg,var(--primary),#6366f1);color:#fff;padding:20px 16px 16px;text-align:center;position:sticky;top:0;z-index:10}
+.header h1{font-size:1.5rem;font-weight:800}
+.header .subtitle{font-size:.85rem;opacity:.85;margin-top:2px}
+.theme-btn{position:absolute;top:14px;right:12px;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:1.3rem;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.container{padding:12px;max-width:480px;margin:0 auto}
+.nav-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.nav-btn{display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--card);border:2px solid var(--border);border-radius:10px;font-family:inherit;font-weight:700;font-size:.9rem;color:var(--text);cursor:pointer;box-shadow:var(--shadow);transition:all .2s}
+.nav-btn:active{transform:scale(.96)}
+.nav-title{flex:1;font-weight:700;font-size:1rem;text-align:center;color:var(--text-secondary)}
+.screen{display:none;animation:fadeIn .3s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.menu{display:grid;grid-template-columns:1fr;gap:8px}
+.menu-group{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;border:2px solid var(--border)}
+.menu-group-header{display:flex;align-items:center;gap:10px;padding:16px 14px;cursor:pointer;transition:background .2s}
+.menu-group-header:active{background:var(--bg)}
+.gh-icon{font-size:1.6rem}
+.gh-label{flex:1;font-size:1rem;font-weight:700}
+.gh-arrow{font-size:1.3rem;transition:transform .3s;color:var(--text-secondary)}
+.menu-group.open .gh-arrow{transform:rotate(90deg)}
+.menu-group-items{display:none;padding:0 8px 8px 8px}
+.menu-group.open .menu-group-items{display:block}
+.menu-item{display:flex;justify-content:space-between;align-items:center;padding:12px 12px;margin:2px 0;border-radius:8px;cursor:pointer;transition:background .15s;border:1px solid transparent}
+.menu-item:active{background:var(--bg);border-color:var(--border)}
+.mi-label{font-size:.88rem;font-weight:600}
+.mi-count{font-size:.72rem;color:var(--text-secondary)}
+.stats-row{display:flex;gap:8px;margin-bottom:12px}
+.stat-box{flex:1;background:var(--card);border-radius:var(--radius);padding:14px 8px;text-align:center;box-shadow:var(--shadow)}
+.stat-box .stat-val{font-size:1.6rem;font-weight:800}
+.stat-box .stat-label{font-size:.7rem;color:var(--text-secondary);font-weight:600;margin-top:2px}
+.stat-box.green .stat-val{color:var(--green)}
+.stat-box.red .stat-val{color:var(--red)}
+.progress-wrap{background:var(--border);border-radius:20px;height:28px;overflow:hidden;margin-bottom:12px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--green),#34d399);border-radius:20px;transition:width .4s ease;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.75rem;min-width:40px}
+.ex-card{background:var(--card);border-radius:var(--radius);padding:20px 16px;box-shadow:var(--shadow);margin-bottom:12px;text-align:center}
+.ex-label{font-size:.85rem;color:var(--text-secondary);font-weight:600;margin-bottom:4px}
+.ex-progress{font-size:.8rem;color:var(--text-secondary);margin-bottom:12px}
+.ex-task{font-size:1.7rem;font-weight:800;margin-bottom:20px;letter-spacing:1px;line-height:1.4}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+.opt-btn{padding:16px 10px;border:2px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text);font-family:inherit;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all .15s;text-align:center}
+.opt-btn:active{transform:scale(.96)}
+.opt-btn:hover{border-color:var(--primary);background:var(--primary-light)}
+.opt-btn.selected{border-color:var(--primary);background:var(--primary);color:#fff}
+.opt-btn.correct{border-color:var(--green);background:var(--green);color:#fff}
+.opt-btn.wrong{border-color:var(--red);background:var(--red);color:#fff}
+.opt-btn:disabled{cursor:default;opacity:1}
+.feedback{margin-top:12px;padding:12px;border-radius:8px;font-weight:700;font-size:.95rem;display:none}
+.feedback.show{display:block;animation:fadeIn .3s ease}
+.feedback.ok{background:#dcfce7;color:#166534}
+.feedback.fail{background:#fee2e2;color:#991b1b}
+[data-theme="dark"] .feedback.ok{background:#14532d;color:#bbf7d0}
+[data-theme="dark"] .feedback.fail{background:#7f1d1d;color:#fecaca}
+.timer{font-size:.85rem;color:var(--text-secondary);font-weight:700;margin-bottom:8px}
+.result-card{background:var(--card);border-radius:var(--radius);padding:28px 16px;box-shadow:var(--shadow);text-align:center}
+.result-card h2{font-size:1.4rem;margin-bottom:12px}
+.result-big{font-size:3rem;font-weight:800;margin:12px 0}
+.result-big.green{color:var(--green)}.result-big.yellow{color:var(--yellow)}.result-big.red{color:var(--red)}
+.result-msg{font-size:1rem;color:var(--text-secondary);margin-bottom:20px}
+.btn-back{padding:14px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-family:inherit;font-weight:700;font-size:1rem;cursor:pointer;width:100%}
+.btn-back:active{transform:scale(.97)}
+.confetti-box{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;overflow:hidden}
+.confetti-p{position:absolute;top:-12px;animation:cFall linear forwards}
+@keyframes cFall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(100dvh) rotate(720deg);opacity:0}}
+.reg-card{background:var(--card);border-radius:var(--radius);padding:28px 20px;box-shadow:var(--shadow);text-align:center;margin-top:40px}
+.reg-card h2{font-size:1.4rem;margin-bottom:6px}
+.reg-card .reg-sub{font-size:.85rem;color:var(--text-secondary);margin-bottom:20px}
+.reg-field{margin-bottom:14px;text-align:left}
+.reg-field label{display:block;font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:4px}
+.reg-field input{width:100%;padding:12px;border:2px solid var(--border);border-radius:10px;font-family:inherit;font-size:1rem;background:var(--bg);color:var(--text);outline:none;transition:border .2s}
+.reg-field input:focus{border-color:var(--primary)}
+.reg-btn{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-family:inherit;font-weight:700;font-size:1rem;cursor:pointer;margin-top:6px}
+.reg-btn:active{transform:scale(.97)}
+.user-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.2);border-radius:20px;padding:4px 12px 4px 8px;font-size:.8rem;font-weight:700;position:absolute;top:14px;left:12px;cursor:pointer}
+.user-badge:active{background:rgba(255,255,255,.35)}
+.game-card{background:var(--card);border-radius:var(--radius);padding:20px 16px;box-shadow:var(--shadow);margin-bottom:12px;text-align:center}
+.game-card h3{font-size:1.2rem;font-weight:800;margin-bottom:8px;color:var(--primary)}
+.game-card p{font-size:.85rem;color:var(--text-secondary);margin-bottom:14px}
+.game-pick{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.game-pick button{padding:10px 18px;border:2px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:inherit;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .15s}
+.game-pick button:active{transform:scale(.96)}
+.game-pick button.correct{border-color:var(--green);background:var(--green);color:#fff}
+.game-pick button.wrong{border-color:var(--red);background:var(--red);color:#fff}
+.game-pick button:disabled{cursor:default;opacity:1}
+.truth-btns{display:flex;gap:12px;justify-content:center;margin-top:10px}
+.truth-btns button{padding:14px 28px;border:2px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text);font-family:inherit;font-weight:700;font-size:1rem;cursor:pointer;transition:all .15s}
+.truth-btns button:active{transform:scale(.96)}
+.truth-btns button.correct{border-color:var(--green);background:var(--green);color:#fff}
+.truth-btns button.wrong{border-color:var(--red);background:var(--red);color:#fff}
+.truth-btns button:disabled{cursor:default;opacity:1}
+.odd-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.odd-card{padding:14px;border:2px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text);font-family:inherit;font-weight:700;font-size:.95rem;cursor:pointer;transition:all .15s;text-align:center}
+.odd-card:active{transform:scale(.96)}
+.odd-card.correct{border-color:var(--green);background:var(--green);color:#fff}
+.odd-card.wrong{border-color:var(--red);background:var(--red);color:#fff}
+.odd-card.odd-out{border-color:var(--yellow);background:var(--yellow);color:#fff}
+.odd-card:disabled{cursor:default;opacity:1}
+@media(max-width:480px){
+  body,.container{padding:10px!important}
+  .header{padding:12px!important}
+  .opt-btn{padding:12px 10px!important;font-size:1rem!important}
+  .odd-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="user-badge" id="userBadge" onclick="logout()" style="display:none"></span>
+  <h1>⚛️ Физические явления</h1>
+  <div class="subtitle">Тренажёр для 7 класса</div>
+  <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+</div>
+
+<div class="container">
+  <!-- РЕГИСТРАЦИЯ -->
+  <div class="screen" id="screenReg">
+    <div class="reg-card">
+      <h2>👋 Добро пожаловать!</h2>
+      <div class="reg-sub">Введите данные, чтобы начать</div>
+      <div class="reg-field"><label>Фамилия</label><input id="regLast" placeholder="Иванов"></div>
+      <div class="reg-field"><label>Имя</label><input id="regFirst" placeholder="Иван"></div>
+      <div class="reg-field"><label>Класс</label><input id="regClass" placeholder="7А"></div>
+      <button class="reg-btn" onclick="register()">Начать →</button>
+    </div>
+  </div>
+
+  <!-- МЕНЮ -->
+  <div class="screen" id="screenMenu">
+    <div class="stats-row" id="allTimeStats"></div>
+    <div class="menu" id="menuGrid"></div>
+  </div>
+
+  <!-- ТРЕНИРОВКА -->
+  <div class="screen" id="screenTrain">
+    <div class="nav-bar">
+      <button class="nav-btn" onclick="confirmQuit()">← Меню</button>
+      <span class="nav-title" id="navTrainTitle">Тема</span>
+    </div>
+    <div class="stats-row">
+      <div class="stat-box green"><div class="stat-val" id="statOk">0</div><div class="stat-label">Верно</div></div>
+      <div class="stat-box red"><div class="stat-val" id="statFail">0</div><div class="stat-label">Ошибки</div></div>
+      <div class="stat-box"><div class="stat-val" id="statTimer">0:00</div><div class="stat-label">Время</div></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-fill" id="progressBar" style="width:0%">0%</div></div>
+    <div class="ex-card">
+      <div class="ex-label" id="exLabel">Тема</div>
+      <div class="ex-progress" id="exProgress">1 из 5</div>
+      <div class="ex-task" id="exTask"></div>
+      <div class="options" id="optionsGrid"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+  </div>
+
+  <!-- РЕЗУЛЬТАТ -->
+  <div class="screen" id="screenResult">
+    <div class="result-card">
+      <h2 id="resultTitle">Результаты</h2>
+      <div class="result-big" id="resultScore"></div>
+      <div class="result-msg" id="resultMsg"></div>
+      <div class="stats-row" id="resultStats"></div>
+      <button class="btn-back" onclick="goMenu()">← В меню</button>
+    </div>
+  </div>
+</div>
+
+<div class="confetti-box" id="confettiBox"></div>
+
+<script>
+// ===== THEME =====
+function toggleTheme(){const h=document.documentElement;const d=h.getAttribute('data-theme')==='dark';h.setAttribute('data-theme',d?'':'dark');localStorage.setItem('theme',d?'light':'dark')}
+(function(){if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark')})();
+
+// ===== REGISTRATION =====
+function getUser(){try{return JSON.parse(localStorage.getItem('physUser'))}catch(e){return null}}
+function register(){
+  const l=document.getElementById('regLast').value.trim(),f=document.getElementById('regFirst').value.trim(),c=document.getElementById('regClass').value.trim();
+  if(!l||!f||!c){alert('Заполни все поля!');return}
+  localStorage.setItem('physUser',JSON.stringify({last:l,first:f,cls:c}));
+  showUser();goMenu();
+}
+function showUser(){const u=getUser();const b=document.getElementById('userBadge');if(u){b.textContent=u.last+' '+u.first[0]+'. '+u.cls;b.style.display='inline-flex'}else{b.style.display='none'}}
+function logout(){if(!confirm('Выйти из аккаунта '+getUser()?.last+'?'))return;localStorage.removeItem('physUser');showUser();showScreen('screenReg')}
+function checkUser(){if(!getUser()){showScreen('screenReg');return false}showUser();showScreen('screenMenu');return true}
+
+// ===== ДАННЫЕ =====
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rnd(0,i);[a[i],a[j]]=[a[j],a[i]]}return a}
+
+const TYPES=[
+  {id:'mech',name:'Механические',icon:'🚗',color:'#f97316',sign:'Тело движется или меняет скорость',examples:['🚗 Автомобиль едет','🏀 Мяч катится','🪂 Парашютист падает','🚀 Ракета взлетает','🛷 Санки съезжают']},
+  {id:'thermal',name:'Тепловые',icon:'🌡️',color:'#ef4444',sign:'Меняется температура тела',examples:['🍦 Мороженое тает','☕ Чай остывает','🔥 Дрова горят','❄️ Лёд тает','🌡️ Ртуть в термометре']},
+  {id:'electric',name:'Электрические',icon:'⚡',color:'#8b5cf6',sign:'Протекает ток или накапливается заряд',examples:['⚡ Молния','💡 Лампочка светит','💈 Расчёска притягивает волосы','🔋 Батарейка','🔌 Розетка']},
+  {id:'magnetic',name:'Магнитные',icon:'🧲',color:'#22c55e',sign:'Магнит притягивает тела',examples:['🧲 Скрепки к магниту','🧭 Компас','🚄 Поезд на магнитной подушке','📎 Магнит на холодильнике','🔩 Гвозди к магниту']},
+  {id:'light',name:'Световые',icon:'🌈',color:'#eab308',sign:'Благодаря свету мы что-то видим',examples:['🌈 Радуга','🪞 Отражение в зеркале','🌑 Затмение','💎 Блеск кристалла','🕶️ Солнечный зайчик']},
+  {id:'sound',name:'Звуковые',icon:'🔊',color:'#06b6d4',sign:'Мы что-то слышим',examples:['🎻 Скрипка звучит','🏔️ Эхо','📞 Телефон звенит','🥁 Барабан','🐦 Пение птиц']}
+];
+
+const QUESTIONS={
+  mech:[
+    {q:'🍎 Яблоко падает с дерева. Какое это явление?',a:['Механическое','Тепловое','Световое','Звуковое'],c:0},
+    {q:'🌍 Вращение Земли вокруг Солнца — это явление...',a:['Механическое','Электрическое','Магнитное','Звуковое'],c:0},
+    {q:'⚽ Мяч катится по полю. Это явление...',a:['Механическое','Тепловое','Световое','Электрическое'],c:0},
+    {q:'🚗 Движение автомобиля — пример явления...',a:['Механического','Теплового','Звукового','Магнитного'],c:0},
+    {q:'🛷 Санки съезжают с горки. Какое это явление?',a:['Механическое','Электрическое','Световое','Тепловое'],c:0},
+    {q:'🚀 Ракета взлетает в небо. Это явление...',a:['Механическое','Тепловое','Магнитное','Звуковое'],c:0},
+    {q:'🚲 Велосипедист едет — это явление...',a:['Механическое','Световое','Электрическое','Тепловое'],c:0},
+    {q:'🚢 Корабль плывёт по морю. Какое это явление?',a:['Механическое','Звуковое','Магнитное','Тепловое'],c:0}
+  ],
+  thermal:[
+    {q:'🍦 Мороженое тает на солнце. Это явление...',a:['Тепловое','Механическое','Световое','Электрическое'],c:0},
+    {q:'☕ Какао остывает в чашке. Какое это явление?',a:['Тепловое','Механическое','Звуковое','Магнитное'],c:0},
+    {q:'🔥 Дрова сгорают в печи — это явление...',a:['Тепловое','Световое','Электрическое','Механическое'],c:0},
+    {q:'❄️ Лужа замерзает в мороз. Какое это явление?',a:['Тепловое','Механическое','Электрическое','Звуковое'],c:0},
+    {q:'🌡️ Ртуть в термометре поднимается. Это явление...',a:['Тепловое','Магнитное','Световое','Механическое'],c:0},
+    {q:'🧊 Лёд тает в стакане. Какое это явление?',a:['Тепловое','Электрическое','Звуковое','Механическое'],c:0},
+    {q:'🔥 Утюг нагревается. Это явление...',a:['Тепловое','Механическое','Световое','Магнитное'],c:0},
+    {q:'☕ Чай остывает на столе. Какое это явление?',a:['Тепловое','Электрическое','Звуковое','Световое'],c:0}
+  ],
+  electric:[
+    {q:'⚡ Молния сверкает в небе. Какое это явление?',a:['Электрическое','Механическое','Тепловое','Звуковое'],c:0},
+    {q:'💈 Расчёска притягивает волосы после трения. Это явление...',a:['Электрическое','Магнитное','Механическое','Тепловое'],c:0},
+    {q:'💡 Лампочка светится от тока. Какое это явление?',a:['Электрическое','Световое','Тепловое','Механическое'],c:0},
+    {q:'🔋 Фонарик светит от батарейки. Это явление...',a:['Электрическое','Магнитное','Звуковое','Механическое'],c:0},
+    {q:'🖥️ Компьютер включается. Какое это явление?',a:['Электрическое','Механическое','Тепловое','Световое'],c:0},
+    {q:'🎧 Наушники работают от плеера. Это явление...',a:['Электрическое','Звуковое','Магнитное','Механическое'],c:0},
+    {q:'🔌 Искра от розетки. Какое это явление?',a:['Электрическое','Тепловое','Световое','Механическое'],c:0},
+    {q:'💈 Шарик «прилипает» к руке. Это явление...',a:['Электрическое','Магнитное','Механическое','Тепловое'],c:0}
+  ],
+  magnetic:[
+    {q:'🧲 Скрепки притягиваются к магниту. Какое это явление?',a:['Магнитное','Электрическое','Механическое','Тепловое'],c:0},
+    {q:'🧭 Стрелка компаса показывает на север. Это явление...',a:['Магнитное','Световое','Электрическое','Механическое'],c:0},
+    {q:'🚄 Поезд на магнитной подушке. Какое это явление?',a:['Магнитное','Механическое','Электрическое','Тепловое'],c:0},
+    {q:'📎 Скрепки цепочкой свисают с магнита. Это явление...',a:['Магнитное','Электрическое','Механическое','Звуковое'],c:0},
+    {q:'🧲 Два магнита отталкиваются. Какое это явление?',a:['Магнитное','Механическое','Тепловое','Световое'],c:0},
+    {q:'🔩 Гвозди притягиваются к магниту. Это явление...',a:['Магнитное','Электрическое','Тепловое','Звуковое'],c:0},
+    {q:'🚪 Магнит держит бумажку на холодильнике. Какое это явление?',a:['Магнитное','Механическое','Световое','Электрическое'],c:0},
+    {q:'🧭 Компас указывает на север. Это явление...',a:['Магнитное','Электрическое','Механическое','Тепловое'],c:0}
+  ],
+  light:[
+    {q:'🌈 Радуга после дождя. Какое это явление?',a:['Световое','Звуковое','Тепловое','Механическое'],c:0},
+    {q:'🪞 Твоё отражение в зеркале. Это явление...',a:['Световое','Электрическое','Магнитное','Механическое'],c:0},
+    {q:'🌑 Луна закрывает Солнце — затмение. Какое это явление?',a:['Световое','Механическое','Тепловое','Звуковое'],c:0},
+    {q:'💎 Грани кристалла сверкают. Это явление...',a:['Световое','Электрическое','Магнитное','Тепловое'],c:0},
+    {q:'🕶️ Солнечный зайчик прыгает по стене. Какое это явление?',a:['Световое','Механическое','Звуковое','Электрическое'],c:0},
+    {q:'🌳 Тень от дерева. Это явление...',a:['Световое','Механическое','Тепловое','Магнитное'],c:0},
+    {q:'💎 Бриллиант переливается. Какое это явление?',a:['Световое','Электрическое','Тепловое','Звуковое'],c:0},
+    {q:'🕯️ Тень от свечи на стене. Это явление...',a:['Световое','Механическое','Магнитное','Электрическое'],c:0}
+  ],
+  sound:[
+    {q:'🎻 Скрипка звучит. Какое это явление?',a:['Звуковое','Световое','Механическое','Тепловое'],c:0},
+    {q:'🏔️ Эхо повторяет твой крик. Это явление...',a:['Звуковое','Механическое','Электрическое','Магнитное'],c:0},
+    {q:'📞 Звенит телефонный звонок. Какое это явление?',a:['Звуковое','Электрическое','Световое','Механическое'],c:0},
+    {q:'🌊 Раскат грома после молнии. Это явление...',a:['Звуковое','Электрическое','Световое','Тепловое'],c:0},
+    {q:'🥁 Барабан грохочет на концерте. Какое это явление?',a:['Звуковое','Механическое','Электрическое','Тепловое'],c:0},
+    {q:'🐦 Пение птиц утром. Это явление...',a:['Звуковое','Световое','Механическое','Магнитное'],c:0},
+    {q:'📢 Громкий голос в зале. Какое это явление?',a:['Звуковое','Электрическое','Тепловое','Механическое'],c:0},
+    {q:'🎺 Звучит труба оркестра. Это явление...',a:['Звуковое','Световое','Магнитное','Электрическое'],c:0}
+  ]
+};
+
+const TRUE_FALSE=[
+  {q:'⚡ Молния — это световое явление.',a:false,e:'Молния — электрическое явление!'},
+  {q:'❄️ Таяние снега — тепловое явление.',a:true,e:'Верно!'},
+  {q:'🌩️ Гром — это звуковое явление.',a:true,e:'Верно!'},
+  {q:'🐦 Птица летит — механическое явление.',a:true,e:'Верно!'},
+  {q:'🧭 Компас работает благодаря магнитам.',a:true,e:'Верно!'},
+  {q:'🌈 Радуга — звуковое явление.',a:false,e:'Радуга — световое явление!'},
+  {q:'🏔️ Эхо — механическое явление.',a:false,e:'Эхо — звуковое явление!'},
+  {q:'🔥 Нагревание утюга — тепловое явление.',a:true,e:'Верно!'},
+  {q:'🪞 Зеркало отражает свет — световое явление.',a:true,e:'Верно!'},
+  {q:'🌊 Ветер дует — звуковое явление.',a:false,e:'Ветер — механическое явление!'},
+  {q:'🧲 Магнит притягивает скрепки — магнитное явление.',a:true,e:'Верно!'},
+  {q:'💡 Лампочка светится от тока — электрическое явление.',a:true,e:'Верно!'},
+  {q:'🎸 Звук гитары — механическое явление.',a:false,e:'Звук гитары — звуковое явление!'},
+  {q:'🧊 Лёд тает — тепловое явление.',a:true,e:'Верно!'},
+  {q:'🔦 Фонарик светит — световое явление.',a:false,e:'Фонарик работает от электричества!'}
+];
+
+const ODD_ROUNDS=[
+  {items:['⚽ Мяч катится','🚴 Велосипедист крутит педали','⏰ Маятник качается','🍳 Яичница жарится'],c:3,note:'Яичница — тепловое, остальные — механические!'},
+  {items:['🔌 Лампа загорается','📺 Телевизор работает','🎙️ Микрофон передаёт голос','🧷 Булавки прилипли к магниту'],c:3,note:'Булавки — магнитное, остальные — электрические!'},
+  {items:['🌈 Радуга','🕯️ Тень от свечи','💎 Кристалл переливается','🐦 Щебетание птиц'],c:3,note:'Птицы — звуковое, остальные — световые!'},
+  {items:['🎺 Труба оркестра','⏲️ Будильник звенит','📢 Громкоговоритель','☕ Чай остывает'],c:3,note:'Чай — тепловое, остальные — звуковые!'},
+  {items:['🧲 Магнит поднимает гвозди','🧭 Стрелка компаса','🚪 Магнит на холодильнике','🛹 Скейтборд катится'],c:3,note:'Скейтборд — механическое, остальные — магнитные!'},
+  {items:['☀️ Асфальт нагревается','💧 Лужа испаряется','🧊 Лёд тает','📚 Книга лежит на полке'],c:3,note:'Книга просто лежит — это не явление! Остальные — тепловые.'}
+];
+
+// ===== МЕХАНИКА =====
+let state={mode:'',total:5,current:0,ok:0,fail:0,answers:[],startTime:0,timerInterval:null};
+let currentQ=null,selectedIdx=-1;
+
+function renderMenu(){
+  const g=document.getElementById('menuGrid');g.innerHTML='';
+  const stats=JSON.parse(localStorage.getItem('physStats')||'{}');
+  let totalOk=0,totalAll=0;
+  Object.values(stats).forEach(s=>{totalOk+=s.ok;totalAll+=s.ok+s.fail});
+  document.getElementById('allTimeStats').innerHTML=`
+    <div class="stat-box green"><div class="stat-val">${totalOk}</div><div class="stat-label">Всего верно</div></div>
+    <div class="stat-box"><div class="stat-val">${totalAll}</div><div class="stat-label">Всего решено</div></div>`;
+
+  const groups=[
+    {id:'gMech',label:'Механические',icon:'🚗',items:QUESTIONS.mech.map((_,i)=>({id:'mech_'+i,label:'Вопрос '+(i+1)}))},
+    {id:'gTherm',label:'Тепловые',icon:'🌡️',items:QUESTIONS.thermal.map((_,i)=>({id:'thermal_'+i,label:'Вопрос '+(i+1)}))},
+    {id:'gElec',label:'Электрические',icon:'⚡',items:QUESTIONS.electric.map((_,i)=>({id:'electric_'+i,label:'Вопрос '+(i+1)}))},
+    {id:'gMagn',label:'Магнитные',icon:'🧲',items:QUESTIONS.magnetic.map((_,i)=>({id:'magnetic_'+i,label:'Вопрос '+(i+1)}))},
+    {id:'gLight',label:'Световые',icon:'🌈',items:QUESTIONS.light.map((_,i)=>({id:'light_'+i,label:'Вопрос '+(i+1)}))},
+    {id:'gSound',label:'Звуковые',icon:'🔊',items:QUESTIONS.sound.map((_,i)=>({id:'sound_'+i,label:'Вопрос '+(i+1)}))},
+    {id:'gMix',label:'Микс (все темы)',icon:'🎲',items:[{id:'mix',label:'Все темы подряд'}]},
+    {id:'gOdd',label:'Найди лишнее',icon:'🕵️',items:[{id:'odd',label:'Игра «Найди лишнее»'}]},
+    {id:'gTF',label:'Правда или ложь',icon:'⚖️',items:[{id:'tf',label:'Игра «Правда или ложь»'}]}
+  ];
+
+  groups.forEach(gr=>{
+    const grp=document.createElement('div');grp.className='menu-group';
+    let itemsHtml='';
+    gr.items.forEach(it=>{
+      const s=stats[it.id];const cnt=s?s.ok+s.fail:0;
+      itemsHtml+=`<div class="menu-item" data-mode="${it.id}"><span class="mi-label">${it.label}</span><span class="mi-count">${cnt?cnt+' реш.':''}</span></div>`;
+    });
+    grp.innerHTML=`<div class="menu-group-header"><span class="gh-icon">${gr.icon}</span><span class="gh-label">${gr.label}</span><span class="gh-arrow">›</span></div><div class="menu-group-items">${itemsHtml}</div>`;
+    grp.querySelector('.menu-group-header').onclick=()=>{const wasOpen=grp.classList.contains('open');g.querySelectorAll('.menu-group').forEach(x=>x.classList.remove('open'));if(!wasOpen)grp.classList.add('open')};
+    grp.querySelectorAll('.menu-item').forEach(el=>el.onclick=()=>startMode(el.dataset.mode));
+    g.appendChild(grp);
+  });
+}
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const el=document.getElementById(id);if(el)el.classList.add('active')}
+function goMenu(){showScreen('screenMenu');renderMenu()}
+function confirmQuit(){if(state.current>0&&state.current<state.total){if(!confirm('Тренировка не завершена. Выйти в меню?'))return;clearInterval(state.timerInterval)}goMenu()}
+
+function startMode(id){
+  if(id==='odd'){startOddGame();return}
+  if(id==='tf'){startTFGame();return}
+  let questions=[];
+  if(id==='mix'){
+    const types=['mech','thermal','electric','magnetic','light','sound'];
+    types.forEach(t=>{QUESTIONS[t].forEach((q,i)=>questions.push({...q,type:t,id:t+'_'+i}))});
+    shuffle(questions);questions=questions.slice(0,10);
+  }else{
+    const parts=id.split('_');
+    const type=parts[0];const idx=parseInt(parts[1]);
+    if(QUESTIONS[type]&&QUESTIONS[type][idx]){
+      questions=[{...QUESTIONS[type][idx],type:type,id:id}];
+    }
+  }
+  if(!questions.length){alert('Нет вопросов');return}
+
+  state={mode:id,total:questions.length,current:0,ok:0,fail:0,answers:questions,startTime:Date.now(),timerInterval:null};
+  document.getElementById('statOk').textContent='0';document.getElementById('statFail').textContent='0';
+  let label=id;
+  if(id==='mix')label='Микс';
+  else{const parts=id.split('_');const t=TYPES.find(x=>x.id===parts[0]);if(t)label=t.name}
+  document.getElementById('navTrainTitle').textContent=label;
+  showScreen('screenTrain');startTimer();nextExercise();
+}
+
+function startTimer(){
+  clearInterval(state.timerInterval);
+  state.timerInterval=setInterval(()=>{
+    const sec=Math.floor((Date.now()-state.startTime)/1000);
+    const m=Math.floor(sec/60),s=sec%60;
+    document.getElementById('statTimer').textContent=m+':'+String(s).padStart(2,'0');
+  },1000);
+}
+
+function nextExercise(){
+  if(state.current>=state.total){finish();return}
+  selectedIdx=-1;
+  const fb=document.getElementById('feedback');fb.className='feedback';fb.textContent='';
+  document.getElementById('exProgress').textContent=(state.current+1)+' из '+state.total;
+  const pct=Math.round((state.current/state.total)*100);
+  document.getElementById('progressBar').style.width=pct+'%';document.getElementById('progressBar').textContent=pct+'%';
+
+  currentQ=state.answers[state.current];
+  document.getElementById('exLabel').textContent=currentQ.type?TYPES.find(t=>t.id===currentQ.type)?.name||'':'Вопрос';
+  document.getElementById('exTask').textContent=currentQ.q;
+
+  const grid=document.getElementById('optionsGrid');grid.innerHTML='';
+  currentQ.a.forEach((val,i)=>{
+    const b=document.createElement('button');b.className='opt-btn';b.textContent=val;
+    b.onclick=()=>selectOption(i,val);grid.appendChild(b);
+  });
+}
+
+function selectOption(idx,val){
+  selectedIdx=idx;
+  document.querySelectorAll('.opt-btn').forEach((b,i)=>{b.classList.remove('selected');if(i===idx)b.classList.add('selected')});
+  submitAnswer();
+}
+
+function submitAnswer(){
+  if(selectedIdx===-1)return;
+  const fb=document.getElementById('feedback');const opts=document.querySelectorAll('.opt-btn');
+  opts.forEach(b=>b.disabled=true);
+  const isCorrect=selectedIdx===currentQ.c;
+  if(isCorrect){
+    state.ok++;opts[selectedIdx].classList.add('correct');fb.className='feedback show ok';fb.textContent='✅ Верно!';
+  }else{
+    state.fail++;opts[selectedIdx].classList.add('wrong');
+    opts.forEach((b,i)=>{if(i===currentQ.c)b.classList.add('correct')});
+    fb.className='feedback show fail';fb.textContent='❌ Неверно. Правильный ответ: '+currentQ.a[currentQ.c];
+  }
+  document.getElementById('statOk').textContent=state.ok;document.getElementById('statFail').textContent=state.fail;
+  setTimeout(()=>{state.current++;nextExercise()},1200);
+}
+
+function finish(){
+  clearInterval(state.timerInterval);
+  const sec=Math.floor((Date.now()-state.startTime)/1000);const m=Math.floor(sec/60),s=sec%60;
+  const pct=Math.round((state.ok/state.total)*100);
+  let cls='red',msg='Нужно подтянуть :(',grade=2;
+  if(pct>=85){cls='green';msg='Отлично! 🎉';grade=5}
+  else if(pct>=70){cls='green';msg='Хорошо!';grade=4}
+  else if(pct>=50){cls='yellow';msg='Неплохо';grade=3}
+  document.getElementById('resultTitle').textContent='Результаты — '+(getUser()?.last||'Ученик');
+  document.getElementById('resultScore').className='result-big '+cls;document.getElementById('resultScore').textContent=pct+'% — оценка '+grade;
+  document.getElementById('resultMsg').textContent=msg;
+  document.getElementById('resultStats').innerHTML=`
+    <div class="stat-box green"><div class="stat-val">${state.ok}</div><div class="stat-label">Верно</div></div>
+    <div class="stat-box red"><div class="stat-val">${state.fail}</div><div class="stat-label">Ошибки</div></div>
+    <div class="stat-box"><div class="stat-val">${m}:${String(s).padStart(2,'0')}</div><div class="stat-label">Время</div></div>`;
+  const stats=JSON.parse(localStorage.getItem('physStats')||'{}');
+  if(!stats[state.mode])stats[state.mode]={ok:0,fail:0};
+  stats[state.mode].ok+=state.ok;stats[state.mode].fail+=state.fail;
+  localStorage.setItem('physStats',JSON.stringify(stats));
+  showScreen('screenResult');if(pct>=85)launchConfetti();
+}
+
+function launchConfetti(){
+  const c=document.getElementById('confettiBox');const colors=['#3b82f6','#f97316','#22c55e','#ef4444','#eab308','#8b5cf6','#ec4899'];
+  for(let i=0;i<50;i++){const p=document.createElement('div');p.className='confetti-p';p.style.left=Math.random()*100+'%';p.style.background=colors[Math.floor(Math.random()*colors.length)];p.style.width=(Math.random()*6+4)+'px';p.style.height=(Math.random()*6+4)+'px';p.style.borderRadius=Math.random()>.5?'50%':'2px';p.style.animationDuration=(Math.random()*2+1.5)+'s';p.style.animationDelay=(Math.random()*1)+'s';c.appendChild(p)}
+  setTimeout(()=>c.innerHTML='',4000);
+}
+
+// ===== ИГРА «НАЙДИ ЛИШНЕЕ» =====
+let oddDeck=[],oddIdx=0,oddLocked=false;
+function startOddGame(){oddDeck=shuffle([...ODD_ROUNDS]);oddIdx=0;showOddRound()}
+function showOddRound(){
+  if(oddIdx>=oddDeck.length){oddDeck=shuffle([...ODD_ROUNDS]);oddIdx=0}
+  const r=oddDeck[oddIdx];oddIdx++;
+  showScreen('screenTrain');
+  document.getElementById('navTrainTitle').textContent='🕵️ Найди лишнее';
+  document.getElementById('exLabel').textContent='Какое явление лишнее?';
+  document.getElementById('exProgress').textContent='';
+  document.getElementById('progressBar').style.width='0%';document.getElementById('progressBar').textContent='';
+  const grid=document.getElementById('optionsGrid');grid.innerHTML='';grid.className='odd-grid';
+  document.getElementById('exTask').textContent='Нажми на лишнее явление';
+  document.getElementById('feedback').className='feedback';document.getElementById('feedback').textContent='';
+  r.items.forEach((text,i)=>{
+    const b=document.createElement('button');b.className='odd-card';b.textContent=text;
+    b.onclick=()=>handleOddPick(i,b,r);grid.appendChild(b);
+  });
+  oddLocked=false;
+}
+function handleOddPick(i,btn,r){
+  if(oddLocked)return;oddLocked=true;
+  const grid=document.getElementById('optionsGrid');
+  grid.querySelectorAll('.odd-card').forEach(b=>b.disabled=true);
+  const fb=document.getElementById('feedback');
+  if(i===r.c){btn.classList.add('correct');fb.className='feedback show ok';fb.textContent='✅ Верно! '+r.note;
+    const stats=JSON.parse(localStorage.getItem('physStats')||'{}');if(!stats.odd)stats.odd={ok:0,fail:0};stats.odd.ok++;localStorage.setItem('physStats',JSON.stringify(stats));
+  }else{btn.classList.add('wrong');grid.querySelectorAll('.odd-card')[r.c].classList.add('odd-out');fb.className='feedback show fail';fb.textContent='🤔 '+r.note;
+    const stats=JSON.parse(localStorage.getItem('physStats')||'{}');if(!stats.odd)stats.odd={ok:0,fail:0};stats.odd.fail++;localStorage.setItem('physStats',JSON.stringify(stats));
+  }
+  setTimeout(()=>showOddRound(),2500);
+}
+
+// ===== ИГРА «ПРАВДА ИЛИ ЛОЖЬ» =====
+let tfDeck=[],tfIdx=0,tfLocked=false;
+function startTFGame(){tfDeck=shuffle([...TRUE_FALSE]);tfIdx=0;showTFRound()}
+function showTFRound(){
+  if(tfIdx>=tfDeck.length){tfDeck=shuffle([...TRUE_FALSE]);tfIdx=0}
+  const r=tfDeck[tfIdx];tfIdx++;
+  showScreen('screenTrain');
+  document.getElementById('navTrainTitle').textContent='⚖️ Правда или ложь?';
+  document.getElementById('exLabel').textContent='Верное ли утверждение?';
+  document.getElementById('exProgress').textContent='';
+  document.getElementById('progressBar').style.width='0%';document.getElementById('progressBar').textContent='';
+  document.getElementById('exTask').textContent=r.q;
+  document.getElementById('optionsGrid').className='options';
+  const grid=document.getElementById('optionsGrid');grid.innerHTML='';
+  const b1=document.createElement('button');b1.className='opt-btn';b1.textContent='✅ Верно';
+  const b2=document.createElement('button');b2.className='opt-btn';b2.textContent='❌ Неверно';
+  b1.onclick=()=>handleTFPick(true,b1,b2,r);b2.onclick=()=>handleTFPick(false,b1,b2,r);
+  grid.appendChild(b1);grid.appendChild(b2);
+  document.getElementById('feedback').className='feedback';document.getElementById('feedback').textContent='';
+  tfLocked=false;
+}
+function handleTFPick(pick,b1,b2,r){
+  if(tfLocked)return;tfLocked=true;b1.disabled=true;b2.disabled=true;
+  const fb=document.getElementById('feedback');
+  const correct=pick===r.a;
+  if(correct){(pick?b1:b2).classList.add('correct');fb.className='feedback show ok';fb.textContent='✅ '+r.e;
+    const stats=JSON.parse(localStorage.getItem('physStats')||'{}');if(!stats.tf)stats.tf={ok:0,fail:0};stats.tf.ok++;localStorage.setItem('physStats',JSON.stringify(stats));
+  }else{(pick?b1:b2).classList.add('wrong');(r.a?b1:b2).classList.add('correct');fb.className='feedback show fail';fb.textContent='❌ '+r.e;
+    const stats=JSON.parse(localStorage.getItem('physStats')||'{}');if(!stats.tf)stats.tf={ok:0,fail:0};stats.tf.fail++;localStorage.setItem('physStats',JSON.stringify(stats));
+  }
+  setTimeout(()=>showTFRound(),2200);
+}
+
+// ===== KEYBOARD =====
+document.addEventListener('keydown',e=>{
+  if(['1','2','3','4'].includes(e.key)&&document.getElementById('screenTrain').classList.contains('active')){
+    const idx=parseInt(e.key)-1;const opts=document.querySelectorAll('.opt-btn');if(opts[idx]&&!opts[idx].disabled)opts[idx].click();
+  }
+  if(e.key==='Enter'&&document.getElementById('screenReg').classList.contains('active'))register();
+});
+
+checkUser();renderMenu();
+</script>
+</body>
+</html>
