@@ -320,27 +320,22 @@ function renderMenu(){
     <div class="stat-box"><div class="stat-val">${totalAll}</div><div class="stat-label">Всего решено</div></div>`;
 
   const groups=[
-    {id:'gMech',label:'Механические',icon:'🚗',items:QUESTIONS.mech.map((_,i)=>({id:'mech_'+i,label:'Вопрос '+(i+1)}))},
-    {id:'gTherm',label:'Тепловые',icon:'🌡️',items:QUESTIONS.thermal.map((_,i)=>({id:'thermal_'+i,label:'Вопрос '+(i+1)}))},
-    {id:'gElec',label:'Электрические',icon:'⚡',items:QUESTIONS.electric.map((_,i)=>({id:'electric_'+i,label:'Вопрос '+(i+1)}))},
-    {id:'gMagn',label:'Магнитные',icon:'🧲',items:QUESTIONS.magnetic.map((_,i)=>({id:'magnetic_'+i,label:'Вопрос '+(i+1)}))},
-    {id:'gLight',label:'Световые',icon:'🌈',items:QUESTIONS.light.map((_,i)=>({id:'light_'+i,label:'Вопрос '+(i+1)}))},
-    {id:'gSound',label:'Звуковые',icon:'🔊',items:QUESTIONS.sound.map((_,i)=>({id:'sound_'+i,label:'Вопрос '+(i+1)}))},
-    {id:'gMix',label:'Микс (все темы)',icon:'🎲',items:[{id:'mix',label:'Все темы подряд'}]},
-    {id:'gOdd',label:'Найди лишнее',icon:'🕵️',items:[{id:'odd',label:'Игра «Найди лишнее»'}]},
-    {id:'gTF',label:'Правда или ложь',icon:'⚖️',items:[{id:'tf',label:'Игра «Правда или ложь»'}]}
+    {id:'mech',label:'Механические',icon:'🚗'},
+    {id:'thermal',label:'Тепловые',icon:'🌡️'},
+    {id:'electric',label:'Электрические',icon:'⚡'},
+    {id:'magnetic',label:'Магнитные',icon:'🧲'},
+    {id:'light',label:'Световые',icon:'🌈'},
+    {id:'sound',label:'Звуковые',icon:'🔊'},
+    {id:'mix',label:'Микс (все темы)',icon:'🎲'},
+    {id:'odd',label:'Найди лишнее',icon:'🕵️'},
+    {id:'tf',label:'Правда или ложь',icon:'⚖️'}
   ];
 
   groups.forEach(gr=>{
+    const s=stats[gr.id];const cnt=s?s.ok+s.fail:0;
     const grp=document.createElement('div');grp.className='menu-group';
-    let itemsHtml='';
-    gr.items.forEach(it=>{
-      const s=stats[it.id];const cnt=s?s.ok+s.fail:0;
-      itemsHtml+=`<div class="menu-item" data-mode="${it.id}"><span class="mi-label">${it.label}</span><span class="mi-count">${cnt?cnt+' реш.':''}</span></div>`;
-    });
-    grp.innerHTML=`<div class="menu-group-header"><span class="gh-icon">${gr.icon}</span><span class="gh-label">${gr.label}</span><span class="gh-arrow">›</span></div><div class="menu-group-items">${itemsHtml}</div>`;
-    grp.querySelector('.menu-group-header').onclick=()=>{const wasOpen=grp.classList.contains('open');g.querySelectorAll('.menu-group').forEach(x=>x.classList.remove('open'));if(!wasOpen)grp.classList.add('open')};
-    grp.querySelectorAll('.menu-item').forEach(el=>el.onclick=()=>startMode(el.dataset.mode));
+    grp.innerHTML=`<div class="menu-group-header" data-mode="${gr.id}"><span class="gh-icon">${gr.icon}</span><span class="gh-label">${gr.label}</span><span class="mi-count" style="margin-left:auto;font-size:.75rem;color:var(--text-secondary)">${cnt?cnt+' реш.':'8 вопросов'}</span></div>`;
+    grp.querySelector('.menu-group-header').onclick=()=>startMode(gr.id);
     g.appendChild(grp);
   });
 }
@@ -355,23 +350,17 @@ function startMode(id){
   let questions=[];
   if(id==='mix'){
     const types=['mech','thermal','electric','magnetic','light','sound'];
-    types.forEach(t=>{QUESTIONS[t].forEach((q,i)=>questions.push({...q,type:t,id:t+'_'+i}))});
+    types.forEach(t=>{QUESTIONS[t].forEach((q,i)=>questions.push({...q,type:t}))});
     shuffle(questions);questions=questions.slice(0,10);
-  }else{
-    const parts=id.split('_');
-    const type=parts[0];const idx=parseInt(parts[1]);
-    if(QUESTIONS[type]&&QUESTIONS[type][idx]){
-      questions=[{...QUESTIONS[type][idx],type:type,id:id}];
-    }
+  }else if(QUESTIONS[id]){
+    QUESTIONS[id].forEach((q,i)=>questions.push({...q,type:id}));
   }
   if(!questions.length){alert('Нет вопросов');return}
 
+  const t=TYPES.find(x=>x.id===id);
   state={mode:id,total:questions.length,current:0,ok:0,fail:0,answers:questions,startTime:Date.now(),timerInterval:null};
   document.getElementById('statOk').textContent='0';document.getElementById('statFail').textContent='0';
-  let label=id;
-  if(id==='mix')label='Микс';
-  else{const parts=id.split('_');const t=TYPES.find(x=>x.id===parts[0]);if(t)label=t.name}
-  document.getElementById('navTrainTitle').textContent=label;
+  document.getElementById('navTrainTitle').textContent=t?t.name:id==='mix'?'Микс':'Тема';
   showScreen('screenTrain');startTimer();nextExercise();
 }
 
