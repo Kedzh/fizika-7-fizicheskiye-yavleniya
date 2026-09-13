@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Тренажёр: Физические явления</title>
+<title>Тренажёр: Физика 7 класс</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 :root {
@@ -116,6 +116,11 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .odd-card.wrong{border-color:var(--red);background:var(--red);color:#fff}
 .odd-card.odd-out{border-color:var(--yellow);background:var(--yellow);color:#fff}
 .odd-card:disabled{cursor:default;opacity:1}
+.topic-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 16px;cursor:pointer;transition:all .2s;border:2px solid var(--border)}
+.topic-card:active{transform:scale(.97);border-color:var(--primary)}
+.topic-card .tc-icon{font-size:2.2rem;margin-bottom:6px}
+.topic-card .tc-title{font-size:1.05rem;font-weight:800;color:var(--text);margin-bottom:4px}
+.topic-card .tc-desc{font-size:.8rem;color:var(--text-secondary);line-height:1.4}
 @media(max-width:480px){
   body,.container{padding:10px!important}
   .header{padding:12px!important}
@@ -127,7 +132,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 <body>
 <div class="header">
   <span class="user-badge" id="userBadge" onclick="logout()" style="display:none"></span>
-  <h1>⚛️ Физические явления</h1>
+  <h1>⚛️ Физика 7 класс</h1>
   <div class="subtitle">Тренажёр для 7 класса</div>
   <button class="theme-btn" onclick="toggleTheme()">🌙</button>
 </div>
@@ -145,8 +150,18 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
     </div>
   </div>
 
+  <!-- ВЫБОР ТЕМЫ -->
+  <div class="screen" id="screenTopics">
+    <div class="stats-row" id="topicStats"></div>
+    <div class="menu" id="topicGrid"></div>
+  </div>
+
   <!-- МЕНЮ -->
   <div class="screen" id="screenMenu">
+    <div class="nav-bar">
+      <button class="nav-btn" onclick="goBackToTopics()">← К темам</button>
+      <span class="nav-title" id="menuTitle"></span>
+    </div>
     <div class="stats-row" id="allTimeStats"></div>
     <div class="menu" id="menuGrid"></div>
   </div>
@@ -197,11 +212,38 @@ function register(){
   const l=document.getElementById('regLast').value.trim(),f=document.getElementById('regFirst').value.trim(),c=document.getElementById('regClass').value.trim();
   if(!l||!f||!c){alert('Заполни все поля!');return}
   localStorage.setItem('physUser',JSON.stringify({last:l,first:f,cls:c}));
-  showUser();goMenu();
+  showUser();goTopics();
 }
 function showUser(){const u=getUser();const b=document.getElementById('userBadge');if(u){b.textContent=u.last+' '+u.first[0]+'. '+u.cls;b.style.display='inline-flex'}else{b.style.display='none'}}
 function logout(){if(!confirm('Выйти из аккаунта '+getUser()?.last+'?'))return;localStorage.removeItem('physUser');showUser();showScreen('screenReg')}
-function checkUser(){if(!getUser()){showScreen('screenReg');return false}showUser();showScreen('screenMenu');return true}
+function checkUser(){if(!getUser()){showScreen('screenReg');return false}showUser();showScreen('screenTopics');return true}
+
+// ===== ВЫБОР ТЕМЫ =====
+let currentTopic='';
+const TOPICS=[
+  {id:'phenomena',label:'Физические явления',icon:'⚛️',desc:'Механические, тепловые, электрические, магнитные, световые и звуковые явления'},
+  {id:'measure',label:'Физические величины и их измерение',icon:'📏',desc:'Длина, масса, время, температура, скорость, приборы измерения'}
+];
+function goTopics(){showScreen('screenTopics');renderTopics()}
+function renderTopics(){
+  const g=document.getElementById('topicGrid');g.innerHTML='';
+  let totalOk=0,totalAll=0;
+  TOPICS.forEach(t=>{
+    const s=JSON.parse(localStorage.getItem('physStats_'+t.id)||'{}');
+    Object.values(s).forEach(v=>{totalOk+=v.ok;totalAll+=v.ok+v.fail});
+  });
+  document.getElementById('topicStats').innerHTML=`
+    <div class="stat-box green"><div class="stat-val">${totalOk}</div><div class="stat-label">Всего верно</div></div>
+    <div class="stat-box"><div class="stat-val">${totalAll}</div><div class="stat-label">Всего решено</div></div>`;
+  TOPICS.forEach(t=>{
+    const card=document.createElement('div');card.className='topic-card';
+    card.innerHTML=`<div class="tc-icon">${t.icon}</div><div class="tc-title">${t.label}</div><div class="tc-desc">${t.desc}</div>`;
+    card.onclick=()=>selectTopic(t.id);
+    g.appendChild(card);
+  });
+}
+function selectTopic(id){currentTopic=id;goMenu()}
+function goBackToTopics(){currentTopic='';showScreen('screenTopics');renderTopics()}
 
 // ===== ДАННЫЕ =====
 function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a}
@@ -320,32 +362,82 @@ const ODD_ROUNDS=[
   {items:['🛞 Колесо телеги катится','🌍 Земля вращается вокруг Солнца','🚢 Корабль рассекает волны','🕯️ Открытый огонь освещает комнату'],c:3,note:'Огонь — тепловое, остальные — механические!'}
 ];
 
+// ===== ВЕЛИЧИНЫ: ВОПРОСЫ =====
+const QUESTIONS2=[
+  {q:'Чем измеряют длину стола?',a:['Линейкой','Термометром','Амперметром','Барометром'],c:0},
+  {q:'В каких единицах измеряют массу тела?',a:['Метрах','Килограммах','Секундах','Паскалях'],c:1},
+  {q:'Чем измеряют температуру на улице?',a:['Спидометром','Барометром','Термометром','Линейкой'],c:2},
+  {q:'Какой прибор показывает скорость автомобиля?',a:['Амперметр','Спидометром','Термометром','Барометром'],c:1},
+  {q:'В каких единицах измеряют силу тока?',a:['Амперах','Паскалях','Градусах','Метрах'],c:0},
+  {q:'Чем измеряют атмосферное давление?',a:['Термометром','Амперметром','Барометром','Весами'],c:2},
+  {q:'В каких единицах измеряют время?',a:['Килограммах','Секундах','Ньютонах','Амперах'],c:1},
+  {q:'Какой прибор измеряет расстояние?',a:['Линейкой','Термометром','Амперметром','Барометром'],c:0},
+  {q:'В каких единицах измеряют температуру?',a:['Градусах Цельсия','Метрах','Килограммах','Амперах'],c:0},
+  {q:'Чем измеряют вес ребёнка?',a:['Линейкой','Весами','Секундомером','Барометром'],c:1},
+  {q:'Спидометр в автомобиле измеряет...',a:['Давление','Температуру','Скорость','Силу тока'],c:2},
+  {q:'Чем измеряют электрическое напряжение?',a:['Вольтметром','Термометром','Барометром','Линейкой'],c:0},
+  {q:'В каких единицах измеряют давление?',a:['Амперах','Паскалях','Градусах','Метрах'],c:1},
+  {q:'Какой прибор измеряет силу тока?',a:['Барометром','Амперметром','Термометром','Линейкой'],c:1},
+  {q:'В каких единицах измеряют длину?',a:['Килограммах','Метрах','Секундах','Паскалях'],c:1},
+  {q:'Чем измеряют частоту звука?',a:['Термометром','Линейкой','Частотомером','Барометром'],c:2},
+  {q:'Термометр показывает 36,6°C. Это температура...',a:['Тела человека','Давления','Скорости','Длины'],c:0},
+  {q:'В каких единицах измеряют скорость?',a:['Метрах','Килограммах','Метрах в секунду','Паскалях'],c:2}
+];
+
+const TRUE_FALSE2=[
+  {q:'📏 Длина измеряется в килограммах.',a:false,e:'Длина измеряется в метрах!'},
+  {q:'⚡ Амперметр измеряет силу тока.',a:true,e:'Верно!'},
+  {q:'🌡️ Температура измеряется в паскалях.',a:false,e:'Температура измеряется в градусах Цельсия!'},
+  {q:'⚖️ Весы измеряют массу тела.',a:true,e:'Верно!'},
+  {q:'🚗 Спидометр показывает температуру двигателя.',a:false,e:'Спидометр показывает скорость!'},
+  {q:'⏱️ Время измеряется в секундах.',a:true,e:'Верно!'},
+  {q:'🌡️ Барометр измеряет давление воздуха.',a:true,e:'Верно!'},
+  {q:'📏 Линейка измеряет массу.',a:false,e:'Линейка измеряет длину!'},
+  {q:'🚀 Скорость измеряется в м/с.',a:true,e:'Верно!'},
+  {q:'🌡️ Термометр измеряет давление.',a:false,e:'Термометр измеряет температуру!'},
+  {q:'🔋 Вольтметр измеряет напряжение.',a:true,e:'Верно!'},
+  {q:'📏 Масса измеряется в метрах.',a:false,e:'Масса измеряется в килограммах!'},
+  {q:'⏱️ Часы измеряют время.',a:true,e:'Верно!'},
+  {q:'🌡️ Амперметр измеряет температуру.',a:false,e:'Амперметр измеряет силу тока!'},
+  {q:'📏 Площадь измеряется в квадратных метрах.',a:true,e:'Верно!'}
+];
+
+const ODD_ROUNDS2=[
+  {items:['Линейка','Термометр','Весы','Телевизор'],c:3,note:'Телевизор — не прибор измерения!'},
+  {items:['Метр','Килограмм','Секунда','Ньютон'],c:3,note:'Ньютон — единица силы, не основная величина!'},
+  {items:['Амперметр','Барометр','Спидометр','Микроволновка'],c:3,note:'Микроволновка — бытовая техника, не прибор измерения!'},
+  {items:['Градус Цельсия','Паскаль','Ампер','Джоуль'],c:3,note:'Джоуль — единица энергии, не основная величина!'},
+  {items:['Секундомер','Часы','Календарь','Барометр'],c:3,note:'Барометр измеряет давление, а не время!'},
+  {items:['Вольтметр','Амперметр','Омметр','Термометр'],c:3,note:'Термометр измеряет температуру, а не электрические величины!'}
+];
+
 // ===== МЕХАНИКА =====
 let state={mode:'',total:5,current:0,ok:0,fail:0,answers:[],startTime:0,timerInterval:null};
 let currentQ=null,selectedIdx=-1;
 
 function renderMenu(){
   const g=document.getElementById('menuGrid');g.innerHTML='';
-  const stats=JSON.parse(localStorage.getItem('physStats')||'{}');
+  const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');
   let totalOk=0,totalAll=0;
   Object.values(stats).forEach(s=>{totalOk+=s.ok;totalAll+=s.ok+s.fail});
   document.getElementById('allTimeStats').innerHTML=`
     <div class="stat-box green"><div class="stat-val">${totalOk}</div><div class="stat-label">Всего верно</div></div>
     <div class="stat-box"><div class="stat-val">${totalAll}</div><div class="stat-label">Всего решено</div></div>`;
+  const topic=TOPICS.find(t=>t.id===currentTopic);
+  document.getElementById('menuTitle').textContent=topic?topic.icon+' '+topic.label:'';
 
-  const groups=[
-    {id:'mix',label:'Микс (все темы)',icon:'🎲'},
-    {id:'odd',label:'Найди лишнее',icon:'🕵️'},
-    {id:'tf',label:'Правда или ложь',icon:'⚖️'}
-  ];
-
-  groups.forEach(gr=>{
+  const menuData=getMenuForTopic(currentTopic);
+  menuData.forEach(gr=>{
     const s=stats[gr.id];const cnt=s?s.ok+s.fail:0;
     const grp=document.createElement('div');grp.className='menu-group';
-    grp.innerHTML=`<div class="menu-group-header" data-mode="${gr.id}"><span class="gh-icon">${gr.icon}</span><span class="gh-label">${gr.label}</span><span class="mi-count" style="margin-left:auto;font-size:.75rem;color:var(--text-secondary)">${cnt?cnt+' реш.':'10 вопросов'}</span></div>`;
+    grp.innerHTML=`<div class="menu-group-header" data-mode="${gr.id}"><span class="gh-icon">${gr.icon}</span><span class="gh-label">${gr.label}</span><span class="mi-count" style="margin-left:auto;font-size:.75rem;color:var(--text-secondary)">${cnt?cnt+' реш.':gr.hint}</span></div>`;
     grp.querySelector('.menu-group-header').onclick=()=>startMode(gr.id);
     g.appendChild(grp);
   });
+}
+function getMenuForTopic(topic){
+  if(topic==='measure')return[{id:'mix',label:'Микс (все темы)',icon:'🎲',hint:'10 вопросов'},{id:'odd',label:'Найди лишнее',icon:'🕵️',hint:''},{id:'tf',label:'Правда или ложь',icon:'⚖️',hint:''}];
+  return[{id:'mix',label:'Микс (все темы)',icon:'🎲',hint:'10 вопросов'},{id:'odd',label:'Найди лишнее',icon:'🕵️',hint:''},{id:'tf',label:'Правда или ложь',icon:'⚖️',hint:''}];
 }
 
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const el=document.getElementById(id);if(el)el.classList.add('active')}
@@ -356,12 +448,19 @@ function startMode(id){
   if(id==='odd'){startOddGame();return}
   if(id==='tf'){startTFGame();return}
   let questions=[];
-  if(id==='mix'){
-    const types=['mech','thermal','electric','magnetic','light','sound'];
-    types.forEach(t=>{QUESTIONS[t].forEach((q)=>questions.push(shuffleAnswers({...q,type:t})))});
-    shuffle(questions);questions=questions.slice(0,10);
-  }else if(QUESTIONS[id]){
-    QUESTIONS[id].forEach((q)=>questions.push(shuffleAnswers({...q,type:id})));
+  if(currentTopic==='phenomena'){
+    if(id==='mix'){
+      const types=['mech','thermal','electric','magnetic','light','sound'];
+      types.forEach(t=>{QUESTIONS[t].forEach((q)=>questions.push(shuffleAnswers({...q,type:t})))});
+      shuffle(questions);questions=questions.slice(0,10);
+    }else if(QUESTIONS[id]){
+      QUESTIONS[id].forEach((q)=>questions.push(shuffleAnswers({...q,type:id})));
+    }
+  }else if(currentTopic==='measure'){
+    if(id==='mix'){
+      QUESTIONS2.forEach((q)=>questions.push(shuffleAnswers({...q})));
+      shuffle(questions);questions=questions.slice(0,10);
+    }
   }
   if(!questions.length){alert('Нет вопросов');return}
 
@@ -437,10 +536,10 @@ function finish(){
     <div class="stat-box green"><div class="stat-val">${state.ok}</div><div class="stat-label">Верно</div></div>
     <div class="stat-box red"><div class="stat-val">${state.fail}</div><div class="stat-label">Ошибки</div></div>
     <div class="stat-box"><div class="stat-val">${m}:${String(s).padStart(2,'0')}</div><div class="stat-label">Время</div></div>`;
-  const stats=JSON.parse(localStorage.getItem('physStats')||'{}');
+  const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');
   if(!stats[state.mode])stats[state.mode]={ok:0,fail:0};
   stats[state.mode].ok+=state.ok;stats[state.mode].fail+=state.fail;
-  localStorage.setItem('physStats',JSON.stringify(stats));
+  localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
   showScreen('screenResult');if(pct>=85)launchConfetti();
 }
 
@@ -452,9 +551,12 @@ function launchConfetti(){
 
 // ===== ИГРА «НАЙДИ ЛИШНЕЕ» =====
 let oddDeck=[],oddIdx=0,oddLocked=false;
-function startOddGame(){oddDeck=shuffle([...ODD_ROUNDS]);oddIdx=0;showOddRound()}
+function startOddGame(){
+  const deck=currentTopic==='measure'?ODD_ROUNDS2:ODD_ROUNDS;
+  oddDeck=shuffle([...deck]);oddIdx=0;showOddRound()
+}
 function showOddRound(){
-  if(oddIdx>=oddDeck.length){oddDeck=shuffle([...ODD_ROUNDS]);oddIdx=0}
+  if(oddIdx>=oddDeck.length){oddDeck=shuffle([...oddDeck]);oddIdx=0}
   const r=oddDeck[oddIdx];oddIdx++;
   const order=[0,1,2,3];shuffle(order);
   const rndC=order.indexOf(r.c);
@@ -478,18 +580,22 @@ function handleOddPick(i,btn,r,rndC){
   grid.querySelectorAll('.odd-card').forEach(b=>b.disabled=true);
   const fb=document.getElementById('feedback');
   if(i===rndC){btn.classList.add('correct');fb.className='feedback show ok';fb.textContent='✅ Верно! '+r.note;
-    const stats=JSON.parse(localStorage.getItem('physStats')||'{}');if(!stats.odd)stats.odd={ok:0,fail:0};stats.odd.ok++;localStorage.setItem('physStats',JSON.stringify(stats));
+    const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.odd)stats.odd={ok:0,fail:0};stats.odd.ok++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
   }else{btn.classList.add('wrong');grid.querySelectorAll('.odd-card')[rndC].classList.add('odd-out');fb.className='feedback show fail';fb.textContent='🤔 '+r.note;
-    const stats=JSON.parse(localStorage.getItem('physStats')||'{}');if(!stats.odd)stats.odd={ok:0,fail:0};stats.odd.fail++;localStorage.setItem('physStats',JSON.stringify(stats));
+    const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.odd)stats.odd={ok:0,fail:0};stats.odd.fail++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
   }
   setTimeout(()=>showOddRound(),2500);
 }
 
 // ===== ИГРА «ПРАВДА ИЛИ ЛОЖЬ» =====
 let tfDeck=[],tfIdx=0,tfLocked=false;
-function startTFGame(){tfDeck=shuffle([...TRUE_FALSE]);tfIdx=0;showTFRound()}
+function startTFGame(){
+  const deck=currentTopic==='measure'?TRUE_FALSE2:TRUE_FALSE;
+  tfDeck=shuffle([...deck]);tfIdx=0;showTFRound()
+}
 function showTFRound(){
-  if(tfIdx>=tfDeck.length){tfDeck=shuffle([...TRUE_FALSE]);tfIdx=0}
+  const deck=currentTopic==='measure'?TRUE_FALSE2:TRUE_FALSE;
+  if(tfIdx>=tfDeck.length){tfDeck=shuffle([...deck]);tfIdx=0}
   const r=tfDeck[tfIdx];tfIdx++;
   showScreen('screenTrain');
   document.getElementById('navTrainTitle').textContent='⚖️ Правда или ложь?';
@@ -511,9 +617,9 @@ function handleTFPick(pick,b1,b2,r){
   const fb=document.getElementById('feedback');
   const correct=pick===r.a;
   if(correct){(pick?b1:b2).classList.add('correct');fb.className='feedback show ok';fb.textContent='✅ '+r.e;
-    const stats=JSON.parse(localStorage.getItem('physStats')||'{}');if(!stats.tf)stats.tf={ok:0,fail:0};stats.tf.ok++;localStorage.setItem('physStats',JSON.stringify(stats));
+    const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.tf)stats.tf={ok:0,fail:0};stats.tf.ok++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
   }else{(pick?b1:b2).classList.add('wrong');(r.a?b1:b2).classList.add('correct');fb.className='feedback show fail';fb.textContent='❌ '+r.e;
-    const stats=JSON.parse(localStorage.getItem('physStats')||'{}');if(!stats.tf)stats.tf={ok:0,fail:0};stats.tf.fail++;localStorage.setItem('physStats',JSON.stringify(stats));
+    const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.tf)stats.tf={ok:0,fail:0};stats.tf.fail++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
   }
   setTimeout(()=>showTFRound(),2200);
 }
