@@ -342,7 +342,7 @@ function renderMenu(){
   groups.forEach(gr=>{
     const s=stats[gr.id];const cnt=s?s.ok+s.fail:0;
     const grp=document.createElement('div');grp.className='menu-group';
-    grp.innerHTML=`<div class="menu-group-header" data-mode="${gr.id}"><span class="gh-icon">${gr.icon}</span><span class="gh-label">${gr.label}</span><span class="mi-count" style="margin-left:auto;font-size:.75rem;color:var(--text-secondary)">${cnt?cnt+' реш.':'8 вопросов'}</span></div>`;
+    grp.innerHTML=`<div class="menu-group-header" data-mode="${gr.id}"><span class="gh-icon">${gr.icon}</span><span class="gh-label">${gr.label}</span><span class="mi-count" style="margin-left:auto;font-size:.75rem;color:var(--text-secondary)">${cnt?cnt+' реш.':'10 вопросов'}</span></div>`;
     grp.querySelector('.menu-group-header').onclick=()=>startMode(gr.id);
     g.appendChild(grp);
   });
