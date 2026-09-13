@@ -287,30 +287,37 @@ const QUESTIONS={
 };
 
 const TRUE_FALSE=[
-  {q:'⚡ Молния — это световое явление.',a:false,e:'Молния — электрическое явление!'},
-  {q:'❄️ Таяние снега — тепловое явление.',a:true,e:'Верно!'},
-  {q:'🌩️ Гром — это звуковое явление.',a:true,e:'Верно!'},
-  {q:'🐦 Птица летит — механическое явление.',a:true,e:'Верно!'},
-  {q:'🧭 Компас работает благодаря магнитам.',a:true,e:'Верно!'},
-  {q:'🌈 Радуга — звуковое явление.',a:false,e:'Радуга — световое явление!'},
-  {q:'🏔️ Эхо — механическое явление.',a:false,e:'Эхо — звуковое явление!'},
-  {q:'🔥 Нагревание утюга — тепловое явление.',a:true,e:'Верно!'},
-  {q:'🪞 Зеркало отражает свет — световое явление.',a:true,e:'Верно!'},
-  {q:'🌊 Ветер дует — звуковое явление.',a:false,e:'Ветер — механическое явление!'},
-  {q:'🧲 Магнит притягивает скрепки — магнитное явление.',a:true,e:'Верно!'},
-  {q:'💡 Лампочка светится от тока — электрическое явление.',a:true,e:'Верно!'},
-  {q:'🎸 Звук гитары — механическое явление.',a:false,e:'Звук гитары — звуковое явление!'},
-  {q:'🧊 Лёд тает — тепловое явление.',a:true,e:'Верно!'},
-  {q:'🔦 Фонарик светит — световое явление.',a:false,e:'Фонарик работает от электричества!'}
+  {q:'⚡ Молния — это электрическое явление.',a:true,e:'Верно — это разряд электричества!'},
+  {q:'🌙 Луна светится сама, как Солнце.',a:false,e:'Луна отражает свет Солнца!'},
+  {q:'🌩️ Сначала слышен гром, потом видна молния.',a:false,e:'Сначала — молния (свет), потом гром (звук)!'},
+  {q:'Звонок телефона работает от электричества, а звучит — звуковое явление.',a:true,e:'Верно — электрозвонок и звук вместе!'},
+  {q:'🔦 Лампочка светится потому, что по ней идёт ток.',a:true,e:'Верно — свечение от тока!'},
+  {q:'🧭 Компас работает благодаря магнитам Земли.',a:true,e:'Верно — стрелка — маленький магнит!'},
+  {q:'🏔️ Эхо возникает, когда звук отражается от препятствий.',a:true,e:'Верно — отражение звука!'},
+  {q:'🧲 Магнит притягивает дерево и пластмассу.',a:false,e:'Магнит действует на железо и сталь!'},
+  {q:'🫳 Трение ладоней нагревает их — это тепловое явление.',a:true,e:'Верно — трение порождает тепло!'},
+  {q:'🌳 Тень появляется, потому что свет не проходит сквозь дерево.',a:true,e:'Верно — свет задерживается телом!'},
+  {q:'🌊 Ветер колышет ветки — это звуковое явление.',a:false,e:'Ветер — движущийся воздух, механическое явление!'},
+  {q:'🔥 Пламя свечи — это только световое явление.',a:false,e:'Горение — тепловое, а свет — сопутствует!'},
+  {q:'🚀 Ракета взлетает — это электрическое явление.',a:false,e:'Движение ракеты — механическое явление!'},
+  {q:'💡 Ночь темна, потому что Солнце не освещает эту часть Земли.',a:true,e:'Верно — отсутствие света!'},
+  {q:'🎻 У скрипки дрожат струны — отсюда рождается звук.',a:true,e:'Верно — колебания рождают звук!'},
+  {q:'🔥 Горячий утюг греет воздух вокруг себя — тепловое явление.',a:true,e:'Верно — тепло передаётся воздуху!'},
+  {q:'💈 Расчёска притягивает волосы — это магнитное явление.',a:false,e:'Это электризация, электрическое явление!'},
+  {q:'🕯️ В тёмной комнате тень от свечи видна на стене — световое явление.',a:true,e:'Верно — свет и тень!'}
 ];
 
 const ODD_ROUNDS=[
-  {items:['⚽ Мяч катится','🚴 Велосипедист крутит педали','⏰ Маятник качается','🍳 Яичница жарится'],c:3,note:'Яичница — тепловое, остальные — механические!'},
+  {items:['🌤️ Солнце нагревает землю','☕ Чай остывает','🍦 Мороженое тает','🚲 Велосипед едет'],c:3,note:'Велосипед — механическое, остальные — тепловые!'},
   {items:['🔌 Лампа загорается','📺 Телевизор работает','🎙️ Микрофон передаёт голос','🧷 Булавки прилипли к магниту'],c:3,note:'Булавки — магнитное, остальные — электрические!'},
   {items:['🌈 Радуга','🕯️ Тень от свечи','💎 Кристалл переливается','🐦 Щебетание птиц'],c:3,note:'Птицы — звуковое, остальные — световые!'},
   {items:['🎺 Труба оркестра','⏲️ Будильник звенит','📢 Громкоговоритель','☕ Чай остывает'],c:3,note:'Чай — тепловое, остальные — звуковые!'},
   {items:['🧲 Магнит поднимает гвозди','🧭 Стрелка компаса','🚪 Магнит на холодильнике','🛹 Скейтборд катится'],c:3,note:'Скейтборд — механическое, остальные — магнитные!'},
-  {items:['☀️ Асфальт нагревается','💧 Лужа испаряется','🧊 Лёд тает','📚 Книга лежит на полке'],c:3,note:'Книга просто лежит — это не явление! Остальные — тепловые.'}
+  {items:['💺 Мяч падает с балкона','🛷 Санки съезжают с горы','🏃 Бегун бежит по дорожке','🌫️ Пар поднимается от чайника'],c:3,note:'Пар — это парообразование, тепловое явление!'},
+  {items:['🌟 Сверкание звёзд','🌌 Лунное затмение','🕳️ Тень от зонта на пляже','🍳 Яичница на сковороде'],c:3,note:'Яичница — тепловое, остальные — световые!'},
+  {items:['🔔 Звенит колокольчик','🎤 Певец поёт в микрофон','🎻 Играет оркестр','🧲 Магнитная доска держит картинки'],c:3,note:'Магнитная доска — магнитное, остальные — звуковые!'},
+  {items:['⚡ Электрический обогреватель греет','🔥 Электродуховка печёт пирог','🛁 Электрочайник кипятит воду','🧲 Электромагнит поднимает груз'],c:3,note:'Электромагнит — магнитное явление!'},
+  {items:['🛞 Колесо телеги катится','🌍 Земля вращается вокруг Солнца','🚢 Корабль рассекает волны','🕯️ Открытый огонь освещает комнату'],c:3,note:'Огонь — тепловое, остальные — механические!'}
 ];
 
 // ===== МЕХАНИКА =====
@@ -455,6 +462,8 @@ function startOddGame(){oddDeck=shuffle([...ODD_ROUNDS]);oddIdx=0;showOddRound()
 function showOddRound(){
   if(oddIdx>=oddDeck.length){oddDeck=shuffle([...ODD_ROUNDS]);oddIdx=0}
   const r=oddDeck[oddIdx];oddIdx++;
+  const order=[0,1,2,3];shuffle(order);
+  const rndC=order.indexOf(r.c);
   showScreen('screenTrain');
   document.getElementById('navTrainTitle').textContent='🕵️ Найди лишнее';
   document.getElementById('exLabel').textContent='Какое явление лишнее?';
@@ -463,20 +472,20 @@ function showOddRound(){
   const grid=document.getElementById('optionsGrid');grid.innerHTML='';grid.className='odd-grid';
   document.getElementById('exTask').textContent='Нажми на лишнее явление';
   document.getElementById('feedback').className='feedback';document.getElementById('feedback').textContent='';
-  r.items.forEach((text,i)=>{
-    const b=document.createElement('button');b.className='odd-card';b.textContent=text;
-    b.onclick=()=>handleOddPick(i,b,r);grid.appendChild(b);
+  order.forEach((orig,i)=>{
+    const b=document.createElement('button');b.className='odd-card';b.textContent=r.items[orig];
+    b.onclick=()=>handleOddPick(i,b,r,rndC);grid.appendChild(b);
   });
   oddLocked=false;
 }
-function handleOddPick(i,btn,r){
+function handleOddPick(i,btn,r,rndC){
   if(oddLocked)return;oddLocked=true;
   const grid=document.getElementById('optionsGrid');
   grid.querySelectorAll('.odd-card').forEach(b=>b.disabled=true);
   const fb=document.getElementById('feedback');
-  if(i===r.c){btn.classList.add('correct');fb.className='feedback show ok';fb.textContent='✅ Верно! '+r.note;
+  if(i===rndC){btn.classList.add('correct');fb.className='feedback show ok';fb.textContent='✅ Верно! '+r.note;
     const stats=JSON.parse(localStorage.getItem('physStats')||'{}');if(!stats.odd)stats.odd={ok:0,fail:0};stats.odd.ok++;localStorage.setItem('physStats',JSON.stringify(stats));
-  }else{btn.classList.add('wrong');grid.querySelectorAll('.odd-card')[r.c].classList.add('odd-out');fb.className='feedback show fail';fb.textContent='🤔 '+r.note;
+  }else{btn.classList.add('wrong');grid.querySelectorAll('.odd-card')[rndC].classList.add('odd-out');fb.className='feedback show fail';fb.textContent='🤔 '+r.note;
     const stats=JSON.parse(localStorage.getItem('physStats')||'{}');if(!stats.odd)stats.odd={ok:0,fail:0};stats.odd.fail++;localStorage.setItem('physStats',JSON.stringify(stats));
   }
   setTimeout(()=>showOddRound(),2500);
