@@ -24,6 +24,8 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .header h1{font-size:1.5rem;font-weight:800}
 .header .subtitle{font-size:.85rem;opacity:.85;margin-top:2px}
 .theme-btn{position:absolute;top:14px;right:12px;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:1.3rem;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.hw-btn{position:absolute;top:62px;right:12px;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:.78rem;font-weight:700;padding:8px 14px;border-radius:20px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit}
+.hw-btn:active{background:rgba(255,255,255,.35)}
 .container{padding:12px;max-width:480px;margin:0 auto}
 .nav-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .nav-btn{display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--card);border:2px solid var(--border);border-radius:10px;font-family:inherit;font-weight:700;font-size:.9rem;color:var(--text);cursor:pointer;box-shadow:var(--shadow);transition:all .2s}
@@ -121,6 +123,22 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .topic-card .tc-icon{font-size:2.2rem;margin-bottom:6px}
 .topic-card .tc-title{font-size:1.05rem;font-weight:800;color:var(--text);margin-bottom:4px}
 .topic-card .tc-desc{font-size:.8rem;color:var(--text-secondary);line-height:1.4}
+.homework-content{display:flex;flex-direction:column;gap:10px}
+.hw-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px;border:2px solid var(--border)}
+.hw-card h3{font-size:1rem;font-weight:800;margin-bottom:8px;color:var(--primary)}
+.hw-card .hw-title{font-size:1.15rem;font-weight:800;margin-bottom:10px}
+.hw-card .hw-sub{font-size:.88rem;color:var(--text-secondary);line-height:1.5;margin-bottom:10px}
+.hw-card ul{margin:0 0 10px 18px}
+.hw-card ul li{font-size:.88rem;line-height:1.6}
+.hw-card .hw-formula{background:var(--primary-light);border-radius:8px;padding:10px 12px;font-weight:800;text-align:center;margin:8px 0;font-size:.95rem}
+.hw-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.82rem}
+.hw-table th,.hw-table td{border:1px solid var(--border);padding:6px 8px;text-align:center}
+.hw-table th{background:var(--primary-light);font-weight:800}
+.hw-answer-box{display:none;background:var(--primary-light);border-radius:8px;padding:12px;margin-top:8px;font-size:.85rem;line-height:1.6}
+.hw-answer-box.show{display:block}
+.hw-answer-box strong{color:var(--primary)}
+.hw-show-btn{width:100%;padding:10px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-family:inherit;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px}
+.hw-show-btn:active{transform:scale(.97)}
 @media(max-width:480px){
   body,.container{padding:10px!important}
   .header{padding:12px!important}
@@ -135,6 +153,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
   <h1>⚛️ Физика 7 класс</h1>
   <div class="subtitle">Тренажёр для 7 класса</div>
   <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+  <button class="hw-btn" onclick="goHomework()">📚 Домашнее задание</button>
 </div>
 
 <div class="container">
@@ -197,6 +216,15 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
       <button class="btn-back" onclick="goMenu()">← В меню</button>
     </div>
   </div>
+
+  <!-- ДОМАШНЕЕ ЗАДАНИЕ -->
+  <div class="screen" id="screenHomework">
+    <div class="nav-bar">
+      <button class="nav-btn" onclick="backFromHomework()">← Назад</button>
+      <span class="nav-title">📚 Домашнее задание</span>
+    </div>
+    <div class="homework-content" id="homeworkContent"></div>
+  </div>
 </div>
 
 <div class="confetti-box" id="confettiBox"></div>
@@ -245,6 +273,120 @@ function renderTopics(){
 }
 function selectTopic(id){currentTopic=id;goMenu()}
 function goBackToTopics(){currentTopic='';showScreen('screenTopics');renderTopics()}
+
+// ===== ДОМАШНЕЕ ЗАДАНИЕ =====
+const HOMEWORK={};
+HOMEWORK.measure=`<div class="hw-card">
+  <div class="hw-title">📚 Домашняя работа (Урок 3)</div>
+  <div class="hw-sub">Заполните пропуски, переведя единицы длины:</div>
+  <table class="hw-table">
+    <tr><th>Физическое тело</th><th>мм</th><th>см</th><th>м</th><th>км</th></tr>
+    <tr><td>Диаметр монеты 10 р.</td><td>22</td><td>?</td><td>?</td><td>?</td></tr>
+    <tr><td>Высота листа А4</td><td>?</td><td>30</td><td>?</td><td>?</td></tr>
+    <tr><td>Высота здания</td><td>?</td><td>?</td><td>35</td><td>?</td></tr>
+  </table>
+  <button class="hw-show-btn" onclick="this.nextElementSibling.classList.add('show');this.disabled=true">Показать ответы</button>
+  <div class="hw-answer-box">
+    <table class="hw-table">
+      <tr><th>Физическое тело</th><th>мм</th><th>см</th><th>м</th><th>км</th></tr>
+      <tr><td>Диаметр монеты 10 р.</td><td>22</td><td><strong>2,2</strong></td><td><strong>0,022</strong></td><td><strong>0,000 022</strong></td></tr>
+      <tr><td>Высота листа А4</td><td><strong>300</strong></td><td>30</td><td><strong>0,3</strong></td><td><strong>0,000 3</strong></td></tr>
+      <tr><td>Высота здания</td><td><strong>35 000</strong></td><td><strong>3 500</strong></td><td>35</td><td><strong>0,035</strong></td></tr>
+    </table>
+  </div>
+</div>
+<div class="hw-card">
+  <div class="hw-sub">Сравните, что больше: <strong>40 мин</strong> или <strong>¾ ч</strong>?</div>
+  <button class="hw-show-btn" onclick="this.nextElementSibling.classList.add('show');this.disabled=true">Показать решение</button>
+  <div class="hw-answer-box">
+    1) 40 мин = 40 : 60 = <strong>⅔ ч ≈ 0,667 ч</strong><br>
+    2) ¾ ч = <strong>0,75 ч</strong><br>
+    3) 0,75 &gt; 0,667<br>
+    <strong>Ответ:</strong> ¾ ч больше, чем 40 мин.
+  </div>
+</div>`;
+HOMEWORK.temp=`<div class="hw-card">
+  <div class="hw-title">📚 Домашняя работа (Урок 4)</div>
+  <h3>1. Повтори теорию</h3>
+  <ul>
+    <li>Что такое температура?</li>
+    <li>На каком принципе работает жидкостной термометр?</li>
+    <li>Как устроен жидкостной термометр?</li>
+    <li>Чем датчик температуры отличается от жидкостного термометра?</li>
+    <li>При какой температуре тает лёд? Кипит вода?</li>
+    <li>Как определить цену деления шкалы термометра?</li>
+  </ul>
+</div>
+<div class="hw-card">
+  <h3>2. Отработай в тренажёре</h3>
+  <div class="hw-sub"><strong>Цель:</strong> набери 100% хотя бы в одном из разделов тренажёра!</div>
+</div>
+<div class="hw-card">
+  <h3>3. Выучи определения</h3>
+  <div class="hw-sub">
+    • <strong>Температура</strong> — физическая величина, характеризующая степень нагретости тела.<br><br>
+    • <strong>Жидкостной термометр</strong> — прибор, работающий на принципе теплового расширения жидкости.<br><br>
+    • <strong>Датчик температуры</strong> — электронный прибор, преобразующий температуру в электрический сигнал.<br><br>
+    • <strong>Шкала Цельсия</strong> — 0 °С (таяние льда), 100 °С (кипение воды).
+  </div>
+</div>`;
+HOMEWORK.speed=`<div class="hw-card">
+  <div class="hw-title">📚 Домашняя работа (Урок 5 — Механическое движение)</div>
+  <h3>1. Повтори теорию</h3>
+  <ul>
+    <li>Что такое механическое движение?</li>
+    <li>Что такое тело отсчёта и траектория?</li>
+    <li>Что называют путём? В каких единицах он измеряется?</li>
+    <li>Какое движение называют равномерным? Неравномерным?</li>
+    <li>Что показывает скорость? По какой формуле её находят?</li>
+    <li>Что такое 1 м/с? Как перевести км/ч в м/с?</li>
+  </ul>
+</div>
+<div class="hw-card">
+  <h3>2. Упражнения на перевод скорости</h3>
+  <div class="hw-sub"><strong>1.</strong> Вырази скорость в м/с: 36 км/ч; 54 км/ч; 108 км/ч.<br>
+  <strong>2.</strong> Вырази скорость в км/ч: 10 м/с; 25 м/с; 340 м/с.</div>
+  <button class="hw-show-btn" onclick="this.nextElementSibling.classList.add('show');this.disabled=true">Показать ответы</button>
+  <div class="hw-answer-box">
+    1) 36 км/ч = <strong>10 м/с</strong>; 54 км/ч = <strong>15 м/с</strong>; 108 км/ч = <strong>30 м/с</strong><br>
+    2) 10 м/с = <strong>36 км/ч</strong>; 25 м/с = <strong>90 км/ч</strong>; 340 м/с = <strong>1224 км/ч</strong>
+  </div>
+</div>
+<div class="hw-card">
+  <h3>3. Расчёт пути и времени</h3>
+  <div class="hw-sub">
+    <strong>3.</strong> Поезд движется со скоростью 20 м/с. Какой путь он пройдёт за 30 с?<br>
+    <strong>4.</strong> Автомобиль движется со скоростью 90 км/ч. За какое время он проедет 180 км?<br>
+    <strong>5.</strong> Скорость звука 340 м/с. За какое время звук пройдёт 1700 м?
+  </div>
+  <button class="hw-show-btn" onclick="this.nextElementSibling.classList.add('show');this.disabled=true">Показать решение</button>
+  <div class="hw-answer-box">
+    3) s = v·t = 20 м/с · 30 с = <strong>600 м</strong><br>
+    4) t = s/v = 180 км : 90 км/ч = <strong>2 ч</strong><br>
+    5) t = s/v = 1700 м : 340 м/с = <strong>5 с</strong>
+  </div>
+</div>
+<div class="hw-card">
+  <h3>4. Реши задачу</h3>
+  <div class="hw-sub">Автомобиль движется со скоростью 72 км/ч. Выразите скорость в м/с. Какой путь проедет за 20 секунд?</div>
+  <button class="hw-show-btn" onclick="this.nextElementSibling.classList.add('show');this.disabled=true">Показать решение</button>
+  <div class="hw-answer-box">
+    1) 72 км/ч = 72 : 3,6 = <strong>20 м/с</strong><br>
+    2) s = v·t = 20 м/с · 20 с = <strong>400 м</strong><br>
+    <strong>Ответ:</strong> скорость 20 м/с; путь 400 м.
+  </div>
+</div>`;
+HOMEWORK.phenomena=`<div class="hw-card">
+  <div class="hw-title">📚 Домашняя работа (Уроки 1–2)</div>
+  <div class="hw-sub">Повтори определения физических явлений из уроков 1–2 и отработай в тренажёре. По всем видам явлений — пройди «Микс» и набери не менее 70%.</div>
+</div>`;
+function goHomework(){
+  document.getElementById('homeworkContent').innerHTML=HOMEWORK.phenomena+HOMEWORK.measure+HOMEWORK.temp+HOMEWORK.speed;
+  showScreen('screenHomework');
+}
+function backFromHomework(){
+  if(currentTopic){goMenu()}else{goTopics()}
+}
 
 // ===== ДАННЫЕ =====
 function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a}
