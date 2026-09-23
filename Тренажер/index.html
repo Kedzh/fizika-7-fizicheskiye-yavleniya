@@ -24,8 +24,11 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .header h1{font-size:1.5rem;font-weight:800}
 .header .subtitle{font-size:.85rem;opacity:.85;margin-top:2px}
 .theme-btn{position:absolute;top:14px;right:12px;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:1.3rem;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.hw-btn{position:absolute;top:62px;right:12px;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:.78rem;font-weight:700;padding:8px 14px;border-radius:20px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit}
-.hw-btn:active{background:rgba(255,255,255,.35)}
+.hw-btn{position:relative;top:auto;right:auto;display:flex;align-items:center;justify-content:center;gap:8px;margin:14px auto 0;width:fit-content;background:linear-gradient(135deg,#f59e0b,#f97316);border:3px solid rgba(255,255,255,.85);color:#fff;font-size:.95rem;font-weight:800;padding:12px 28px;border-radius:30px;cursor:pointer;font-family:inherit;box-shadow:0 4px 18px rgba(249,115,22,.5);transition:all .2s}
+.hw-btn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 6px 24px rgba(249,115,22,.6);border-color:#fff}
+.hw-btn:active{transform:scale(.97)}
+.hw-btn{animation:hwPulse 2.2s ease-in-out infinite}
+@keyframes hwPulse{0%,100%{box-shadow:0 4px 18px rgba(249,115,22,.5)}50%{box-shadow:0 4px 26px rgba(249,115,22,.85);transform:translateY(-2px)}}
 .container{padding:12px;max-width:480px;margin:0 auto}
 .nav-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .nav-btn{display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--card);border:2px solid var(--border);border-radius:10px;font-family:inherit;font-weight:700;font-size:.9rem;color:var(--text);cursor:pointer;box-shadow:var(--shadow);transition:all .2s}
