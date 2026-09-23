@@ -157,7 +157,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
   <h1>⚛️ Физика 7 класс</h1>
   <div class="subtitle">Тренажёр для 7 класса</div>
   <button class="theme-btn" onclick="toggleTheme()">🌙</button>
-  <button class="hw-btn" onclick="goHomework()">📚 Домашнее задание</button>
+  <button class="hw-btn" onclick="openHWList()">📚 Домашнее задание</button>
 </div>
 
 <div class="container">
@@ -210,11 +210,20 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
     </div>
   </div>
 
+  <!-- СПИСОК ДОМАШНИХ ЗАДАНИЙ -->
+  <div class="screen" id="screenHWList">
+    <div class="nav-bar">
+      <button class="nav-btn" onclick="goTopics()">← Назад</button>
+      <div class="nav-title">Домашние задания</div>
+    </div>
+    <div class="grid" id="hwGrid"></div>
+  </div>
+
   <!-- ДОМАШНЕЕ ЗАДАНИЕ -->
   <div class="screen" id="screenHomework">
     <div class="nav-bar">
-      <button class="nav-btn" onclick="backFromHomework()">← Назад</button>
-      <span class="nav-title">📚 Домашнее задание</span>
+      <button class="nav-btn" onclick="openHWList()">← К списку ДЗ</button>
+      <div class="nav-title">Домашнее задание</div>
     </div>
     <div class="homework-content" id="homeworkContent"></div>
   </div>
@@ -369,10 +378,20 @@ HOMEWORK.tech=`<div class="hw-card">
     <strong>3.</strong> Приведите примеры влияния развития техники на развитие науки.
   </div>
 </div>`;
-function goHomework(){
-  document.getElementById('homeworkContent').innerHTML=HOMEWORK.phenomena+HOMEWORK.measure+HOMEWORK.temp+HOMEWORK.speed+HOMEWORK.tech;
+function goHomework(){openHWList()}
+function renderHWList(){
+  const g=document.getElementById('hwGrid');g.innerHTML='';
+  TOPICS.forEach(t=>{
+    const c=document.createElement('button');c.className='topic-card';
+    c.innerHTML=`<div class="topic-icon">${t.icon}</div><div class="topic-label">${t.label}</div><div class="topic-sub">Домашнее задание</div>`;
+    c.onclick=()=>showHW(t.id);g.appendChild(c);
+  });
+}
+function showHW(id){
+  document.getElementById('homeworkContent').innerHTML=HOMEWORK[id]||'';
   showScreen('screenHomework');
 }
+function openHWList(){renderHWList();showScreen('screenHWList')}
 function backFromHomework(){
   if(currentTopic){goMenu()}else{goTopics()}
 }
