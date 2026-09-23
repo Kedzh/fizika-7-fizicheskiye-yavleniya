@@ -77,7 +77,9 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .feedback.fail{background:#fee2e2;color:#991b1b}
 [data-theme="dark"] .feedback.ok{background:#14532d;color:#bbf7d0}
 [data-theme="dark"] .feedback.fail{background:#7f1d1d;color:#fecaca}
-.timer{font-size:.85rem;color:var(--text-secondary);font-weight:700;margin-bottom:8px}
+.timer{display:inline-flex;align-items:center;gap:6px;margin-bottom:10px;padding:6px 16px;border-radius:20px;background:var(--primary-light);color:var(--primary);font-size:.95rem;font-weight:800;min-width:110px;justify-content:center;transition:all .2s}
+.timer.low{background:#fee2e2;color:#ef4444;animation:timerBlink .5s step-start infinite}
+@keyframes timerBlink{50%{opacity:.55}}
 .result-card{background:var(--card);border-radius:var(--radius);padding:28px 16px;box-shadow:var(--shadow);text-align:center}
 .result-card h2{font-size:1.4rem;margin-bottom:12px}
 .result-big{font-size:3rem;font-weight:800;margin:12px 0}
@@ -152,7 +154,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 </head>
 <body>
 <div class="header">
-  <span class="user-badge" id="userBadge" onclick="logout()" style="display:none"></span>
   <h1>⚛️ Физика 7 класс</h1>
   <div class="subtitle">Тренажёр для 7 класса</div>
   <button class="theme-btn" onclick="toggleTheme()">🌙</button>
@@ -160,18 +161,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 </div>
 
 <div class="container">
-  <!-- РЕГИСТРАЦИЯ -->
-  <div class="screen" id="screenReg">
-    <div class="reg-card">
-      <h2>👋 Добро пожаловать!</h2>
-      <div class="reg-sub">Введите данные, чтобы начать</div>
-      <div class="reg-field"><label>Фамилия</label><input id="regLast" placeholder="Иванов"></div>
-      <div class="reg-field"><label>Имя</label><input id="regFirst" placeholder="Иван"></div>
-      <div class="reg-field"><label>Класс</label><input id="regClass" placeholder="7А"></div>
-      <button class="reg-btn" onclick="register()">Начать →</button>
-    </div>
-  </div>
-
   <!-- ВЫБОР ТЕМЫ -->
   <div class="screen" id="screenTopics">
     <div class="stats-row" id="topicStats"></div>
@@ -203,6 +192,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
     <div class="ex-card">
       <div class="ex-label" id="exLabel">Тема</div>
       <div class="ex-progress" id="exProgress">1 из 5</div>
+      <div class="timer" id="qTimer"></div>
       <div class="ex-task" id="exTask"></div>
       <div class="options" id="optionsGrid"></div>
       <div class="feedback" id="feedback"></div>
@@ -236,18 +226,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 // ===== THEME =====
 function toggleTheme(){const h=document.documentElement;const d=h.getAttribute('data-theme')==='dark';h.setAttribute('data-theme',d?'':'dark');localStorage.setItem('theme',d?'light':'dark')}
 (function(){if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark')})();
-
-// ===== REGISTRATION =====
-function getUser(){try{return JSON.parse(localStorage.getItem('physUser'))}catch(e){return null}}
-function register(){
-  const l=document.getElementById('regLast').value.trim(),f=document.getElementById('regFirst').value.trim(),c=document.getElementById('regClass').value.trim();
-  if(!l||!f||!c){alert('Заполни все поля!');return}
-  localStorage.setItem('physUser',JSON.stringify({last:l,first:f,cls:c}));
-  showUser();goTopics();
-}
-function showUser(){const u=getUser();const b=document.getElementById('userBadge');if(u){b.textContent=u.last+' '+u.first[0]+'. '+u.cls;b.style.display='inline-flex'}else{b.style.display='none'}}
-function logout(){if(!confirm('Выйти из аккаунта '+getUser()?.last+'?'))return;localStorage.removeItem('physUser');showUser();showScreen('screenReg')}
-function checkUser(){if(!getUser()){showScreen('screenReg');return false}showUser();showScreen('screenTopics');return true}
 
 // ===== ВЫБОР ТЕМЫ =====
 let currentTopic='';
@@ -655,6 +633,73 @@ const ODD_ROUNDS5=[
 let state={mode:'',total:5,current:0,ok:0,fail:0,answers:[],startTime:0,timerInterval:null};
 let currentQ=null,selectedIdx=-1;
 
+// ===== ТАЙМЕР ВОПРОСА (5 секунд) =====
+const Q_TIME=5;
+let qTimeLeft=Q_TIME,qTimerInt=null,qMode='mix',qAdvanceT=null;
+function startQTimer(){
+  clearInterval(qTimerInt);
+  qTimeLeft=Q_TIME;
+  const el=document.getElementById('qTimer');
+  if(!el)return;
+  el.textContent='⏱ '+qTimeLeft+' сек';
+  el.classList.remove('low');
+  qTimerInt=setInterval(()=>{
+    qTimeLeft--;
+    if(qTimeLeft<0){clearInterval(qTimerInt);return}
+    el.textContent='⏱ '+qTimeLeft+' сек';
+    el.classList.toggle('low',qTimeLeft<=2);
+    if(qTimeLeft===0){clearInterval(qTimerInt);onTimeUp()}
+  },1000);
+}
+function stopQTimer(){
+  clearInterval(qTimerInt);qTimerInt=null;
+  const el=document.getElementById('qTimer');
+  if(el)el.textContent='';
+}
+function scheduleAdvance(fn,delay){clearTimeout(qAdvanceT);qAdvanceT=setTimeout(fn,delay)}
+function onTimeUp(){
+  if(qMode==='mix')timeUpMix();
+  else if(qMode==='odd')timeUpOdd();
+  else timeUpTF();
+}
+function timeUpMix(){
+  if(selectedIdx!==-1)return;
+  const opts=document.querySelectorAll('#optionsGrid .opt-btn');
+  const q=state.answers[state.current];
+  opts.forEach(b=>b.disabled=true);
+  state.fail++;
+  opts.forEach((b,i)=>{if(i===q.c)b.classList.add('correct')});
+  const fb=document.getElementById('feedback');
+  fb.className='feedback show fail';
+  fb.textContent='⏰ Время вышло! Правильный ответ: '+q.a[q.c];
+document.getElementById('statFail').textContent=state.fail;
+  scheduleAdvance(()=>{state.current++;nextExercise()},1200);
+}
+let oddRndC=0;
+function timeUpOdd(){
+  if(oddLocked)return;oddLocked=true;
+  const cards=document.querySelectorAll('#optionsGrid .odd-card');
+  cards.forEach(b=>b.disabled=true);
+  cards[oddRndC].classList.add('correct');
+  const fb=document.getElementById('feedback');
+  fb.className='feedback show fail';
+  fb.textContent='⏰ Время вышло! '+oddDeck[oddIdx-1].note;
+  const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.odd)stats.odd={ok:0,fail:0};stats.odd.fail++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
+  scheduleAdvance(()=>showOddRound(),2000);
+}
+function timeUpTF(){
+  if(tfLocked)return;tfLocked=true;
+  const r=tfDeck[tfIdx-1];
+  const btns=document.querySelectorAll('#optionsGrid .opt-btn');
+  btns.forEach(b=>b.disabled=true);
+  btns[r.a?0:1].classList.add('correct');
+  const fb=document.getElementById('feedback');
+  fb.className='feedback show fail';
+  fb.textContent='⏰ Время вышло! '+r.e;
+  const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.tf)stats.tf={ok:0,fail:0};stats.tf.fail++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
+  scheduleAdvance(()=>showTFRound(),2000);
+}
+
 function renderMenu(){
   const g=document.getElementById('menuGrid');g.innerHTML='';
   const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');
@@ -681,7 +726,7 @@ function getMenuForTopic(topic){
 }
 
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const el=document.getElementById(id);if(el)el.classList.add('active')}
-function goMenu(){showScreen('screenMenu');renderMenu()}
+function goMenu(){clearTimeout(qAdvanceT);stopQTimer();showScreen('screenMenu');renderMenu()}
 function confirmQuit(){if(state.current>0&&state.current<state.total){if(!confirm('Тренировка не завершена. Выйти в меню?'))return;clearInterval(state.timerInterval)}goMenu()}
 
 function startMode(id){
@@ -715,6 +760,8 @@ function startMode(id){
   if(!questions.length){alert('Нет вопросов');return}
 
   const t=TYPES.find(x=>x.id===id);
+  qMode='mix';
+  clearTimeout(qAdvanceT);stopQTimer();
   state={mode:id,total:questions.length,current:0,ok:0,fail:0,answers:questions,startTime:Date.now(),timerInterval:null};
   document.getElementById('statOk').textContent='0';document.getElementById('statFail').textContent='0';
   document.getElementById('navTrainTitle').textContent=t?t.name:id==='mix'?'Микс':'Тема';
@@ -747,6 +794,7 @@ function nextExercise(){
     const b=document.createElement('button');b.className='opt-btn';b.textContent=val;
     b.onclick=()=>selectOption(i,val);grid.appendChild(b);
   });
+  startQTimer();
 }
 
 function selectOption(idx,val){
@@ -757,6 +805,7 @@ function selectOption(idx,val){
 
 function submitAnswer(){
   if(selectedIdx===-1)return;
+  stopQTimer();
   const fb=document.getElementById('feedback');const opts=document.querySelectorAll('.opt-btn');
   opts.forEach(b=>b.disabled=true);
   const isCorrect=selectedIdx===currentQ.c;
@@ -768,18 +817,19 @@ function submitAnswer(){
     fb.className='feedback show fail';fb.textContent='❌ Неверно. Правильный ответ: '+currentQ.a[currentQ.c];
   }
   document.getElementById('statOk').textContent=state.ok;document.getElementById('statFail').textContent=state.fail;
-  setTimeout(()=>{state.current++;nextExercise()},1200);
+  scheduleAdvance(()=>{state.current++;nextExercise()},1200);
 }
 
 function finish(){
   clearInterval(state.timerInterval);
+  stopQTimer();
   const sec=Math.floor((Date.now()-state.startTime)/1000);const m=Math.floor(sec/60),s=sec%60;
   const pct=Math.round((state.ok/state.total)*100);
   let cls='red',msg='Нужно подтянуть :(',grade=2;
   if(pct>=85){cls='green';msg='Отлично! 🎉';grade=5}
   else if(pct>=70){cls='green';msg='Хорошо!';grade=4}
   else if(pct>=50){cls='yellow';msg='Неплохо';grade=3}
-  document.getElementById('resultTitle').textContent='Результаты — '+(getUser()?.last||'Ученик');
+  document.getElementById('resultTitle').textContent='Результаты — Ученик';
   document.getElementById('resultScore').className='result-big '+cls;document.getElementById('resultScore').textContent=pct+'% — оценка '+grade;
   document.getElementById('resultMsg').textContent=msg;
   document.getElementById('resultStats').innerHTML=`
@@ -802,6 +852,7 @@ function launchConfetti(){
 // ===== ИГРА «НАЙДИ ЛИШНЕЕ» =====
 let oddDeck=[],oddIdx=0,oddLocked=false;
 function startOddGame(){
+  qMode='odd';clearTimeout(qAdvanceT);stopQTimer();
   let deck=ODD_ROUNDS;
   if(currentTopic==='measure')deck=ODD_ROUNDS2;
   if(currentTopic==='temp')deck=ODD_ROUNDS3;
@@ -809,10 +860,12 @@ function startOddGame(){
   oddDeck=shuffle([...deck]);oddIdx=0;showOddRound()
 }
 function showOddRound(){
+  if(qMode!=='odd')return;
   if(oddIdx>=oddDeck.length){oddDeck=shuffle([...oddDeck]);oddIdx=0}
   const r=oddDeck[oddIdx];oddIdx++;
   const order=[0,1,2,3];shuffle(order);
   const rndC=order.indexOf(r.c);
+  oddRndC=rndC;
   showScreen('screenTrain');
   document.getElementById('navTrainTitle').textContent='🕵️ Найди лишнее';
   document.getElementById('exLabel').textContent=currentTopic==='measure'?'Какой объект лишний?':'Какое явление лишнее?';
@@ -826,9 +879,10 @@ function showOddRound(){
     b.onclick=()=>handleOddPick(i,b,r,rndC);grid.appendChild(b);
   });
   oddLocked=false;
+  startQTimer();
 }
 function handleOddPick(i,btn,r,rndC){
-  if(oddLocked)return;oddLocked=true;
+  if(oddLocked)return;oddLocked=true;stopQTimer();
   const grid=document.getElementById('optionsGrid');
   grid.querySelectorAll('.odd-card').forEach(b=>b.disabled=true);
   const fb=document.getElementById('feedback');
@@ -837,12 +891,13 @@ function handleOddPick(i,btn,r,rndC){
   }else{btn.classList.add('wrong');grid.querySelectorAll('.odd-card')[rndC].classList.add('odd-out');fb.className='feedback show fail';fb.textContent='🤔 '+r.note;
     const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.odd)stats.odd={ok:0,fail:0};stats.odd.fail++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
   }
-  setTimeout(()=>showOddRound(),2500);
+  scheduleAdvance(()=>showOddRound(),2500);
 }
 
 // ===== ИГРА «ПРАВДА ИЛИ ЛОЖЬ» =====
 let tfDeck=[],tfIdx=0,tfLocked=false;
 function startTFGame(){
+  qMode='tf';clearTimeout(qAdvanceT);stopQTimer();
   let deck=TRUE_FALSE;
   if(currentTopic==='measure')deck=TRUE_FALSE2;
   if(currentTopic==='temp')deck=TRUE_FALSE3;
@@ -850,6 +905,7 @@ function startTFGame(){
   tfDeck=shuffle([...deck]);tfIdx=0;showTFRound()
 }
 function showTFRound(){
+  if(qMode!=='tf')return;
   let deck=TRUE_FALSE;
   if(currentTopic==='measure')deck=TRUE_FALSE2;
   if(currentTopic==='temp')deck=TRUE_FALSE3;
@@ -870,9 +926,10 @@ function showTFRound(){
   grid.appendChild(b1);grid.appendChild(b2);
   document.getElementById('feedback').className='feedback';document.getElementById('feedback').textContent='';
   tfLocked=false;
+  startQTimer();
 }
 function handleTFPick(pick,b1,b2,r){
-  if(tfLocked)return;tfLocked=true;b1.disabled=true;b2.disabled=true;
+  if(tfLocked)return;tfLocked=true;stopQTimer();b1.disabled=true;b2.disabled=true;
   const fb=document.getElementById('feedback');
   const correct=pick===r.a;
   if(correct){(pick?b1:b2).classList.add('correct');fb.className='feedback show ok';fb.textContent='✅ '+r.e;
@@ -880,7 +937,7 @@ function handleTFPick(pick,b1,b2,r){
   }else{(pick?b1:b2).classList.add('wrong');(r.a?b1:b2).classList.add('correct');fb.className='feedback show fail';fb.textContent='❌ '+r.e;
     const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.tf)stats.tf={ok:0,fail:0};stats.tf.fail++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
   }
-  setTimeout(()=>showTFRound(),2200);
+  scheduleAdvance(()=>showTFRound(),2200);
 }
 
 // ===== KEYBOARD =====
@@ -888,10 +945,9 @@ document.addEventListener('keydown',e=>{
   if(['1','2','3','4'].includes(e.key)&&document.getElementById('screenTrain').classList.contains('active')){
     const idx=parseInt(e.key)-1;const opts=document.querySelectorAll('.opt-btn');if(opts[idx]&&!opts[idx].disabled)opts[idx].click();
   }
-  if(e.key==='Enter'&&document.getElementById('screenReg').classList.contains('active'))register();
 });
 
-checkUser();renderMenu();
+goTopics();
 </script>
 </body>
 </html>
