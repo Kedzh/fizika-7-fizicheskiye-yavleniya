@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§12. Агрегатные состояния вещества — 7 класс</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg: #f0f4f8;
+  --card: #ffffff;
+  --primary: #3b82f6;
+  --primary-light: #dbeafe;
+  --accent: #f97316;
+  --green: #22c55e;
+  --red: #ef4444;
+  --yellow: #eab308;
+  --text: #1e293b;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --card: #1e293b; --primary: #60a5fa; --primary-light: #1e3a5f;
+  --accent: #fb923c; --green: #4ade80; --red: #f87171; --yellow: #facc15;
+  --text: #f1f5f9; --text-secondary: #94a3b8; --border: #334155;
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.6;
+  transition: background 0.3s, color 0.3s; overflow-x: hidden;
+}
+.container { max-width: 1600px; margin: 0 auto; padding: 24px 48px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+
+header {
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  color: white; padding: 32px 40px; border-radius: var(--radius);
+  margin-bottom: 24px; text-align: center; position: relative;
+  box-shadow: var(--shadow); overflow: hidden;
+}
+header::before {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+  animation: headerPulse 8s ease-in-out infinite;
+}
+@keyframes headerPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+header h1 { font-size: clamp(2.2rem, 4.5vw, 3.4rem); font-weight: 800; position: relative; }
+header .subtitle { font-size: 1.8rem; opacity: 0.9; margin-top: 6px; position: relative; }
+header .source { font-size: 1.3rem; opacity: 0.7; margin-top: 4px; position: relative; }
+.theme-toggle {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(255,255,255,0.2); border: none; color: white;
+  font-size: 2.2rem; width: 56px; height: 56px; border-radius: 50%;
+  cursor: pointer; z-index: 2; display: flex; align-items: center; justify-content: center;
+}
+.theme-toggle:hover { background: rgba(255,255,255,0.35); transform: scale(1.1); }
+
+nav {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px;
+  position: sticky; top: 0; background: var(--bg);
+  padding: 12px 0; z-index: 100; border-bottom: 2px solid var(--border);
+}
+nav button {
+  flex: 1; min-width: 140px; padding: 16px 20px;
+  border: 2px solid var(--border); background: var(--card); color: var(--text);
+  border-radius: var(--radius-sm); font-family: inherit; font-size: 1.3rem;
+  font-weight: 700; cursor: pointer; transition: all 0.3s;
+}
+nav button:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+nav button.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 16px rgba(59,130,246,0.3); }
+nav button .nav-emoji { display: block; font-size: 2rem; margin-bottom: 2px; }
+
+.section { display: none; animation: fadeIn 0.4s ease; }
+.section.active { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+.card {
+  background: var(--card); border-radius: var(--radius); padding: 32px;
+  margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--border);
+  transition: background 0.3s, border 0.3s;
+}
+.card h2 { font-size: 2.2rem; margin-bottom: 6px; color: var(--primary); }
+.card h2 .emoji { margin-right: 10px; }
+.card .card-desc { color: var(--text-secondary); font-size: 1.5rem; margin-bottom: 18px; }
+
+.theory-box {
+  background: var(--primary-light); border-radius: var(--radius-sm); padding: 24px;
+  margin-bottom: 20px; border-left: 4px solid var(--primary);
+}
+.theory-box h3 { font-size: 1.8rem; margin-bottom: 12px; color: var(--primary); }
+.theory-box p { font-size: 1.5rem; margin-bottom: 10px; }
+.theory-box .formula {
+  background: var(--card); border: 2px solid var(--primary); border-radius: 8px;
+  padding: 16px 24px; font-size: 1.8rem; font-weight: 700; text-align: center;
+  margin: 16px 0; color: var(--primary);
+}
+.theory-box .example {
+  background: var(--card); border-radius: 8px; padding: 16px;
+  margin-top: 12px; font-size: 1.4rem;
+}
+.theory-box .example-title { font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+
+.units-table {
+  width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 1.4rem;
+}
+.units-table th {
+  background: var(--primary); color: white; padding: 12px 16px;
+  text-align: left; font-weight: 700;
+}
+.units-table td {
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+}
+.units-table tr:nth-child(even) { background: rgba(59,130,246,0.05); }
+
+.instruments-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px; margin: 16px 0;
+}
+.instrument-card {
+  background: var(--bg); border-radius: var(--radius-sm); padding: 16px;
+  text-align: center; border: 2px solid var(--border); transition: all 0.3s;
+}
+.instrument-card:hover { border-color: var(--primary); box-shadow: 0 4px 16px rgba(59,130,246,0.2); }
+.instrument-card .inst-emoji { font-size: 3rem; margin-bottom: 6px; }
+.instrument-card .inst-name { font-size: 1.4rem; font-weight: 700; margin-bottom: 2px; }
+.instrument-card .inst-measures { font-size: 1.2rem; color: var(--text-secondary); }
+
+.tf-item {
+  background: var(--bg); border-radius: var(--radius-sm); padding: 18px 24px;
+  margin-bottom: 12px; border-left: 4px solid var(--primary);
+  animation: slideIn 0.4s ease backwards;
+}
+@keyframes slideIn { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+.tf-statement { font-weight: 600; font-size: 1.65rem; margin-bottom: 10px; }
+.tf-buttons { display: flex; gap: 12px; }
+.tf-buttons button {
+  padding: 10px 24px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-weight: 700; font-size: 1.5rem;
+  cursor: pointer; transition: all 0.3s; background: var(--card); color: var(--text);
+}
+.tf-buttons button.true-btn:hover { border-color: var(--green); color: var(--green); }
+.tf-buttons button.false-btn:hover { border-color: var(--red); color: var(--red); }
+.tf-buttons button.selected-true { background: var(--green); color: white; border-color: var(--green); box-shadow: 0 2px 12px rgba(34,197,94,0.4); }
+.tf-buttons button.selected-false { background: var(--red); color: white; border-color: var(--red); box-shadow: 0 2px 12px rgba(239,68,68,0.4); }
+.tf-buttons button:disabled { cursor: default; opacity: 0.5; }
+.tf-comment { margin-top: 10px; padding: 10px 16px; border-radius: 8px; font-size: 1.4rem; font-weight: 600; display: none; }
+.tf-comment.correct { background: #dcfce7; color: #166534; display: block; }
+.tf-comment.wrong { background: #fee2e2; color: #991b1b; display: block; }
+[data-theme="dark"] .tf-comment.correct { background: #14532d; color: #bbf7d0; }
+[data-theme="dark"] .tf-comment.wrong { background: #7f1d1d; color: #fecaca; }
+
+.progress-bar-wrap { margin-top: 20px; background: var(--bg); border-radius: 20px; overflow: hidden; height: 34px; }
+.progress-bar {
+  height: 100%; background: linear-gradient(90deg, var(--green), #34d399);
+  border-radius: 20px; transition: width 0.6s ease; display: flex;
+  align-items: center; justify-content: center; color: white;
+  font-weight: 700; font-size: 1.35rem; min-width: 65px;
+}
+
+.match-game { max-width: 900px; margin: 0 auto; }
+.match-row {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 12px;
+  background: var(--bg); border-radius: var(--radius-sm); padding: 14px 18px;
+  border-left: 4px solid var(--primary);
+}
+.match-qty { flex: 1; font-weight: 700; font-size: 1.5rem; }
+.match-select {
+  flex: 1.4; padding: 12px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-size: 1.5rem; font-weight: 700;
+  background: var(--card); color: var(--text); cursor: pointer; transition: border 0.3s;
+}
+.match-select:focus { border-color: var(--primary); outline: none; }
+.match-select.correct { border-color: var(--green); background: #dcfce7; }
+.match-select.wrong { border-color: var(--red); background: #fee2e2; }
+[data-theme="dark"] .match-select.correct { background: #14532d; }
+[data-theme="dark"] .match-select.wrong { background: #7f1d1d; }
+
+.labyrinth-visual { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+.labyrinth-step {
+  width: 60px; height: 60px; border-radius: 50%; background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.35rem; color: var(--text-secondary); transition: all 0.4s;
+}
+.labyrinth-step.completed { background: var(--green); color: white; box-shadow: 0 2px 12px rgba(34,197,94,0.4); }
+.labyrinth-step.current { background: var(--primary); color: white; box-shadow: 0 2px 12px rgba(59,130,246,0.4); transform: scale(1.15); }
+.labyrinth-step.future { background: var(--border); color: var(--text-secondary); }
+.labyrinth-arrow { color: var(--text-secondary); font-size: 1.8rem; }
+.lab-task { background: var(--primary-light); border-radius: var(--radius-sm); padding: 24px; text-align: center; margin-bottom: 18px; }
+.lab-task .lab-question { font-size: 1.9rem; font-weight: 700; margin-bottom: 18px; }
+.lab-input-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.lab-input {
+  width: 240px; padding: 14px 18px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-size: 1.75rem; text-align: center; font-weight: 700;
+  background: var(--card); color: var(--text);
+}
+.lab-input:focus { border-color: var(--primary); outline: none; }
+.btn-lab {
+  padding: 14px 32px; background: var(--primary); color: white; border: none;
+  border-radius: 8px; font-family: inherit; font-weight: 700; font-size: 1.6rem;
+  cursor: pointer; transition: all 0.3s;
+}
+.btn-lab:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
+.lab-hint { margin-top: 12px; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 1.5rem; display: none; animation: fadeIn 0.3s ease; }
+.lab-hint.show { display: block; }
+.lab-hint.wrong { background: #fee2e2; color: #991b1b; }
+.lab-hint.correct { background: #dcfce7; color: #166534; }
+[data-theme="dark"] .lab-hint.wrong { background: #7f1d1d; color: #fecaca; }
+[data-theme="dark"] .lab-hint.correct { background: #14532d; color: #bbf7d0; }
+.lab-complete { text-align: center; padding: 32px; display: none; }
+.lab-complete.show { display: block; animation: fadeIn 0.5s ease; }
+.lab-complete h3 { font-size: 2.4rem; color: var(--green); margin-bottom: 10px; }
+.lab-complete p { font-size: 1.75rem; color: var(--text-secondary); }
+
+.variant-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+.variant-tab {
+  flex: 1; padding: 14px; border: 2px solid var(--border); background: var(--card);
+  border-radius: var(--radius-sm); font-family: inherit; font-weight: 700;
+  font-size: 1.6rem; cursor: pointer; transition: all 0.3s; color: var(--text);
+}
+.variant-tab.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 16px rgba(249,115,22,0.3); }
+.variant-content { display: none; }
+.variant-content.active { display: block; animation: fadeIn 0.4s ease; }
+.exercise {
+  display: flex; align-items: center; gap: 14px; padding: 16px 20px;
+  background: var(--bg); border-radius: var(--radius-sm); margin-bottom: 10px; flex-wrap: wrap;
+}
+.exercise .ex-num {
+  width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.35rem; flex-shrink: 0;
+}
+.exercise .ex-text { flex: 1; font-weight: 600; font-size: 1.45rem; }
+.exercise .ex-input {
+  width: 150px; padding: 10px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-size: 1.6rem; text-align: center; font-weight: 700;
+  background: var(--card); color: var(--text);
+}
+.exercise .ex-input:focus { border-color: var(--primary); outline: none; }
+.exercise .ex-input.correct { border-color: var(--green); background: #dcfce7; }
+.exercise .ex-input.wrong { border-color: var(--red); background: #fee2e2; }
+[data-theme="dark"] .exercise .ex-input.correct { background: #14532d; }
+[data-theme="dark"] .exercise .ex-input.wrong { background: #7f1d1d; }
+.btn-check-all {
+  margin-top: 16px; padding: 14px 36px; background: linear-gradient(135deg, var(--accent), #ea580c);
+  color: white; border: none; border-radius: var(--radius-sm); font-family: inherit;
+  font-weight: 700; font-size: 1.65rem; cursor: pointer; transition: all 0.3s;
+  display: block; margin-left: auto; margin-right: auto;
+}
+.btn-check-all:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(249,115,22,0.4); }
+.score-display { text-align: center; margin-top: 16px; font-size: 1.9rem; font-weight: 700; display: none; animation: fadeIn 0.4s ease; }
+.btn-check { padding: 14px 36px; background: var(--primary); color: white; border: none; border-radius: var(--radius-sm); font-family: inherit; font-weight: 700; font-size: 1.65rem; cursor: pointer; transition: all 0.3s; }
+.btn-check:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
+.btn-check:disabled { opacity: 0.6; cursor: default; transform: none; box-shadow: none; }
+.btn-download {
+  display: inline-block; margin: 0 auto; padding: 14px 36px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white; border: none; border-radius: var(--radius-sm);
+  font-family: inherit; font-weight: 700; font-size: 1.65rem;
+  cursor: pointer; transition: all 0.3s;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.3);
+}
+.btn-download:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34,197,94,0.4); }
+.ex-answer { margin-top: 6px; padding: 6px 12px; border-radius: 8px; background: #dcfce7; color: #166534; font-size: 1.3rem; font-weight: 700; display: none; animation: fadeIn 0.3s ease; }
+[data-theme="dark"] .ex-answer { background: #14532d; color: #bbf7d0; }
+.ex-hint-btn { margin-left: 8px; padding: 8px 14px; border: 2px solid var(--accent); background: transparent; color: var(--accent); border-radius: 8px; font-family: inherit; font-weight: 700; font-size: 1.2rem; cursor: pointer; transition: all 0.3s; flex-shrink: 0; }
+.ex-hint-btn:hover { background: var(--accent); color: white; }
+.ex-hint-btn:disabled { opacity: 0.5; cursor: default; }
+
+.hw-answer {
+  margin-top: 12px; padding: 16px; border-radius: 8px;
+  background: #dcfce7; color: #166534; font-size: 1.4rem; font-weight: 600;
+  animation: fadeIn 0.4s ease;
+}
+[data-theme="dark"] .hw-answer { background: #14532d; color: #bbf7d0; }
+
+.confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: hidden; }
+.confetti-piece { position: absolute; width: 10px; height: 10px; top: -20px; animation: confettiFall linear forwards; }
+@keyframes confettiFall { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+
+@media (max-width: 1100px) { .two-col { grid-template-columns: 1fr; } }
+@media (max-width: 600px) {
+  .container { padding: 12px; } .card { padding: 18px; } header { padding: 20px 14px; }
+  nav button { min-width: 100px; padding: 10px 6px; font-size: 1.1rem; }
+  .exercise { flex-direction: column; align-items: stretch; text-align: center; }
+  .exercise .ex-input { width: 100%; }
+  .lab-input-group { flex-direction: column; align-items: center; }
+  .lab-input { width: 100%; max-width: 280px; }
+  .labyrinth-step { width: 44px; height: 44px; font-size: 1.1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Переключить тему">🌓</button>
+  <h1>§12. Агрегатные состояния вещества</h1>
+  <div class="subtitle">7 класс · Урок 7</div>
+  <div class="source">По учебнику Перышкин А.В. и др. (Просвещение, 2023)</div>
+</header>
+
+<nav id="mainNav">
+  <button class="active" onclick="showSection(0)"><span class="nav-emoji">📖</span>Теория</button>
+  <button onclick="showSection(1)"><span class="nav-emoji">🔥</span>Разминка</button>
+  <button onclick="showSection(2)"><span class="nav-emoji">🔗</span>Соответствие</button>
+  <button onclick="showSection(3)"><span class="nav-emoji">🧩</span>Лабиринт</button>
+  <button onclick="showSection(4)"><span class="nav-emoji">📝</span>Практика</button>
+  <button onclick="showSection(5)"><span class="nav-emoji">📚</span>Домашняя</button>
+</nav>
+
+<!-- ===== SECTION 0: THEORY ===== -->
+<div class="section active" id="sec0">
+  <div class="card">
+    <h2><span class="emoji">📖</span>Теория. §12. Агрегатные состояния вещества</h2>
+    <p class="card-desc">Узнай, почему одно и то же вещество бывает твёрдым, жидким и газообразным!</p>
+
+    <div class="theory-box">
+      <h3>Три агрегатных состояния</h3>
+      <p>Самая распространённая жидкость на Земле — <strong>вода</strong>. Но хорошо известно, что вода бывает не только жидкой: зимой часть водоёмов покрыта <strong>льдом</strong> — водой в твёрдом состоянии, а в воздухе вода находится в <strong>газообразном</strong> состоянии (водяной пар, как и воздух, невидим).</p>
+      <p>Не только вода, но и другие вещества в зависимости от внешних условий могут находиться в <strong>трёх агрегатных состояниях</strong>: газообразном, жидком и твёрдом.</p>
+      <div class="example">
+        <div class="example-title">Примеры из учебника:</div>
+        <p>• Вода при температуре выше 0 °C — жидкая, ниже 0 °C — твёрдая (лёд), при кипении интенсивно превращается в пар.<br>
+        • В обычных условиях <strong>свинец</strong> — твёрдое вещество, а при температуре более <strong>327 °C</strong> становится жидкостью.</p>
+      </div>
+      <div class="example">
+        <div class="example-title">Космос:</div>
+        <p>С помощью современных физических исследований в составе небесных тел Солнечной системы обнаружили те же вещества, что есть на Земле. В зависимости от условий они находятся в твёрдом, жидком или газообразном состоянии.</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Свойства твёрдых тел</h3>
+      <p>Твёрдые тела имеют <strong>определённую форму</strong>. Чтобы изменить её (согнуть или разорвать), нужно приложить усилие. Помимо формы твёрдые тела имеют и <strong>собственный объём</strong> — их трудно сжать или растянуть.</p>
+      <div class="formula">Твёрдые тела сохраняют свою форму и объём.</div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Свойства жидкостей</h3>
+      <p>Жидкости, как и твёрдые тела, <strong>сохраняют свой объём</strong>. Если перелить кефир из бутылки 0,5 л в пол-литровую банку, его не станет ни больше, ни меньше. Но <strong>форму</strong> жидкость меняет — принимает форму сосуда.</p>
+      <p>В обычных условиях только маленькие капли жидкости имеют собственную форму — <strong>форму шара</strong>.</p>
+      <div class="formula">Жидкости сохраняют свой объём, но легко меняют форму, принимая форму сосуда, в котором находятся.</div>
+      <div class="example">
+        <div class="example-title">Где это используют:</div>
+        <p>Свойство жидкостей легко менять форму используется при выдувании изделий из расплавленного стекла, при отливке металлических и пластиковых деталей.</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Свойства газов</h3>
+      <p>Газы чаще всего невидимы, поэтому их свойства не так очевидны. Докажем, что вокруг нас находится воздух — газ. Если перевёрнутый вверх дном стакан опускать в кастрюлю с водой, полностью заполнить его водой не получится — <strong>в стакане находится воздух</strong>. Воздушный шарик можно сжать, изменяя объём находящегося в нём воздуха.</p>
+      <div class="formula">Газы не имеют собственной формы и объёма, они занимают весь предоставленный им объём.</div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Почему свойства разные? Объяснение молекулярной теории</h3>
+      <p>Вспомни, что вещество состоит из молекул, между которыми есть промежутки; молекулы находятся в беспрерывном движении и взаимодействуют друг с другом. От расстояния между молекулами зависят свойства вещества.</p>
+      <table class="units-table">
+        <tr><th>Состояние</th><th>Свойства</th><th>Строение и движение молекул</th></tr>
+        <tr><td>Газ</td><td>Не имеет формы и объёма, легко сжимается</td><td>Расстояние между молекулами намного больше их размеров, притяжение слабое, молекулы беспорядочно движутся и разлетаются по всему сосуду</td></tr>
+        <tr><td>Жидкость</td><td>Сохраняет объём, легко меняет форму</td><td>Молекулы близко, притяжение сильное; молекула колеблется около своего положения и время от времени перескакивает на новое место</td></tr>
+        <tr><td>Твёрдое тело</td><td>Сохраняет и форму, и объём</td><td>Притяжение самое сильное; каждая молекула колеблется около определённой точки и почти не перемещается</td></tr>
+      </table>
+      <div class="example">
+        <div class="example-title">Опыт из учебника (малая сжимаемость жидкости):</div>
+        <p>Во Флоренции в XVII в. серебряный шар заполнили водой и запаяли. После ударов молотом на шаре появились светлые пятна — крошечные капли воды, просочившейся сквозь стенки. Это доказывает <strong>малую сжимаемость жидкости</strong>.</p>
+      </div>
+      <div class="example">
+        <div class="example-title">Кристаллы:</div>
+        <p>Атомы и молекулы большинства твёрдых тел расположены в определённом порядке. Такие твёрдые тела называют <strong>кристаллами</strong>. Снежинки и замысловатые узоры на стёклах окон зимой — проявления кристаллического строения льда.</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Вопросы для самопроверки</h3>
+      <div class="example">
+        <div class="example-title">Ответь устно (вопросы из учебника):</div>
+        <p>1. В каких агрегатных состояниях может находиться вещество?<br>
+        2. Охарактеризуй свойства вещества, находящегося в разных агрегатных состояниях.<br>
+        3. Объясни, как проводится и что доказывает опыт с перевёрнутым вверх дном стаканом в воде.<br>
+        4. Почему одно и то же вещество может находиться в разных агрегатных состояниях?<br>
+        5. Как движутся молекулы в газах, жидкостях и твёрдых телах?</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 1: WARM-UP ===== -->
+<div class="section" id="sec1">
+  <div class="card">
+    <h2><span class="emoji">🔥</span>Разминка. Проверь знания!</h2>
+    <p class="card-desc">Определи, верно ли утверждение.</p>
+
+    <div class="slide active" id="sec1-s0">
+      <div class="two-col">
+        <div>
+          <div class="tf-item" id="tf0">
+            <div class="tf-statement">1. Вода может находиться в трёх агрегатных состояниях.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(0, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(0, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-0"></div>
+          </div>
+          <div class="tf-item" id="tf1">
+            <div class="tf-statement">2. Твёрдые тела легко сжимаются и легко меняют свою форму.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(1, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(1, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-1"></div>
+          </div>
+          <div class="tf-item" id="tf2">
+            <div class="tf-statement">3. Жидкости сохраняют свой объём, но легко меняют форму.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(2, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(2, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-2"></div>
+          </div>
+          <div class="tf-item" id="tf3">
+            <div class="tf-statement">4. Газы не имеют собственной формы и объёма.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(3, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(3, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-3"></div>
+          </div>
+        </div>
+        <div>
+          <div class="tf-item" id="tf4">
+            <div class="tf-statement">5. Молекулы твёрдого тела, как и молекулы жидкости, перескакивают с места на место.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(4, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(4, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-4"></div>
+          </div>
+          <div class="tf-item" id="tf5">
+            <div class="tf-statement">6. Притяжение между молекулами в газах самое слабое.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(5, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(5, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-5"></div>
+          </div>
+          <div class="tf-item" id="tf6">
+            <div class="tf-statement">7. Между молекулами жидкости расстояние больше, чем между молекулами газа.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(6, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(6, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-6"></div>
+          </div>
+          <div class="tf-item" id="tf7">
+            <div class="tf-statement">8. Снежинки — пример кристаллического строения льда.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(7, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(7, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-7"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="tfProgress" style="width:0%">0 / 8</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 2: MATCH ===== -->
+<div class="section" id="sec2">
+  <div class="card">
+    <h2><span class="emoji">🔗</span>Соответствие. Состояние и его свойства</h2>
+    <p class="card-desc">Соедини агрегатное состояние с тем, что оно сохраняет или как движутся его молекулы.</p>
+
+    <div class="match-game" id="matchGame"></div>
+
+    <div style="text-align:center">
+      <button class="btn-check-all" onclick="checkMatch()">Проверить всё ✔️</button>
+    </div>
+    <div class="score-display" id="matchScore"></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 3: LABYRINTH ===== -->
+<div class="section" id="sec3">
+  <div class="card">
+    <h2><span class="emoji">🧩</span>Физический лабиринт</h2>
+    <p class="card-desc">Ответь на все вопросы, чтобы пройти лабиринт!</p>
+    <div class="labyrinth-visual" id="labVisual"></div>
+    <div class="lab-task" id="labTask">
+      <div class="lab-question" id="labQuestion"></div>
+      <div class="lab-input-group">
+        <input type="text" class="lab-input" id="labInput" placeholder="Ответ">
+        <button class="btn-lab" id="labBtn" onclick="checkLabStep()">Далее ➡️</button>
+      </div>
+      <div class="lab-hint" id="labHint"></div>
+    </div>
+    <div class="lab-complete" id="labComplete">
+      <h3>🎉 Поздравляем!</h3>
+      <p>Ты успешно прошёл физический лабиринт!</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 4: PRACTICE ===== -->
+<div class="section" id="sec4">
+  <div class="card">
+    <h2><span class="emoji">📝</span>Практика. Самостоятельная работа</h2>
+    <p class="card-desc">Выбери вариант и ответь на все вопросы.</p>
+
+    <div class="variant-tabs">
+      <button class="variant-tab active" onclick="switchVariant(0)">Вариант 1</button>
+      <button class="variant-tab" onclick="switchVariant(1)">Вариант 2</button>
+      <button class="variant-tab" onclick="switchVariant(2)">Вариант 3</button>
+    </div>
+
+    <div class="variant-content active" id="var0">
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">1</span><span class="ex-text">Сколько агрегатных состояний вещества существует?</span><input type="number" class="ex-input" id="v0e0" placeholder="?" style="width:150px"><button class="ex-hint-btn" onclick="showExAnswer('v0e0ans',this)">Ответ</button></div><div class="ex-answer" id="v0e0ans">3</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">2</span><span class="ex-text">Состояние, в котором вещество сохраняет и форму, и объём? (слово)</span><input type="text" class="ex-input" id="v0e1" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v0e1ans',this)">Ответ</button></div><div class="ex-answer" id="v0e1ans">твёрдое</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">3</span><span class="ex-text">Как называют твёрдые тела, в которых атомы расположены в определённом порядке? (слово)</span><input type="text" class="ex-input" id="v0e2" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v0e2ans',this)">Ответ</button></div><div class="ex-answer" id="v0e2ans">кристаллы</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">4</span><span class="ex-text">Что образуется при замерзании воды? (слово)</span><input type="text" class="ex-input" id="v0e3" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v0e3ans',this)">Ответ</button></div><div class="ex-answer" id="v0e3ans">лёд</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">5</span><span class="ex-text">При какой температуре вода замерзает (°C)?</span><input type="number" class="ex-input" id="v0e4" placeholder="?"><button class="ex-hint-btn" onclick="showExAnswer('v0e4ans',this)">Ответ</button></div><div class="ex-answer" id="v0e4ans">0</div></div>
+    </div>
+
+    <div class="variant-content" id="var1">
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">1</span><span class="ex-text">Состояние вещества, которое сохраняет объём, но легко меняет форму? (слово)</span><input type="text" class="ex-input" id="v1e0" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v1e0ans',this)">Ответ</button></div><div class="ex-answer" id="v1e0ans">жидкость</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">2</span><span class="ex-text">Состояние вещества, которое не имеет собственной формы и объёма? (слово)</span><input type="text" class="ex-input" id="v1e1" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v1e1ans',this)">Ответ</button></div><div class="ex-answer" id="v1e1ans">газ</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">3</span><span class="ex-text">Как движутся молекулы жидкости: колеблются и время от времени... (слово)</span><input type="text" class="ex-input" id="v1e2" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v1e2ans',this)">Ответ</button></div><div class="ex-answer" id="v1e2ans">перескакивают</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">4</span><span class="ex-text">При какой температуре свинец становится жидкостью (°C)?</span><input type="number" class="ex-input" id="v1e3" placeholder="?"><button class="ex-hint-btn" onclick="showExAnswer('v1e3ans',this)">Ответ</button></div><div class="ex-answer" id="v1e3ans">327</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">5</span><span class="ex-text">Что появляется зимой на холодных стёклах окон — проявление кристаллического строения льда? (слово)</span><input type="text" class="ex-input" id="v1e4" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v1e4ans',this)">Ответ</button></div><div class="ex-answer" id="v1e4ans">узоры</div></div>
+    </div>
+
+    <div class="variant-content" id="var2">
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">1</span><span class="ex-text">Самая распространённая жидкость на Земле? (слово)</span><input type="text" class="ex-input" id="v2e0" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e0ans',this)">Ответ</button></div><div class="ex-answer" id="v2e0ans">вода</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">2</span><span class="ex-text">Что всегда сохраняют твёрдые тела? (слово)</span><input type="text" class="ex-input" id="v2e1" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e1ans',this)">Ответ</button></div><div class="ex-answer" id="v2e1ans">форму</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">3</span><span class="ex-text">Опыт с перевёрнутым стаканом в воде доказывает, что вокруг нас есть (что?)</span><input type="text" class="ex-input" id="v2e2" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e2ans',this)">Ответ</button></div><div class="ex-answer" id="v2e2ans">воздух</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">4</span><span class="ex-text">Что можно сделать с воздушным шариком, изменив объём воздуха в нём? (слово)</span><input type="text" class="ex-input" id="v2e3" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e3ans',this)">Ответ</button></div><div class="ex-answer" id="v2e3ans">сжать</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">5</span><span class="ex-text">Состояние свинца при обычной комнатной температуре? (слово)</span><input type="text" class="ex-input" id="v2e4" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e4ans',this)">Ответ</button></div><div class="ex-answer" id="v2e4ans">твёрдое</div></div>
+    </div>
+
+    <button class="btn-check-all" onclick="checkAllExercises()">Проверить всё ✔️</button>
+    <div class="score-display" id="varScore"></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 5: HOMEWORK ===== -->
+<div class="section" id="sec5">
+  <div class="card">
+    <h2><span class="emoji">📚</span>Домашняя работа</h2>
+    <p class="card-desc">Повтори изученный материал и отработай его в тренажёре.</p>
+
+    <div style="text-align:center; margin-bottom: 24px;">
+      <button class="btn-download" onclick="downloadHWDocx()">📄 Скачать домашнее задание (.docx)</button>
+    </div>
+
+    <div class="theory-box">
+      <h3>1. Повтори теорию</h3>
+      <div class="example">
+        <p>1. В каких агрегатных состояниях может находиться вещество?<br>
+        2. Какими свойствами обладает вещество в каждом состоянии?<br>
+        3. Как объясняются свойства тел строением и движением молекул?<br>
+        4. Что такое кристаллы? Приведи примеры.<br>
+        5. При какой температуре вода превращается в лёд, а свинец — в жидкость?</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>2. Отработай в тренажёре</h3>
+      <div class="example">
+        <div class="example-title">Решить задания:</div>
+        <p>• Разминка (вопросы True/False) — 8 вопросов<br>
+        • Соответствие — соедини состояния с их свойствами<br>
+        • Лабиринт — пройди все 8 шагов<br>
+        • Практика — реши все 3 варианта</p>
+      </div>
+      <div class="example">
+        <div class="example-title">Цель:</div>
+        <p>Набери <strong>100%</strong> хотя бы в одном из разделов тренажёра. Если не получается сразу — повтори теорию и попробуй снова!</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>3. Запиши в тетрадь</h3>
+      <div class="example">
+        <div class="example-title">Три агрегатных состояния вещества:</div>
+        <p>• <strong>Твёрдое</strong> — имеет форму и объём, трудно сжать. Молекулы колеблются около определённой точки.<br>
+        • <strong>Жидкое</strong> — сохраняет объём, легко меняет форму. Молекулы колеблются и перескакивают.<br>
+        • <strong>Газообразное</strong> — не имеет формы и объёма, легко сжимается. Молекулы беспорядочно движутся.</p>
+      </div>
+      <div class="example">
+        <div class="example-title">Важные температуры:</div>
+        <p>• Вода при температуре выше <strong>0 °C</strong> — жидкая, ниже <strong>0 °C</strong> — твёрдая (лёд).<br>
+        • Свинец становится жидким при температуре выше <strong>327 °C</strong>.</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>4. Вопросы из учебника (§12)</h3>
+
+      <div class="example">
+        <div class="example-title">Ответь письменно</div>
+        <p><strong>1.</strong> В каких агрегатных состояниях может находиться вещество?<br>
+        <strong>2.</strong> Охарактеризуйте свойства вещества, находящегося в разных агрегатных состояниях.<br>
+        <strong>3.</strong> Объясните, как проводится и что доказывает опыт с перевёрнутым вверх дном стаканом, опускаемым в кастрюлю с водой.<br>
+        <strong>4.</strong> Почему одно и то же вещество может находиться в разных агрегатных состояниях?<br>
+        <strong>5.</strong> Как движутся молекулы в газах, жидкостях и твёрдых телах?</p>
+      </div>
+      <div class="hw-answer" id="hw1" style="display:none">
+        <p><strong>Примерные ответы:</strong><br>
+        1) В газообразном, жидком и твёрдом состоянии.<br>
+        2) Твёрдое тело сохраняет форму и объём; жидкость сохраняет объём, но принимает форму сосуда; газ не имеет собственной формы и объёма, занимает весь предоставленный объём.<br>
+        3) Стакан, опускаемый в воду вверх дном, не заполняется водой полностью — в нём остаётся воздух. Опыт доказывает, что вокруг нас находится воздух (газ), который занимает объём стакана.<br>
+        4) В зависимости от условий (температуры, давления) молекулы вещества расположены по-разному: по-разному движутся и взаимодействуют, поэтому свойства отличаются.<br>
+        5) В газах молекулы движутся беспорядочно и разлетаются по всему объёму; в жидкостях — колеблются около своих положений и время от времени перескакивают; в твёрдых телах — колеблются около определённой точки.</p>
+      </div>
+      <button class="btn-check" onclick="document.getElementById('hw1').style.display='block'; this.disabled=true;">Показать ответы</button>
+
+      <div class="example">
+        <div class="example-title">Задание-исследование (по учебнику)</div>
+        <p><strong>6.</strong> Водяной пар, как и окружающий воздух, невидим. Что же представляет собой белая дымка над озером? Используя Интернет, выясни это и запиши вывод.<br>
+        <strong>7.</strong> Проделай дома опыт: налей в пластиковую бутылку немного воды и помести её в морозильную камеру. Через несколько часов, когда вода замёрзнет, вынь бутылку. Добавь в неё воды и закрой крышкой. Сколько и какие состояния воды ты наблюдаешь?</p>
+      </div>
+      <div class="hw-answer" id="hw2" style="display:none">
+        <p><strong>Подсказка:</strong><br>
+        6) Белая дымка над озером — это туман: мельчайшие капельки воды, образовавшиеся при конденсации водяного пара (газ переходит в жидкое состояние).<br>
+        7) В морозильнике вода замерзает — твёрдое состояние (лёд). Если долить воды в бутылку со льдом, в ней окажутся вода (жидкое состояние) и лёд (твёрдое состояние) одновременно, а в воздухе над водой есть водяной пар (газообразное состояние).</p>
+      </div>
+      <button class="btn-check" onclick="document.getElementById('hw2').style.display='block'; this.disabled=true;">Показать подсказку</button>
+    </div>
+
+    <div class="theory-box">
+      <h3>5. Реши задачу</h3>
+      <div class="example">
+        <div class="example-title">Задание для записи в тетрадь:</div>
+        <p>Объясни на основе представлений о молекулярном строении вещества, почему газ легко сжимается (например, воздух в шарике), а жидкость сжать очень трудно (вспомни опыт с запаянным серебряным шаром).</p>
+      </div>
+      <div class="hw-answer" id="hwAnswer" style="display:none">
+        <p><strong>Решение:</strong> Между молекулами газа расстояния намного больше размеров самих молекул, поэтому при сжатии молекулы просто сближаются — газ легко сжимается. В жидкости молекулы уже находятся близко друг к другу, на расстоянии, сравнимом с их размерами, поэтому уменьшить промежутки почти невозможно — жидкость практически несжимаема.</p>
+      </div>
+      <button class="btn-check" onclick="document.getElementById('hwAnswer').style.display='block'; this.disabled=true;">Показать решение</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? '' : 'dark');
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+}
+(function() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+})();
+
+function showSection(idx) {
+  document.querySelectorAll('.section').forEach((s, i) => s.classList.toggle('active', i === idx));
+  document.querySelectorAll('#mainNav button').forEach((b, i) => b.classList.toggle('active', i === idx));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== TRUE / FALSE =====================
+const tfData = [
+  { correctAnswer: true, explanation: 'Верно! Вода может быть в жидком, твёрдом (лёд) и газообразном (водяной пар) состоянии.' },
+  { correctAnswer: false, explanation: 'Неверно! Твёрдые тела сохраняют форму и объём; чтобы изменить их форму, нужно приложить усилие.' },
+  { correctAnswer: true, explanation: 'Верно! Жидкости сохраняют объём, но легко меняют форму, принимая форму сосуда.' },
+  { correctAnswer: true, explanation: 'Верно! Газы не имеют собственной формы и объёма, они занимают весь предоставленный им объём.' },
+  { correctAnswer: false, explanation: 'Неверно! Молекулы твёрдого тела колеблются около определённой точки, а перескакивают молекулы жидкости.' },
+  { correctAnswer: true, explanation: 'Верно! Расстояние между молекулами газа наибольшее, поэтому притяжение между ними самое слабое.' },
+  { correctAnswer: false, explanation: 'Неверно! Наоборот, между молекулами газа расстояние больше, а между молекулами жидкости молекулы находятся близко друг к другу.' },
+  { correctAnswer: true, explanation: 'Верно! Снежинки и узоры на окнах — проявления кристаллического строения льда.' }
+];
+let tfAnswered = 0, tfCorrect = 0;
+
+function checkTF(idx, userAnswer) {
+  const item = document.getElementById('tf' + idx);
+  const buttons = item.querySelectorAll('.tf-buttons button');
+  if (buttons[0].disabled) return;
+  buttons.forEach(b => b.disabled = true);
+  const isCorrect = userAnswer === tfData[idx].correctAnswer;
+  tfAnswered++; if (isCorrect) tfCorrect++;
+  buttons[userAnswer ? 0 : 1].classList.add(isCorrect ? 'selected-true' : 'selected-false');
+  const comment = document.getElementById('tf-comment-' + idx);
+  comment.className = 'tf-comment ' + (isCorrect ? 'correct' : 'wrong');
+  comment.innerHTML = (isCorrect ? '✅ Правильно! ' : '❌ Неправильно. ') + tfData[idx].explanation;
+  updateTFProgress();
+}
+
+function updateTFProgress() {
+  const bar = document.getElementById('tfProgress');
+  bar.style.width = (tfAnswered / 8 * 100) + '%';
+  bar.textContent = tfCorrect + ' / 8';
+  if (tfAnswered === 8) {
+    bar.style.background = tfCorrect === 8 ? 'linear-gradient(90deg,#22c55e,#34d399)' : 'linear-gradient(90deg,#eab308,#facc15)';
+    if (tfCorrect === 8) launchConfetti();
+  }
+}
+
+// ===================== MATCH GAME =====================
+const matchData = [
+  { qty: 'Твёрдое тело', correct: 'Сохраняет и форму, и объём' },
+  { qty: 'Жидкость', correct: 'Принимает форму сосуда, сохраняя объём' },
+  { qty: 'Газ', correct: 'Занимает весь предоставленный ему объём' },
+  { qty: 'Молекулы газа', correct: 'Беспорядочно движутся, разлетаясь по всему сосуду' },
+  { qty: 'Молекулы жидкости', correct: 'Колеблются и время от времени перескакивают' },
+  { qty: 'Молекулы твёрдого тела', correct: 'Колеблются около своей точки' }
+];
+const allUnits = [
+  'Сохраняет и форму, и объём',
+  'Принимает форму сосуда, сохраняя объём',
+  'Занимает весь предоставленный ему объём',
+  'Беспорядочно движутся, разлетаясь по всему сосуду',
+  'Колеблются и время от времени перескакивают',
+  'Колеблются около своей точки',
+  'Молекулы расположены на одинаковом расстоянии',
+  'Двигаются только по прямой линии'
+];
+
+function initMatch() {
+  const game = document.getElementById('matchGame');
+  game.innerHTML = '';
+  matchData.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'match-row';
+    const shuffled = [...allUnits].sort(() => Math.random() - 0.5);
+    const options = shuffled.map(u => `<option value="${u}">${u}</option>`).join('');
+    row.innerHTML = `
+      <div class="match-qty">${item.qty}</div>
+      <select class="match-select" id="match${i}">
+        <option value="">— Выбери —</option>
+        ${options}
+      </select>
+    `;
+    game.appendChild(row);
+  });
+}
+
+function checkMatch() {
+  let correct = 0;
+  matchData.forEach((item, i) => {
+    const sel = document.getElementById('match' + i);
+    sel.classList.remove('correct', 'wrong');
+    if (sel.value === item.correct) { sel.classList.add('correct'); correct++; }
+    else if (sel.value) { sel.classList.add('wrong'); }
+  });
+  const scoreEl = document.getElementById('matchScore');
+  scoreEl.style.display = 'block';
+  const pct = Math.round((correct / matchData.length) * 100);
+  const color = pct === 100 ? 'var(--green)' : pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+  scoreEl.innerHTML = 'Результат: <span style="color:' + color + '">' + correct + ' из ' + matchData.length + '</span> (' + pct + '%)';
+  if (correct === matchData.length) launchConfetti();
+}
+
+// ===================== LABYRINTH =====================
+const labSteps = [
+  { q: 'Сколько агрегатных состояний вещества существует?', a: '3' },
+  { q: 'В каком состоянии находится вода при температуре ниже 0 °C? (слово)', a: 'лёд' },
+  { q: 'Что всегда сохраняют твёрдые тела? (слово)', a: 'форму' },
+  { q: 'Какое состояние вещества легко меняет форму, принимая форму сосуда? (слово)', a: 'жидкость' },
+  { q: 'Какое состояние вещества не имеет собственной формы и объёма? (слово)', a: 'газ' },
+  { q: 'Как называют твёрдые тела с упорядоченным расположением атомов? (слово)', a: 'кристаллы' },
+  { q: 'При какой температуре свинец становится жидкостью (°C)?', a: '327' },
+  { q: 'Как движутся молекулы твёрдого тела около своих мест? (слово)', a: 'колеблются' }
+];
+let labCurrent = 0, labCorrectCount = 0;
+
+function initLabyrinth() {
+  const visual = document.getElementById('labVisual');
+  visual.innerHTML = '';
+  labSteps.forEach((_, i) => {
+    if (i > 0) { const a = document.createElement('span'); a.className = 'labyrinth-arrow'; a.textContent = '→'; visual.appendChild(a); }
+    const s = document.createElement('div'); s.className = 'labyrinth-step future'; s.textContent = i + 1; s.id = 'labStep' + i; visual.appendChild(s);
+  });
+  updateLabVisual();
+  document.getElementById('labQuestion').textContent = labSteps[0].q;
+  document.getElementById('labInput').value = '';
+}
+
+function updateLabVisual() {
+  labSteps.forEach((_, i) => {
+    document.getElementById('labStep' + i).className = 'labyrinth-step ' + (i < labCurrent ? 'completed' : i === labCurrent ? 'current' : 'future');
+  });
+}
+
+function checkLabStep() {
+  const input = document.getElementById('labInput'), hint = document.getElementById('labHint');
+  const val = input.value.trim().toLowerCase().replace(',', '.');
+  if (!val) { input.style.borderColor = 'var(--red)'; return; }
+  const expected = labSteps[labCurrent].a.toLowerCase().replace(',', '.');
+  if (val === expected || parseFloat(val) === parseFloat(expected)) {
+    labCorrectCount++; hint.className = 'lab-hint correct show'; hint.textContent = '✅ Правильно!'; labCurrent++;
+    setTimeout(() => {
+      if (labCurrent >= labSteps.length) {
+        document.getElementById('labTask').style.display = 'none';
+        document.getElementById('labComplete').classList.add('show');
+        updateLabVisual(); launchConfetti();
+      } else {
+        document.getElementById('labQuestion').textContent = labSteps[labCurrent].q;
+        input.value = ''; input.style.borderColor = 'var(--border)'; hint.className = 'lab-hint'; updateLabVisual();
+      }
+    }, 800);
+  } else {
+    hint.className = 'lab-hint wrong show'; hint.textContent = '❌ Попробуй ещё раз!';
+    input.style.borderColor = 'var(--red)'; input.value = ''; input.focus();
+    setTimeout(() => { hint.className = 'lab-hint'; }, 1500);
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('sec3').classList.contains('active') && labCurrent < labSteps.length) checkLabStep();
+});
+
+// ===================== PRACTICE =====================
+const variants = [
+  { answers: ['3', 'твёрдое', 'кристаллы', 'лёд', 0] },
+  { answers: ['жидкость', 'газ', 'перескакивают', 327, 'узоры'] },
+  { answers: ['вода', 'форму', 'воздух', 'сжать', 'твёрдое'] }
+];
+let activeVariant = 0;
+
+function switchVariant(idx) {
+  activeVariant = idx;
+  document.querySelectorAll('.variant-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  document.querySelectorAll('.variant-content').forEach((v, i) => v.classList.toggle('active', i === idx));
+  document.getElementById('varScore').style.display = 'none';
+}
+
+function checkAllExercises() {
+  const v = variants[activeVariant]; let correct = 0;
+  for (let i = 0; i < 5; i++) {
+    const input = document.getElementById('v' + activeVariant + 'e' + i);
+    const val = input.value.trim().toLowerCase().replace(',', '.');
+    const expected = String(v.answers[i]).toLowerCase().replace(',', '.');
+    input.classList.remove('correct', 'wrong');
+    if (val === expected || parseFloat(val) === parseFloat(expected)) { input.classList.add('correct'); correct++; } else input.classList.add('wrong');
+  }
+  const scoreEl = document.getElementById('varScore'); scoreEl.style.display = 'block';
+  const pct = Math.round((correct / 5) * 100);
+  const color = pct === 100 ? 'var(--green)' : pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+  scoreEl.innerHTML = 'Результат: <span style="color:' + color + '">' + correct + ' из 5</span> (' + pct + '%)';
+  if (correct === 5) launchConfetti();
+}
+
+function showExAnswer(id, btn) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+  btn.textContent = el.style.display === 'block' ? 'Скрыть' : 'Ответ';
+  btn.style.background = el.style.display === 'block' ? 'var(--accent)' : 'transparent';
+  btn.style.color = el.style.display === 'block' ? 'white' : 'var(--accent)';
+}
+
+// ===================== CONFETTI =====================
+function launchConfetti() {
+  const c = document.getElementById('confettiContainer');
+  const colors = ['#6366f1','#8b5cf6','#22c55e','#ef4444','#eab308','#3b82f6','#ec4899'];
+  for (let i = 0; i < 120; i++) {
+    const p = document.createElement('div'); p.className = 'confetti-piece';
+    p.style.left = Math.random()*100+'%'; p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.width = (Math.random()*8+6)+'px'; p.style.height = (Math.random()*8+6)+'px';
+    p.style.borderRadius = Math.random()>0.5?'50%':'2px';
+    p.style.animationDuration = (Math.random()*2+2)+'s'; p.style.animationDelay = (Math.random()*1.5)+'s';
+    c.appendChild(p);
+  }
+  setTimeout(() => { c.innerHTML = ''; }, 5000);
+}
+
+// ===================== DOWNLOAD HOMEWORK (.docx) =====================
+function loadDocxLib(callback) {
+  if (window.docx) { callback(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js';
+  s.onload = callback;
+  s.onerror = function() {
+    alert('Не удалось загрузить библиотеку для создания документа. Проверь подключение к Интернету.');
+  };
+  document.head.appendChild(s);
+}
+
+function makeHWDocTable(headers, rows, colWidths) {
+  const D = docx;
+  const total = colWidths.reduce(function(a, b) { return a + b; }, 0);
+  const headerRow = new D.TableRow({
+    tableHeader: true,
+    children: headers.map(function(h, i) {
+      return new D.TableCell({
+        width: { size: colWidths[i], type: D.WidthType.DXA },
+        shading: { type: D.ShadingType.CLEAR, fill: '3B82F6', color: 'auto' },
+        children: [new D.Paragraph({ children: [new D.TextRun({ text: h, bold: true, color: 'FFFFFF' })] })]
+      });
+    })
+  });
+  const bodyRows = rows.map(function(r) {
+    return new D.TableRow({
+      children: r.map(function(c, i) {
+        return new D.TableCell({
+          width: { size: colWidths[i], type: D.WidthType.DXA },
+          children: [new D.Paragraph({ text: c })]
+        });
+      })
+    });
+  });
+  return new D.Table({
+    width: { size: total, type: D.WidthType.DXA },
+    columnWidths: colWidths,
+    rows: [headerRow].concat(bodyRows)
+  });
+}
+
+function downloadHWDocx() {
+  loadDocxLib(function() {
+    const D = docx;
+    const h1 = t => new D.Paragraph({ heading: D.HeadingLevel.HEADING_1, text: t });
+    const h2 = t => new D.Paragraph({ heading: D.HeadingLevel.HEADING_2, text: t });
+    const para = t => new D.Paragraph({ text: t });
+    const bullet = t => new D.Paragraph({ text: t, numbering: { reference: 'bull', level: 0 } });
+    const numbered = (n, t) => new D.Paragraph({ children: [new D.TextRun({ text: n + '.  ', bold: true }), new D.TextRun(t)] });
+
+    const children = [];
+
+    children.push(new D.Paragraph({
+      alignment: D.AlignmentType.CENTER,
+      children: [
+        new D.TextRun({ text: 'Домашнее задание', bold: true, size: 40, color: '2563EB' })
+      ]
+    }));
+    children.push(new D.Paragraph({
+      alignment: D.AlignmentType.CENTER,
+      children: [
+        new D.TextRun({ text: '§12. Агрегатные состояния вещества', bold: true, size: 32 })
+      ]
+    }));
+    children.push(new D.Paragraph({
+      alignment: D.AlignmentType.CENTER,
+      children: [
+        new D.TextRun({ text: 'Физика · 7 класс · Урок 7', italics: true, size: 24, color: '64748B' })
+      ]
+    }));
+    children.push(new D.Paragraph({ text: '' }));
+
+    children.push(h1('1. Повтори теорию'));
+    children.push(para('Ответь устно на вопросы:'));
+    children.push(new D.Paragraph({ children: [new D.TextRun({ text: '1.  ', bold: true }), new D.TextRun('В каких агрегатных состояниях может находиться вещество?')] }));
+    children.push(new D.Paragraph({ children: [new D.TextRun({ text: '2.  ', bold: true }), new D.TextRun('Какими свойствами обладает вещество в каждом состоянии?')] }));
+    children.push(new D.Paragraph({ children: [new D.TextRun({ text: '3.  ', bold: true }), new D.TextRun('Как объясняются свойства тел строением и движением молекул?')] }));
+    children.push(new D.Paragraph({ children: [new D.TextRun({ text: '4.  ', bold: true }), new D.TextRun('Что такое кристаллы? Приведи примеры.')] }));
+    children.push(new D.Paragraph({ children: [new D.TextRun({ text: '5.  ', bold: true }), new D.TextRun('При какой температуре вода превращается в лёд, а свинец — в жидкость?')] }));
+
+    children.push(h1('2. Отработай в тренажёре'));
+    children.push(bullet('Разминка — 8 вопросов «верно/неверно».'));
+    children.push(bullet('Соответствие — соедини состояния с их свойствами.'));
+    children.push(bullet('Лабиринт — пройди все 8 шагов.'));
+    children.push(bullet('Практика — реши все 3 варианта.'));
+    children.push(new D.Paragraph({
+      children: [new D.TextRun({ text: 'Цель: ', bold: true }), new D.TextRun('набери 100% хотя бы в одном разделе тренажёра. Если не получается — повтори теорию и попробуй снова!')]
+    }));
+
+    children.push(h1('3. Запиши в тетрадь'));
+    children.push(h2('Три агрегатных состояния вещества'));
+    children.push(makeHWDocTable(
+      ['Состояние', 'Свойства', 'Движение молекул'],
+      [
+        ['Твёрдое', 'Сохраняет форму и объём, трудно сжать', 'Колеблются около определённой точки'],
+        ['Жидкое', 'Сохраняет объём, легко меняет форму', 'Колеблются и время от времени перескакивают'],
+        ['Газообразное', 'Не имеет формы и объёма, легко сжимается', 'Беспорядочно движутся по всему объёму']
+      ],
+      [2000, 3400, 3600]
+    ));
+    children.push(h2('Важные температуры'));
+    children.push(makeHWDocTable(
+      ['Вещество', 'Условие', 'Что происходит'],
+      [
+        ['Вода', 'выше 0 °C', 'находится в жидком состоянии'],
+        ['Вода', 'ниже 0 °C', 'находится в твёрдом состоянии (лёд)'],
+        ['Свинец', 'выше 327 °C', 'становится жидкостью']
+      ],
+      [2000, 3000, 4000]
+    ));
+
+    children.push(h1('4. Вопросы и задания из учебника (§12)'));
+    children.push(numbered(1, 'В каких агрегатных состояниях может находиться вещество?'));
+    children.push(numbered(2, 'Охарактеризуйте свойства вещества, находящегося в разных агрегатных состояниях.'));
+    children.push(numbered(3, 'Объясните, как проводится и что доказывает опыт с перевёрнутым вверх дном стаканом, опускаемым в кастрюлю с водой.'));
+    children.push(numbered(4, 'Почему одно и то же вещество может находиться в разных агрегатных состояниях?'));
+    children.push(numbered(5, 'Как движутся молекулы в газах, жидкостях и твёрдых телах?'));
+    children.push(numbered(6, 'Водяной пар, как и окружающий воздух, невидим. Что же представляет собой белая дымка над озером? Используя Интернет, выясни это и запиши вывод.'));
+    children.push(new D.Paragraph({
+      children: [new D.TextRun({ text: '7.  ', bold: true }), new D.TextRun('Опыт: налей в пластиковую бутылку немного воды и помести её в морозильную камеру. Когда вода замёрзнет, добавь в бутылку воды и закрой крышкой. Сколько и какие состояния воды ты наблюдаешь?')]
+    }));
+
+    children.push(h1('5. Реши задачу'));
+    children.push(para('Объясни на основе представлений о молекулярном строении вещества, почему газ легко сжимается (например, воздух в шарике), а жидкость сжать очень трудно.'));
+    children.push(new D.Paragraph({ text: '' }));
+    children.push(new D.Paragraph({
+      children: [new D.TextRun({ text: 'Физика · 7 класс · Урок 7 · §12 «Агрегатные состояния вещества»', italics: true, size: 20, color: '94A3B8' })]
+    }));
+
+    const doc = new D.Document({
+      creator: 'Урок физики',
+      title: 'Домашнее задание §12. Агрегатные состояния вещества',
+      description: 'Физика 7 класс, урок 7',
+      numbering: {
+        config: [{
+          reference: 'bull',
+          levels: [{
+            level: 0,
+            format: D.LevelFormat.BULLET,
+            text: '•',
+            alignment: D.AlignmentType.LEFT,
+            style: { paragraph: { indent: { left: 720, hanging: 360 } } }
+          }]
+        }]
+      },
+      sections: [{ properties: {}, children: children }]
+    });
+
+    D.Packer.toBlob(doc).then(function(blob) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Домашнее задание - §12 Агрегатные состояния вещества - 7 класс.docx';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    });
+  });
+}
+
+// ===================== INIT =====================
+initMatch();
+initLabyrinth();
+</script>
+</body>
+</html>
