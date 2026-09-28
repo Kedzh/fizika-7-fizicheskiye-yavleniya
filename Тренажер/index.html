@@ -224,6 +224,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
     <div class="nav-bar">
       <button class="nav-btn" onclick="openHWList()">← К списку ДЗ</button>
       <div class="nav-title">Домашнее задание</div>
+      <button class="nav-btn" id="hwDocxBtn" onclick="downloadHWDocx()">⬇️ Скачать .docx</button>
     </div>
     <div class="homework-content" id="homeworkContent"></div>
   </div>
@@ -430,13 +431,195 @@ function renderHWList(){
     c.onclick=()=>showHW(t.id);g.appendChild(c);
   });
 }
+let currentHWTopic='';
 function showHW(id){
+  currentHWTopic=id;
   document.getElementById('homeworkContent').innerHTML=HOMEWORK[id]||'';
   showScreen('screenHomework');
 }
 function openHWList(){renderHWList();showScreen('screenHWList')}
 function backFromHomework(){
   if(currentTopic){goMenu()}else{goTopics()}
+}
+
+// ===== ЭКСПОРТ ДОМАШНЕГО ЗАДАНИЯ В .DOCX =====
+const DW_BLOCK=new Set(['div','p','section','article','blockquote','pre','ul','ol','table','h1','h2','h3','h4','h5','h6','li']);
+function dwEsc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function dwRuns(nodes,st,out){
+  for(const n of nodes){
+    if(n.nodeType===3){if(n.nodeValue)out.push({t:n.nodeValue.replace(/\s+/g,' '),s:st});continue}
+    if(n.nodeType!==1)continue;
+    const tag=n.tagName.toLowerCase();
+    if(tag==='br'){out.push({br:1});continue}
+    if(DW_BLOCK.has(tag))continue;
+    if(tag==='strong'||tag==='b'){dwRuns(n.childNodes,Object.assign({},st,{b:1}),out);continue}
+    if(tag==='em'||tag==='i'){dwRuns(n.childNodes,Object.assign({},st,{i:1}),out);continue}
+    if(tag==='u'){dwRuns(n.childNodes,Object.assign({},st,{u:1}),out);continue}
+    dwRuns(n.childNodes,st,out);
+  }
+  return out;
+}
+function dwInline(node){return dwRuns(node.childNodes,{},[])}
+function dwPara(runs,opts){
+  opts=opts||{};
+  const pPr=[];
+  if(opts.style)pPr.push('<w:pStyle w:val="'+opts.style+'"/>');
+  if(opts.space)pPr.push('<w:spacing w:before="180" w:after="60"/>');
+  if(opts.list)pPr.push('<w:ind w:left="360" w:hanging="0"/>');
+  if(opts.align)pPr.push('<w:jc w:val="'+opts.align+'"/>');
+  let body='';
+  if(opts.prefix)body+='<w:r><w:t xml:space="preserve">'+dwEsc(opts.prefix)+'</w:t></w:r>';
+  for(const r of runs){
+    if(r.br){body+='<w:r><w:br/></w:r>';continue}
+    const b=r.s&&r.s.b?'<w:b/>':'',it=r.s&&r.s.i?'<w:i/>':'',u=r.s&&r.s.u?'<w:u w:val="single"/>':'';
+    body+='<w:r>'+((b||it||u)?'<w:rPr>'+b+it+u+'</w:rPr>':'')+'<w:t xml:space="preserve">'+dwEsc(r.t)+'</w:t></w:r>';
+  }
+  return '<w:p>'+(pPr.length?'<w:pPr>'+pPr.join('')+'</w:pPr>':'')+body+'</w:p>';
+}
+function dwList(node,out,ordered){
+  let i=1;
+  for(const n of node.children){
+    if(n.tagName.toLowerCase()!=='li')continue;
+    out.push(dwPara(dwInline(n),{list:true,prefix:(ordered?i+'.  ':'•  ')}));
+    i++;
+  }
+}
+function dwTable(node,out){
+  const trs=[...node.querySelectorAll('tr')].filter(tr=>tr.closest('table')===node);
+  if(!trs.length)return;
+  let cols=1;
+  trs.forEach(tr=>{cols=Math.max(cols,[...tr.children].filter(c=>/^(TD|TH)$/.test(c.tagName)).length)});
+  const edges=['top','left','bottom','right','insideH','insideV'].map(s=>'<w:'+s+' w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/>').join('');
+  let xml='<w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/><w:tblBorders>'+edges+'</w:tblBorders></w:tblPr>';
+  trs.forEach(tr=>{
+    xml+='<w:tr>';
+    [...tr.children].filter(c=>/^(TD|TH)$/.test(c.tagName)).forEach(c=>{
+      const head=/^TH$/.test(c.tagName);
+      const runs=dwInline(c);
+      if(head)runs.forEach(r=>{r.s=Object.assign({},r.s,{b:1})});
+      xml+='<w:tc><w:tcPr><w:tcW w:w="'+Math.floor(5000/cols)+'" w:type="pct"/>'+(head?'<w:shd w:val="clear" w:fill="DBEAFE"/>':'')+'<w:vAlign w:val="center"/></w:tcPr>'+dwPara(runs,{align:'center'})+'</w:tc>';
+    });
+    xml+='</w:tr>';
+  });
+  out.push(xml+'</w:tbl><w:p/>');
+}
+function dwBlocks(node,out,heading){
+  let runs=[];
+  const flush=()=>{
+    const txt=runs.map(r=>r.br?'':(r.t||'')).join('').replace(/[\u00a0]/g,' ').trim();
+    if(txt)out.push(dwPara(runs,{style:heading?'Heading'+Math.min(heading,4):'',space:!!heading}));
+    runs=[];
+  };
+  for(const n of node.childNodes){
+    if(n.nodeType===3){runs.push({t:n.nodeValue.replace(/\s+/g,' ')});continue}
+    if(n.nodeType!==1)continue;
+    const tag=n.tagName.toLowerCase();
+    if(tag==='table'){flush();dwTable(n,out);continue}
+    if(tag==='ul'||tag==='ol'){flush();dwList(n,out,tag==='ol');continue}
+    if(/^h[1-6]$/.test(tag)){flush();out.push(dwPara(dwInline(n),{style:'Heading'+tag[1],space:true}));continue}
+    if(DW_BLOCK.has(tag)){
+      let h=heading||0;
+      if(tag==='div'&&n.classList.contains('hw-title'))h=1;
+      flush();dwBlocks(n,out,h);continue;
+    }
+    runs=runs.concat(dwInline(n));
+  }
+  flush();
+}
+function dwHead(s){return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+s}
+const DW_STYLES=dwHead('<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'+
+ '<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="24"/><w:szCs w:val="24"/><w:lang w:val="ru-RU"/></w:rPr></w:rPrDefault>'+
+ '<w:pPrDefault><w:pPr><w:spacing w:after="120" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>'+
+ '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>'+
+ [1,2,3,4].map(i=>'<w:style w:type="paragraph" w:styleId="Heading'+i+'"><w:name w:val="heading '+i+'"/><w:basedOn w:val="Normal"/><w:qFormat/><w:pPr><w:keepNext/><w:spacing w:before="240" w:after="120"/><w:outlineLvl w:val="'+(i-1)+'"/></w:pPr><w:rPr><w:b/><w:sz w:val="'+(34-i*2)+'"/><w:color w:val="1D4ED8"/></w:rPr></w:style>').join('')+
+ '</w:styles>');
+function dwCrc32(buf){
+  let c=~0;
+  for(let i=0;i<buf.length;i++){
+    c^=buf[i];
+    for(let k=0;k<8;k++)c=(c>>>1)^(0xEDB88320&-(c&1));
+  }
+  return ~c>>>0;
+}
+function dwZip(files){
+  const enc=new TextEncoder(),chunks=[],cdir=[];
+  let off=0,total=0;
+  for(const f of files){
+    const name=enc.encode(f.name),data=enc.encode(f.data),crc=dwCrc32(data),size=data.length;
+    const lh=new Uint8Array(30+name.length),dv=new DataView(lh.buffer);
+    dv.setUint32(0,0x04034b50,true);dv.setUint16(4,20,true);dv.setUint16(6,0x0800,true);
+    dv.setUint16(8,0,true);dv.setUint16(10,0,true);dv.setUint16(12,0x2100,true);
+    dv.setUint32(14,crc,true);dv.setUint32(18,size,true);dv.setUint32(22,size,true);
+    dv.setUint16(26,name.length,true);dv.setUint16(28,0,true);
+    lh.set(name,30);
+    chunks.push(lh,data);
+    const ch=new Uint8Array(46+name.length),cv=new DataView(ch.buffer);
+    cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);
+    cv.setUint16(8,0x0800,true);cv.setUint16(10,0,true);cv.setUint16(12,0,true);cv.setUint16(14,0x2100,true);
+    cv.setUint32(16,crc,true);cv.setUint32(20,size,true);cv.setUint32(24,size,true);
+    cv.setUint16(28,name.length,true);cv.setUint16(30,0,true);cv.setUint16(32,0,true);
+    cv.setUint16(34,0,true);cv.setUint16(36,0,true);cv.setUint32(38,0,true);cv.setUint32(42,off,true);
+    ch.set(name,46);
+    cdir.push(ch);
+    off+=lh.length+size;total++;
+  }
+  const cdSize=cdir.reduce((a,b)=>a+b.length,0);
+  const eocd=new Uint8Array(22),ev=new DataView(eocd.buffer);
+  ev.setUint32(0,0x06054b50,true);ev.setUint16(4,0,true);ev.setUint16(6,0,true);
+  ev.setUint16(8,total,true);ev.setUint16(10,total,true);
+  ev.setUint32(12,cdSize,true);ev.setUint32(16,off,true);ev.setUint16(20,0,true);
+  return new Blob([...chunks,...cdir,eocd],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+}
+function downloadHWDocx(){
+  const btn=document.getElementById('hwDocxBtn');
+  const root=document.getElementById('homeworkContent');
+  if(!root||!root.innerHTML.trim()){alert('Для этой темы нет домашнего задания');return}
+  try{
+    const t=TOPICS.find(x=>x.id===currentHWTopic);
+    const title=(t?t.label:'Домашнее задание').replace(/[\\/:*?"<>|]/g,'');
+    const blocks=[];
+    dwBlocks(root,blocks);
+    const doc=dwHead('<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+
+      blocks.join('')+
+      '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/>'+
+      '<w:pgMar w:top="1134" w:right="850" w:bottom="1134" w:left="1701" w:header="708" w:footer="708" w:gutter="0"/>'+
+      '<w:cols w:space="708"/></w:sectPr></w:body></w:document>');
+    const types=dwHead('<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
+      '<Default Extension="xml" ContentType="application/xml"/>'+
+      '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'+
+      '<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'+
+      '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/></Types>');
+    const rels=dwHead('<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'+
+      '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/></Relationships>');
+    const drels=dwHead('<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>');
+    const stamp=new Date().toISOString().replace(/\.\d+Z$/,'Z');
+    const core=dwHead('<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" '+
+      'xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" '+
+      'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'+
+      '<dc:title>'+dwEsc(title)+'</dc:title><dc:creator>Тренажёр по физике 7 класс</dc:creator>'+
+      '<cp:lastModifiedBy>Тренажёр по физике 7 класс</cp:lastModifiedBy>'+
+      '<dcterms:created xsi:type="dcterms:W3CDTF">'+stamp+'</dcterms:created>'+
+      '<dcterms:modified xsi:type="dcterms:W3CDTF">'+stamp+'</dcterms:modified></cp:coreProperties>');
+    const blob=dwZip([
+      {name:'[Content_Types].xml',data:types},
+      {name:'_rels/.rels',data:rels},
+      {name:'word/document.xml',data:doc},
+      {name:'word/styles.xml',data:DW_STYLES},
+      {name:'word/_rels/document.xml.rels',data:drels},
+      {name:'docProps/core.xml',data:core}
+    ]);
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='Домашнее задание - '+title+'.docx';
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
+    if(btn){const old=btn.textContent;btn.textContent='✅ Файл скачан';setTimeout(()=>btn.textContent=old,2500)}
+  }catch(e){
+    alert('Не удалось создать файл .docx: '+e.message);
+  }
 }
 
 // ===== ДАННЫЕ =====
