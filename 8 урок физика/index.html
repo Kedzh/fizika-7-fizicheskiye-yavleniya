@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§8. Молекулы — 7 класс</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+:root{--bg:#f0f4f8;--card:#fff;--primary:#3b82f6;--primary-light:#dbeafe;--accent:#f97316;--green:#22c55e;--red:#ef4444;--yellow:#eab308;--text:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;--shadow:0 4px 24px rgba(0,0,0,.08);--radius:16px;--radius-sm:10px}
+[data-theme=dark]{--bg:#0f172a;--card:#1e293b;--primary:#60a5fa;--primary-light:#1e3a5f;--accent:#fb923c;--green:#4ade80;--red:#f87171;--yellow:#facc15;--text:#f1f5f9;--text-secondary:#94a3b8;--border:#334155;--shadow:0 4px 24px rgba(0,0,0,.3)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Nunito',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;transition:background .3s,color .3s;overflow-x:hidden}
+.container{max-width:1600px;margin:0 auto;padding:24px 48px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+header{background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;padding:32px 40px;border-radius:var(--radius);margin-bottom:24px;text-align:center;position:relative;box-shadow:var(--shadow);overflow:hidden}
+header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 60%);animation:hp 8s ease-in-out infinite}
+@keyframes hp{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+header h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:800;position:relative}
+header .subtitle{font-size:1.8rem;opacity:.9;margin-top:6px;position:relative}
+header .source{font-size:1.3rem;opacity:.7;margin-top:4px;position:relative}
+.theme-toggle{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:2.2rem;width:56px;height:56px;border-radius:50%;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center}
+.theme-toggle:hover{background:rgba(255,255,255,.35);transform:scale(1.1)}
+nav{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;position:sticky;top:0;background:var(--bg);padding:12px 0;z-index:100;border-bottom:2px solid var(--border)}
+nav button{flex:1;min-width:140px;padding:16px 20px;border:2px solid var(--border);background:var(--card);color:var(--text);border-radius:var(--radius-sm);font-family:inherit;font-size:1.3rem;font-weight:700;cursor:pointer;transition:all .3s}
+nav button:hover{border-color:var(--primary);color:var(--primary);transform:translateY(-2px)}
+nav button.active{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 4px 16px rgba(59,130,246,.3)}
+nav button .nav-emoji{display:block;font-size:2rem;margin-bottom:2px}
+.section{display:none;animation:fi .4s ease}
+.section.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--card);border-radius:var(--radius);padding:32px;margin-bottom:20px;box-shadow:var(--shadow);border:1px solid var(--border);transition:background .3s,border .3s}
+.card h2{font-size:2.2rem;margin-bottom:6px;color:var(--primary)}
+.card h2 .emoji{margin-right:10px}
+.card .card-desc{color:var(--text-secondary);font-size:1.5rem;margin-bottom:18px}
+.theory-box{background:var(--primary-light);border-radius:var(--radius-sm);padding:24px;margin-bottom:20px;border-left:4px solid var(--primary)}
+.theory-box h3{font-size:1.8rem;margin-bottom:12px;color:var(--primary)}
+.theory-box p{font-size:1.5rem;margin-bottom:10px}
+.theory-box .formula{background:var(--card);border:2px solid var(--primary);border-radius:8px;padding:16px 24px;font-size:1.8rem;font-weight:700;text-align:center;margin:16px 0;color:var(--primary)}
+.theory-box .example{background:var(--card);border-radius:8px;padding:16px;margin-top:12px;font-size:1.4rem}
+.theory-box .example-title{font-weight:700;color:var(--accent);margin-bottom:6px}
+.units-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:1.4rem}
+.units-table th{background:var(--primary);color:#fff;padding:12px 16px;text-align:left;font-weight:700}
+.units-table td{padding:12px 16px;border-bottom:1px solid var(--border)}
+.units-table tr:nth-child(even){background:rgba(59,130,246,.05)}
+.exp-box{background:#f0fdf4;border:2px solid var(--green);border-radius:var(--radius-sm);padding:24px;margin-bottom:20px}
+[data-theme=dark] .exp-box{background:#052e16;border-color:#22c55e}
+.exp-box h3{font-size:1.8rem;margin-bottom:12px;color:var(--green)}
+[data-theme=dark] .exp-box h3{color:#4ade80}
+.exp-box p{font-size:1.5rem;margin-bottom:10px}
+.exp-title{font-weight:700;color:var(--accent);margin-bottom:6px;font-size:1.4rem}
+.exp-steps{background:var(--card);border-radius:8px;padding:16px;margin-top:12px;font-size:1.4rem;border-left:4px solid var(--green)}
+.exp-result{background:#dcfce7;border-radius:8px;padding:14px;margin-top:12px;font-size:1.4rem;font-weight:700;color:#166534;display:none}
+[data-theme=dark] .exp-result{background:#14532d;color:#bbf7d0}
+.exp-visual{display:flex;align-items:center;justify-content:center;min-height:160px;background:var(--bg);border-radius:8px;margin-top:14px;overflow:hidden;position:relative;border:1px solid var(--border);padding:16px}
+.exp-btn{padding:10px 24px;background:var(--green);color:#fff;border:none;border-radius:8px;font-family:inherit;font-weight:700;font-size:1.4rem;cursor:pointer;transition:all .3s;margin-top:12px}
+.exp-btn:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(34,197,94,.4)}
+.exp-btn:disabled{opacity:.5;cursor:default;transform:none}
+.glasses{display:flex;gap:24px;align-items:flex-end}
+.glass{width:56px;height:110px;border:3px solid #94a3b8;border-top:none;border-radius:0 0 10px 10px;position:relative;background:#f8fafc}
+.glass .liquid{position:absolute;bottom:0;left:0;right:0;background:#f472b6;border-radius:0 0 7px 7px;transition:background 1s,opacity 1s}
+.tf-item{background:var(--bg);border-radius:var(--radius-sm);padding:18px 24px;margin-bottom:12px;border-left:4px solid var(--primary);animation:si .4s ease backwards}
+@keyframes si{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+.tf-statement{font-weight:600;font-size:1.65rem;margin-bottom:10px}
+.tf-buttons{display:flex;gap:12px}
+.tf-buttons button{padding:10px 24px;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-weight:700;font-size:1.5rem;cursor:pointer;transition:all .3s;background:var(--card);color:var(--text)}
+.tf-buttons button.true-btn:hover{border-color:var(--green);color:var(--green)}
+.tf-buttons button.false-btn:hover{border-color:var(--red);color:var(--red)}
+.tf-buttons button.selected-true{background:var(--green);color:#fff;border-color:var(--green);box-shadow:0 2px 12px rgba(34,197,94,.4)}
+.tf-buttons button.selected-false{background:var(--red);color:#fff;border-color:var(--red);box-shadow:0 2px 12px rgba(239,68,68,.4)}
+.tf-buttons button:disabled{cursor:default;opacity:.5}
+.tf-comment{margin-top:10px;padding:10px 16px;border-radius:8px;font-size:1.4rem;font-weight:600;display:none}
+.tf-comment.correct{background:#dcfce7;color:#166534;display:block}
+.tf-comment.wrong{background:#fee2e2;color:#991b1d;display:block}
+[data-theme=dark] .tf-comment.correct{background:#14532d;color:#bbf7d0}
+[data-theme=dark] .tf-comment.wrong{background:#7f1d1d;color:#fecaca}
+.progress-bar-wrap{margin-top:20px;background:var(--bg);border-radius:20px;overflow:hidden;height:34px}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--green),#34d399);border-radius:20px;transition:width .6s ease;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.35rem;min-width:65px}
+.match-game{max-width:1000px;margin:0 auto}
+.match-row{display:grid;grid-template-columns:220px 1fr;gap:14px;align-items:center;margin-bottom:12px;background:var(--bg);border-radius:var(--radius-sm);padding:14px 18px;border-left:4px solid var(--primary)}
+.match-qty{font-weight:700;font-size:1.45rem;line-height:1.35}
+.match-select{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:1.4rem;font-weight:600;background:var(--card);color:var(--text);cursor:pointer;transition:border .3s;line-height:1.4;white-space:normal;min-height:48px}
+.match-select:focus{border-color:var(--primary);outline:none}
+.match-select.correct{border-color:var(--green);background:#dcfce7}
+.match-select.wrong{border-color:var(--red);background:#fee2e2}
+[data-theme=dark] .match-select.correct{background:#14532d}
+[data-theme=dark] .match-select.wrong{background:#7f1d1d}
+@media(max-width:600px){.match-row{grid-template-columns:1fr;gap:8px}}
+.variant-tabs{display:flex;gap:10px;margin-bottom:20px}
+.variant-tab{flex:1;padding:14px;border:2px solid var(--border);background:var(--card);border-radius:var(--radius-sm);font-family:inherit;font-weight:700;font-size:1.6rem;cursor:pointer;transition:all .3s;color:var(--text)}
+.variant-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 4px 16px rgba(249,115,22,.3)}
+.variant-content{display:none}
+.variant-content.active{display:block;animation:fi .4s ease}
+.exercise{display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--bg);border-radius:var(--radius-sm);margin-bottom:10px;flex-wrap:wrap}
+.exercise .ex-num{width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.35rem;flex-shrink:0}
+.exercise .ex-text{flex:1;font-weight:600;font-size:1.45rem}
+.exercise .ex-input{width:150px;padding:10px;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:1.6rem;text-align:center;font-weight:700;background:var(--card);color:var(--text)}
+.exercise .ex-input:focus{border-color:var(--primary);outline:none}
+.exercise .ex-input.correct{border-color:var(--green);background:#dcfce7}
+.exercise .ex-input.wrong{border-color:var(--red);background:#fee2e2}
+[data-theme=dark] .exercise .ex-input.correct{background:#14532d}
+[data-theme=dark] .exercise .ex-input.wrong{background:#7f1d1d}
+.btn-check-all{margin-top:16px;padding:14px 36px;background:linear-gradient(135deg,var(--accent),#ea580c);color:#fff;border:none;border-radius:var(--radius-sm);font-family:inherit;font-weight:700;font-size:1.65rem;cursor:pointer;transition:all .3s;display:block;margin-left:auto;margin-right:auto}
+.btn-check-all:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(249,115,22,.4)}
+.score-display{text-align:center;margin-top:16px;font-size:1.9rem;font-weight:700;display:none;animation:fi .4s ease}
+.btn-check{padding:14px 36px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);font-family:inherit;font-weight:700;font-size:1.65rem;cursor:pointer;transition:all .3s}
+.btn-check:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(59,130,246,.4)}
+.btn-check:disabled{opacity:.6;cursor:default;transform:none;box-shadow:none}
+.ex-hint-btn{margin-left:8px;padding:8px 14px;border:2px solid var(--accent);background:transparent;color:var(--accent);border-radius:8px;font-family:inherit;font-weight:700;font-size:1.2rem;cursor:pointer;transition:all .3s;flex-shrink:0}
+.ex-hint-btn:hover{background:var(--accent);color:#fff}
+.hw-answer{margin-top:12px;padding:16px;border-radius:8px;background:#dcfce7;color:#166534;font-size:1.4rem;font-weight:600;animation:fi .4s ease}
+[data-theme=dark] .hw-answer{background:#14532d;color:#bbf7d0}
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;overflow:hidden}
+.confetti-piece{position:absolute;width:10px;height:10px;top:-20px;animation:cf linear forwards}
+@keyframes cf{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@media(max-width:1100px){.two-col{grid-template-columns:1fr}}
+@media(max-width:600px){.container{padding:12px}.card{padding:18px}header{padding:20px 14px}nav button{min-width:100px;padding:10px 6px;font-size:1.1rem}.exercise{flex-direction:column;align-items:stretch;text-align:center}.exercise .ex-input{width:100%}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Переключить тему">🌓</button>
+<h1>§8. Молекулы</h1>
+<div class="subtitle">7 класс · Урок 8 · Визуальные опыты</div>
+<div class="source">По учебнику Перышкин А.В. и др. (Просвещение, 2023)</div>
+</header>
+<nav id="mainNav">
+<button class="active" onclick="showSection(0)"><span class="nav-emoji">📖</span>Теория</button>
+<button onclick="showSection(1)"><span class="nav-emoji">🧪</span>Опыты</button>
+<button onclick="showSection(2)"><span class="nav-emoji">🔥</span>Разминка</button>
+<button onclick="showSection(3)"><span class="nav-emoji">🔗</span>Соответствие</button>
+<button onclick="showSection(4)"><span class="nav-emoji">📝</span>Практика</button>
+<button onclick="showSection(5)"><span class="nav-emoji">📚</span>Домашняя</button>
+</nav>
+
+<!-- SECTION 0: THEORY -->
+<div class="section active" id="sec0">
+<div class="card">
+<h2><span class="emoji">📖</span>Теория. §8. Молекулы</h2>
+<p class="card-desc">Познакомься с молекулами, их строением и размерами, а также с прямыми доказательствами их существования!</p>
+<div class="theory-box">
+<h3>Что же представляют собой мельчайшие частицы вещества?</h3>
+<p>Французский учёный <strong>Пьер Гассенди</strong> (XVII в.), развивая учение об атомарном строении вещества, предположил, что атомы отличаются друг от друга. Он считал, что различных атомов примерно несколько десятков. Гассенди почти угадал: сегодня открыто <strong>118 разновидностей атомов</strong>. Каждая разновидность (элемент) имеет своё название и обозначение.</p>
+<p>Атомы могут образовывать небольшие устойчивые группы. Эти группы Гассенди назвал <strong>молекулами</strong>, т. е. «массочками» (от лат. <em>moles</em> — масса). Несмотря на то что количество атомов ограничено, из них можно создать огромное количество молекул — это и объясняет большое разнообразие веществ в природе. Каждому веществу соответствует свой тип молекул.</p>
+<div class="formula">Молекула вещества — это мельчайшая частица данного вещества.</div>
+<div class="example">
+<div class="example-title">Важно</div>
+<p>Из одного и того же набора атомов можно собрать огромное множество разных молекул — поэтому веществ в природе так много.</p>
+</div>
+</div>
+<div class="theory-box">
+<h3>Из чего состоят молекулы</h3>
+<p>Самая маленькая частица углекислого газа — молекула CO₂ — состоит из трёх атомов: двух атомов кислорода и одного атома углерода. Наименьшая частица воды — молекула H₂O — состоит из одного атома кислорода и двух атомов водорода. В молекулах белков атомов содержится десятки и сотни тысяч.</p>
+<p>Молекулы могут делиться на атомы и, наоборот, образовываться из них (рис. 23). При слиянии или делении молекул образуются <strong>новые вещества</strong> с совершенно другими свойствами. Например, под действием ультрафиолетового излучения Солнца из молекул кислорода образуется новое вещество — <strong>озон</strong>, молекулы которого содержат по три атома кислорода. Основная масса озона расположена на высоте <strong>20—25 км</strong>; этот слой предохраняет живые организмы от вредных составляющих солнечного излучения.</p>
+<div class="example">
+<div class="example-title">Вещества без молекул</div>
+<p>Существуют вещества, которые состоят не из молекул, а из атомов: <strong>кремний, сера, мышьяк</strong>, некоторые газы (<strong>неон, гелий</strong> и др.).</p>
+</div>
+</div>
+<div class="theory-box">
+<h3>Атомы и молекулы «на глазах»</h3>
+<p>Прямое экспериментальное подтверждение реальности атомов и молекул получено благодаря современным приборам — <strong>электронным и туннельным микроскопам</strong>. С их помощью удалось получить изображения, на которых различимы отдельные молекулы и атомы (рис. 24). До этого существование атомов и молекул доказывалось лишь косвенным путём, и одно время учёные считали, что увидеть атомы и молекулы невозможно.</p>
+<table class="units-table">
+<tr><th>Что показали исследования</th><th>Вывод</th></tr>
+<tr><td>Строение вещества изучено при помощи микроскопов</td><td>Все вещества состоят из молекул или атомов, между которыми существуют промежутки</td></tr>
+<tr><td>Опыт с масляной плёнкой (рис. 25)</td><td>Молекулы и атомы очень малы: толщина плёнки оказалась порядка 10⁻⁹ м</td></tr>
+<tr><td>Сравнение молекул одного вещества</td><td>Молекулы одного и того же вещества одинаковы</td></tr>
+</table>
+<div class="example">
+<div class="example-title">Насколько малы молекулы?</div>
+<p>Если молекулу воды увеличить до размеров яблока, то яблоко, увеличенное во столько же раз, стало бы размером с Землю! Грубую оценку размеров молекул получили Вильгельм Рентген (1845—1923) и Джон Рэлей (1842—1919) с помощью метода масляных плёнок: каплю спиртового раствора масла капают на воду, спирт растворяется, и остаётся плёнка, толщина которой не может быть меньше диаметра молекулы масла.</p>
+</div>
+<div class="example">
+<div class="example-title">Граница курса физики</div>
+<p>В курсе физики рассматриваются такие превращения вещества, при которых образование новых молекул не происходит (это вы будете изучать в курсе химии).</p>
+</div>
+</div>
+<div class="theory-box">
+<h3>Вопросы для самопроверки</h3>
+<div class="example">
+<p>1. Расскажите, что вам известно о молекулах.<br>2. Из каких частиц состоит молекула водорода?<br>3. Правильно ли утверждать, что наименьшей частицей водорода является атом? Почему?<br>4. Почему толщина масляной плёнки не может быть меньше диаметра молекулы?<br>5. Какие приборы позволили «увидеть» атомы и молекулы?</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- SECTION 1: EXPERIMENTS -->
+<div class="section" id="sec1">
+<div class="card">
+<h2><span class="emoji">🧪</span>Визуальные опыты</h2>
+<p class="card-desc">Нажми кнопку «Запустить» и наблюдай, как молекулы образуются, делятся и «появляются» в приборах!</p>
+
+<div class="exp-box">
+<h3>Опыт 1. Распад и слияние молекул (рис. 23)</h3>
+<div class="exp-title">Цель: показать, что молекулы могут делиться на атомы и образовываться из них</div>
+<div class="exp-steps"><strong>Что происходит:</strong> Под действием электромагнитного излучения две молекулы воды распадаются на атомы. Затем из тех же атомов образуются одна молекула кислорода и две молекулы водорода.</div>
+<div class="exp-visual">
+<svg viewBox="0 0 460 200" style="width:95%;max-width:460px" xmlns="http://www.w3.org/2000/svg">
+<g id="exp1a" style="transition:opacity 1.2s ease">
+<line x1="70" y1="60" x2="46" y2="84" stroke="#94a3b8" stroke-width="3"/><line x1="70" y1="60" x2="94" y2="84" stroke="#94a3b8" stroke-width="3"/>
+<circle cx="70" cy="60" r="20" fill="#ef4444"/><circle cx="46" cy="84" r="11" fill="#f1f5f9" stroke="#cbd5e1"/><circle cx="94" cy="84" r="11" fill="#f1f5f9" stroke="#cbd5e1"/>
+<line x1="70" y1="140" x2="46" y2="164" stroke="#94a3b8" stroke-width="3"/><line x1="70" y1="140" x2="94" y2="164" stroke="#94a3b8" stroke-width="3"/>
+<circle cx="70" cy="140" r="20" fill="#ef4444"/><circle cx="46" cy="164" r="11" fill="#f1f5f9" stroke="#cbd5e1"/><circle cx="94" cy="164" r="11" fill="#f1f5f9" stroke="#cbd5e1"/>
+<text x="24" y="196" font-size="13" fill="currentColor" font-weight="bold">а) молекулы воды</text>
+</g>
+<g id="exp1arrow" style="transition:opacity .6s ease">
+<line x1="150" y1="100" x2="225" y2="100" stroke="#6366f1" stroke-width="4"/>
+<polygon points="225,92 245,100 225,108" fill="#6366f1"/>
+<text x="148" y="86" font-size="12" fill="#6366f1" font-weight="bold">излучение</text>
+</g>
+<g id="exp1b" opacity="0" style="transition:opacity 1.2s ease">
+<circle cx="300" cy="66" r="20" fill="#ef4444"/><circle cx="342" cy="66" r="20" fill="#ef4444"/>
+<line x1="300" y1="66" x2="342" y2="66" stroke="#94a3b8" stroke-width="4"/>
+<circle cx="288" cy="146" r="11" fill="#f1f5f9" stroke="#cbd5e1"/><circle cx="312" cy="146" r="11" fill="#f1f5f9" stroke="#cbd5e1"/>
+<circle cx="356" cy="146" r="11" fill="#f1f5f9" stroke="#cbd5e1"/><circle cx="380" cy="146" r="11" fill="#f1f5f9" stroke="#cbd5e1"/>
+<text x="266" y="196" font-size="13" fill="currentColor" font-weight="bold">б) кислород и водород</text>
+</g>
+</svg>
+</div>
+<button class="exp-btn" onclick="runExp1(this)">▶ Запустить</button>
+<div class="exp-result" id="exp1result">🧪 Из одних и тех же атомов получились другие молекулы — а значит, образовалось новое вещество с другими свойствами! Молекулы действительно делятся на атомы и образуются из них.</div>
+</div>
+
+<div class="exp-box">
+<h3>Опыт 2. Рождение озона</h3>
+<div class="exp-title">Цель: показать, что при перегруппировке атомов возникает новое вещество</div>
+<div class="exp-steps"><strong>Что происходит:</strong> В нижних слоях атмосферы под действием ультрафиолетового излучения Солнца из молекул кислорода (2 атома) образуются молекулы озона (3 атома). Основная масса озона — на высоте 20—25 км.</div>
+<div class="exp-visual">
+<svg viewBox="0 0 460 210" style="width:95%;max-width:460px" xmlns="http://www.w3.org/2000/svg">
+<circle cx="48" cy="42" r="24" fill="#fde047"/>
+<g stroke="#fde047" stroke-width="3">
+<line x1="48" y1="6" x2="48" y2="-4"/><line x1="84" y1="42" x2="94" y2="42"/><line x1="74" y1="16" x2="82" y2="8"/><line x1="74" y1="68" x2="82" y2="76"/>
+</g>
+<text x="88" y="30" font-size="13" fill="#b45309" font-weight="bold">Солнце</text>
+<g id="exp2uv" opacity="1" style="transition:opacity .8s ease">
+<line x1="90" y1="70" x2="150" y2="98" stroke="#8b5cf6" stroke-width="3" stroke-dasharray="6 5"/>
+<line x1="90" y1="60" x2="240" y2="94" stroke="#8b5cf6" stroke-width="3" stroke-dasharray="6 5"/>
+<text x="96" y="86" font-size="12" fill="#8b5cf6" font-weight="bold">УФ-излучение</text>
+</g>
+<rect x="0" y="92" width="460" height="72" fill="rgba(99,102,241,.14)" stroke="#6366f1" stroke-width="2" stroke-dasharray="8 6"/>
+<text x="286" y="88" font-size="12" fill="#6366f1" font-weight="bold">слой озона · 20—25 км</text>
+<g id="exp2a" style="transition:opacity 1s ease">
+<circle cx="150" cy="118" r="14" fill="#ef4444"/><circle cx="184" cy="118" r="14" fill="#ef4444"/>
+<circle cx="240" cy="146" r="14" fill="#ef4444"/><circle cx="274" cy="146" r="14" fill="#ef4444"/>
+<circle cx="336" cy="118" r="14" fill="#ef4444"/><circle cx="370" cy="118" r="14" fill="#ef4444"/>
+<text x="150" y="106" font-size="11" fill="currentColor" font-weight="bold">O₂</text>
+<text x="240" y="134" font-size="11" fill="currentColor" font-weight="bold">O₂</text>
+<text x="336" y="106" font-size="11" fill="currentColor" font-weight="bold">O₂</text>
+</g>
+<g id="exp2b" opacity="0" style="transition:opacity 1s ease">
+<circle cx="152" cy="130" r="14" fill="#8b5cf6"/><circle cx="184" cy="130" r="14" fill="#a78bfa"/><circle cx="216" cy="130" r="14" fill="#8b5cf6"/>
+<circle cx="312" cy="130" r="14" fill="#8b5cf6"/><circle cx="344" cy="130" r="14" fill="#a78bfa"/><circle cx="376" cy="130" r="14" fill="#8b5cf6"/>
+<text x="178" y="116" font-size="11" fill="currentColor" font-weight="bold">O₃</text>
+<text x="338" y="116" font-size="11" fill="currentColor" font-weight="bold">O₃</text>
+</g>
+<rect x="0" y="190" width="460" height="14" fill="#16a34a"/>
+<text x="8" y="202" font-size="11" fill="#fff" font-weight="bold">Земля</text>
+<text id="exp2label" x="140" y="182" font-size="13" fill="currentColor" font-weight="bold">молекулы кислорода в атмосфере</text>
+</svg>
+</div>
+<button class="exp-btn" onclick="runExp2(this)">▶ Запустить</button>
+<div class="exp-result" id="exp2result">☀️ Из молекул кислорода (2 атома) образовался озон — новое вещество с молекулами из 3 атомов! Именно этот слой предохраняет живые организмы на Земле.</div>
+</div>
+
+<div class="exp-box">
+<h3>Опыт 3. Масляная плёнка (рис. 25)</h3>
+<div class="exp-title">Цель: оценить размер молекул с помощью метода масляных плёнок</div>
+<div class="exp-steps"><strong>Что происходит:</strong> На поверхность воды капают маленькую капельку спиртового раствора масла. Спирт растворяется, и остаётся масляная плёнка — её толщина не может быть меньше диаметра молекулы масла.</div>
+<div class="exp-visual">
+<svg viewBox="0 0 460 200" style="width:95%;max-width:460px" xmlns="http://www.w3.org/2000/svg">
+<rect x="70" y="76" width="320" height="106" fill="#bae6fd" stroke="#60a5fa" stroke-width="3" rx="6"/>
+<rect x="73" y="79" width="314" height="100" fill="#38bdf8" opacity=".45" rx="4"/>
+<ellipse id="exp3drop" cx="230" cy="26" rx="11" ry="13" fill="#fbbf24" stroke="#d97706" stroke-width="2" style="transition:all 1.3s ease"/>
+<text x="252" y="30" font-size="12" fill="currentColor" font-weight="bold">капля раствора масла</text>
+<rect id="exp3film" x="73" y="76" width="0" height="9" fill="#f59e0b" style="transition:width 1.6s ease"/>
+<text x="70" y="199" font-size="12" fill="currentColor">вода в стакане</text>
+<text id="exp3label" x="300" y="70" font-size="14" fill="#b45309" font-weight="bold" opacity="0" style="transition:opacity .8s ease">d ≈ 10⁻⁹ м</text>
+</svg>
+</div>
+<button class="exp-btn" onclick="runExp3(this)">▶ Запустить</button>
+<div class="exp-result" id="exp3result">🫧 Пятно растеклось тончайшим слоем! Измерив его площадь и зная объём капли, Рентген и Рэлей вычислили толщину плёнки — порядка 10⁻⁹ м. Это и есть оценка диаметра молекулы: если молекулу воды увеличить до размеров яблока, яблоко стало бы размером с Землю.</div>
+</div>
+
+<div class="exp-box">
+<h3>Опыт 4. Атомы «на глазах» (рис. 24)</h3>
+<div class="exp-title">Цель: получить изображение отдельных атомов с помощью туннельного микроскопа</div>
+<div class="exp-steps"><strong>Что происходит:</strong> Современные электронные и туннельные микроскопы дают увеличение до 10⁶ раз — на изображении различимы отдельные атомы платины.</div>
+<div class="exp-visual">
+<svg viewBox="0 0 460 160" style="width:95%;max-width:460px" xmlns="http://www.w3.org/2000/svg">
+<rect id="exp4blur" x="40" y="24" width="380" height="96" rx="10" fill="#a5b4fc" opacity=".95" style="transition:opacity 2s ease"/>
+<text id="exp4label1" x="118" y="78" font-size="15" fill="#312e81" font-weight="bold" style="transition:opacity 2s ease">«сплошное» вещество — без прибора</text>
+<g id="exp4atoms" opacity="0" style="transition:opacity 2s ease">
+<g fill="#6366f1">
+<circle cx="90" cy="52" r="15"/><circle cx="130" cy="52" r="15"/><circle cx="170" cy="52" r="15"/><circle cx="210" cy="52" r="15"/><circle cx="250" cy="52" r="15"/><circle cx="290" cy="52" r="15"/><circle cx="330" cy="52" r="15"/><circle cx="370" cy="52" r="15"/>
+<circle cx="110" cy="86" r="15"/><circle cx="150" cy="86" r="15"/><circle cx="190" cy="86" r="15"/><circle cx="230" cy="86" r="15"/><circle cx="270" cy="86" r="15"/><circle cx="310" cy="86" r="15"/><circle cx="350" cy="86" r="15"/>
+<circle cx="90" cy="120" r="15"/><circle cx="130" cy="120" r="15"/><circle cx="170" cy="120" r="15"/><circle cx="210" cy="120" r="15"/><circle cx="250" cy="120" r="15"/><circle cx="290" cy="120" r="15"/><circle cx="330" cy="120" r="15"/><circle cx="370" cy="120" r="15"/>
+</g>
+<g fill="#c7d2fe">
+<circle cx="90" cy="52" r="6"/><circle cx="170" cy="52" r="6"/><circle cx="250" cy="52" r="6"/><circle cx="330" cy="52" r="6"/>
+<circle cx="150" cy="86" r="6"/><circle cx="230" cy="86" r="6"/><circle cx="310" cy="86" r="6"/>
+<circle cx="130" cy="120" r="6"/><circle cx="210" cy="120" r="6"/><circle cx="290" cy="120" r="6"/><circle cx="370" cy="120" r="6"/>
+</g>
+<text x="118" y="18" font-size="13" fill="currentColor" font-weight="bold">атомы платины · туннельный микроскоп</text>
+</g>
+</svg>
+</div>
+<button class="exp-btn" onclick="runExp4(this)">▶ Запустить</button>
+<div class="exp-result" id="exp4result">🔬 Молекулы и атомы реально существуют — их удалось сфотографировать! Раньше это считалось невозможным.</div>
+</div>
+</div>
+</div>
+
+<!-- SECTION 2: WARM-UP (True/False) -->
+<div class="section" id="sec2">
+<div class="card">
+<h2><span class="emoji">🔥</span>Разминка. Верно или неверно?</h2>
+<p class="card-desc">Выбери «Верно» или «Неверно» для каждого утверждения (8 вопросов)</p>
+<div class="two-col">
+<div>
+<div class="tf-item" style="animation-delay:.05s" data-explain="Таково определение из §8: молекула вещества — это мельчайшая частица данного вещества. Каждому веществу соответствует свой тип молекул.">
+<div class="tf-statement">1. Молекула вещества — это мельчайшая частица данного вещества.</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,true)">Верно</button><button class="false-btn" onclick="answerTF(this,false,true)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+<div class="tf-item" style="animation-delay:.1s" data-explain="Неверно! Слово «молекула» происходит от латинского moles — «масса», «массочка». А слово «атом» по-гречески означает «неделимый».">
+<div class="tf-statement">2. Слово «атом» происходит от латинского слова, означающего «масса».</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,false)">Верно</button><button class="false-btn" onclick="answerTF(this,false,false)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+<div class="tf-item" style="animation-delay:.15s" data-explain="Неверно! Молекула воды состоит из одного атома кислорода и двух атомов водорода. Молекула углекислого газа состоит из трёх атомов: двух кислорода и одного углерода.">
+<div class="tf-statement">3. Молекула воды состоит из двух атомов кислорода и одного атома водорода.</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,false)">Верно</button><button class="false-btn" onclick="answerTF(this,false,false)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+<div class="tf-item" style="animation-delay:.2s" data-explain="Верно! Гассенди предполагал, что различных атомов несколько десятков, и почти угадал: сегодня открыто 118 разновидностей атомов (элементов).">
+<div class="tf-statement">4. На сегодняшний день открыто 118 разновидностей атомов (элементов).</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,true)">Верно</button><button class="false-btn" onclick="answerTF(this,false,true)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+</div>
+<div>
+<div class="tf-item" style="animation-delay:.25s" data-explain="Верно! Из молекул состоят, например, вода и углекислый газ, а из атомов — кремний, сера, мышьяк, некоторые газы (неон, гелий и др.).">
+<div class="tf-statement">5. Существуют вещества, которые состоят не из молекул, а из атомов (кремний, сера, неон, гелий).</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,true)">Верно</button><button class="false-btn" onclick="answerTF(this,false,true)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+<div class="tf-item" style="animation-delay:.3s" data-explain="Верно! Грубую оценку размеров молекул получили В. Рентген и Дж. Рэлей: толщина масляной плёнки оказалась порядка 10⁻⁹ м.">
+<div class="tf-statement">6. Толщина масляной плёнки в опыте Рентгена и Рэлея оказалась порядка 10⁻⁹ м.</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,true)">Верно</button><button class="false-btn" onclick="answerTF(this,false,true)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+<div class="tf-item" style="animation-delay:.35s" data-explain="Верно! Из молекул кислорода (2 атома) под действием ультрафиолетового излучения Солнца образуется озон — новые молекулы из 3 атомов кислорода. Основная масса озона на высоте 20—25 км.">
+<div class="tf-statement">7. Под действием ультрафиолетового излучения из молекул кислорода образуется новое вещество — озон.</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,true)">Верно</button><button class="false-btn" onclick="answerTF(this,false,true)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+<div class="tf-item" style="animation-delay:.4s" data-explain="Неверно! Образование новых молекул из тех же атомов вы будете изучать в курсе химии. В курсе физики рассматриваются превращения, при которых новые молекулы не образуются.">
+<div class="tf-statement">8. В курсе физики изучаются превращения веществ, при которых образуются новые молекулы.</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,false)">Верно</button><button class="false-btn" onclick="answerTF(this,false,false)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+</div>
+</div>
+<div class="progress-bar-wrap"><div class="progress-bar" id="tfProgress" style="width:0%">0 / 8</div></div>
+</div>
+</div>
+
+<!-- SECTION 3: MATCHING -->
+<div class="section" id="sec3">
+<div class="card">
+<h2><span class="emoji">🔗</span>Соответствие</h2>
+<p class="card-desc">Соедини понятие с его определением (6 пар)</p>
+<div class="match-game" id="matchGame">
+<div class="match-row"><div class="match-qty">1. Молекула</div><select class="match-select" data-correct="0"><option value="">Выбери...</option></select></div>
+<div class="match-row"><div class="match-qty">2. Атом</div><select class="match-select" data-correct="1"><option value="">Выбери...</option></select></div>
+<div class="match-row"><div class="match-qty">3. Элемент</div><select class="match-select" data-correct="2"><option value="">Выбери...</option></select></div>
+<div class="match-row"><div class="match-qty">4. Озон</div><select class="match-select" data-correct="3"><option value="">Выбери...</option></select></div>
+<div class="match-row"><div class="match-qty">5. Туннельный микроскоп</div><select class="match-select" data-correct="4"><option value="">Выбери...</option></select></div>
+<div class="match-row"><div class="match-qty">6. Масляная плёнка</div><select class="match-select" data-correct="5"><option value="">Выбери...</option></select></div>
+</div>
+<button class="btn-check" onclick="checkMatch()" style="display:block;margin:20px auto 0">Проверить</button>
+<div class="score-display" id="matchScore"></div>
+</div>
+</div>
+
+<!-- SECTION 4: PRACTICE -->
+<div class="section" id="sec4">
+<div class="card">
+<h2><span class="emoji">📝</span>Практика</h2>
+<p class="card-desc">Введи ответ и нажми «Проверить» (3 варианта по 5 заданий)</p>
+<div class="variant-tabs">
+<button class="variant-tab active" onclick="showVariant(0)">Вариант 1</button>
+<button class="variant-tab" onclick="showVariant(1)">Вариант 2</button>
+<button class="variant-tab" onclick="showVariant(2)">Вариант 3</button>
+</div>
+<div class="variant-content active" data-v="0">
+<div class="exercise"><div class="ex-num">1</div><div class="ex-text">Молекула вещества — это мельчайшая ______ данного вещества.</div><input class="ex-input" data-answers="частица,частицы,частиц" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">2</div><div class="ex-text">Французский учёный, назвавший группы атомов молекулами: ______.</div><input class="ex-input" data-answers="гассенди" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">3</div><div class="ex-text">Молекула углекислого газа состоит из трёх атомов: двух атомов ______ и одного атома углерода.</div><input class="ex-input" data-answers="кислорода" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">4</div><div class="ex-text">Вещество, молекулы которого содержат по три атома кислорода: ______.</div><input class="ex-input" data-answers="озон" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">5</div><div class="ex-text">Сегодня открыто ______ разновидностей атомов (элементов).</div><input class="ex-input" data-answers="118" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+</div>
+<div class="variant-content" data-v="1">
+<div class="exercise"><div class="ex-num">1</div><div class="ex-text">Прибор, с помощью которого впервые получили изображения отдельных атомов: ______ микроскоп.</div><input class="ex-input" data-answers="туннельный,электронный" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">2</div><div class="ex-text">Толщина масляной плёнки в опыте Рентгена и Рэлея оказалась порядка 10⁻⁹ ______.</div><input class="ex-input" data-answers="м,метров,метра" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">3</div><div class="ex-text">Способ грубой оценки размеров молекул называется методом ______ плёнок.</div><input class="ex-input" data-answers="масляных,масляной" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">4</div><div class="ex-text">Молекулы одного и того же вещества ______.</div><input class="ex-input" data-answers="одинаковы,одинаковые" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">5</div><div class="ex-text">Основная масса озона расположена на высоте ______ км.</div><input class="ex-input" data-answers="20-25,20—25,20–25" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+</div>
+<div class="variant-content" data-v="2">
+<div class="exercise"><div class="ex-num">1</div><div class="ex-text">Молекула воды состоит из одного атома ______ и двух атомов водорода.</div><input class="ex-input" data-answers="кислорода" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">2</div><div class="ex-text">Слово «молекула» происходит от латинского слова moles — «______».</div><input class="ex-input" data-answers="масса,массочка,массочки" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">3</div><div class="ex-text">Вещества, состоящие не из молекул, а из атомов: ______ и сера.</div><input class="ex-input" data-answers="кремний" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">4</div><div class="ex-text">Молекулы могут делиться на ______ и, наоборот, образовываться из них.</div><input class="ex-input" data-answers="атомы,атомов" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">5</div><div class="ex-text">Из молекул кислорода под действием ультрафиолетового излучения Солнца образуется ______.</div><input class="ex-input" data-answers="озон" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+</div>
+<button class="btn-check-all" onclick="checkPractice()">Проверить все</button>
+<div class="score-display" id="practiceScore"></div>
+</div>
+</div>
+
+<!-- SECTION 5: HOMEWORK -->
+<div class="section" id="sec5">
+<div class="card">
+<h2><span class="emoji">📚</span>Домашняя работа</h2>
+<p class="card-desc">Повтори изученный материал и отработай его в тренажёре</p>
+<div class="theory-box">
+<h3>0. Проверочная работа</h3>
+<p>Пройди проверочную работу по уроку: <a href="proverka.html" style="color:var(--primary);font-weight:700">📝 Проверочная работа. §8. Молекулы</a> — 10 заданий, оценка и разбор ошибок.</p>
+</div>
+<div class="theory-box">
+<h3>1. Повтори теорию</h3>
+<p>Перечитай §8 учебника и ответь на вопросы:</p>
+<div class="example"><p>1. Что представляют собой мельчайшие частицы вещества?<br>2. Как называется группа атомов, предложенная Пьером Гассенди?<br>3. Из каких атомов состоит молекула воды и молекула углекислого газа?<br>4. Как с помощью опыта с масляной плёнкой оценивают размеры молекул?<br>5. Почему нельзя увидеть молекулу воды невооружённым глазом?</p></div>
+</div>
+<div class="theory-box">
+<h3>2. Отработай в тренажёре</h3>
+<p>Пройди вкладки «Разминка» (Верно/Неверно) и «Соответствие» — добейся 100% в каждой. Затем реши все 3 варианта на вкладке «Практика».</p>
+</div>
+<div class="theory-box">
+<h3>3. Выпиши определения</h3>
+<div class="example"><p>• Молекула —<br>• Атом —<br>• Элемент —<br>• Озон —<br>• Масляная плёнка (метод оценки размеров молекул) —</p></div>
+</div>
+<div class="theory-box">
+<h3>4. Вопросы к §8 из учебника</h3>
+<div class="exercise" style="background:var(--card)"><div class="ex-num">1</div><div class="ex-text">Из каких частиц состоит молекула водорода?</div><button class="ex-hint-btn" onclick="toggleHwAnswer('hw1')">Показать ответ</button></div>
+<div class="hw-answer" id="hw1" style="display:none">Молекула водорода состоит из двух атомов водорода (Н₂).</div>
+<div class="exercise" style="background:var(--card)"><div class="ex-num">2</div><div class="ex-text">Правильно ли утверждать, что наименьшей частицей водорода является атом? Почему?</div><button class="ex-hint-btn" onclick="toggleHwAnswer('hw2')">Показать ответ</button></div>
+<div class="hw-answer" id="hw2" style="display:none">Неверно. Водород существует в природе в виде двухатомных молекул Н₂, поэтому наименьшей частицей водорода является молекула, состоящая из двух атомов.</div>
+<div class="exercise" style="background:var(--card)"><div class="ex-num">3</div><div class="ex-text">Почему масляные плёнки (при небольшом количестве масла) не могут покрыть всю поверхность водоёма?</div><button class="ex-hint-btn" onclick="toggleHwAnswer('hw3')">Показать ответ</button></div>
+<div class="hw-answer" id="hw3" style="display:none">Толщина плёнки не может быть меньше диаметра молекулы масла. При небольшом количестве масла слой получается слишком тонким, чтобы покрыть всю поверхность водоёма — плёнка быстро расплывается тонким слоем.</div>
+</div>
+</div>
+</div>
+
+<script>
+const matchDefs=[
+"мельчайшая частица данного вещества",
+"очень малая частица; разновидностей атомов открыто 118",
+"разновидность атома, имеющая своё название и обозначение",
+"вещество, молекулы которого содержат по три атома кислорода",
+"прибор, с помощью которого получают изображения отдельных атомов и молекул",
+"способ грубой оценки размеров молекул (опыт В. Рентгена и Дж. Рэлея)"];
+
+function toggleTheme(){
+const r=document.documentElement;
+r.dataset.theme=r.dataset.theme==='dark'?'':'dark';
+}
+function showSection(i){
+document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+document.getElementById('sec'+i).classList.add('active');
+document.querySelectorAll('nav button')[i].classList.add('active');
+window.scrollTo({top:0,behavior:'smooth'});
+}
+function showVariant(i){
+document.querySelectorAll('.variant-tab').forEach((t,j)=>{t.classList.toggle('active',j===i)});
+document.querySelectorAll('.variant-content').forEach((c,j)=>{c.classList.toggle('active',j===i)});
+}
+function answerTF(btn,answer,correct){
+const item=btn.closest('.tf-item');
+if(item.dataset.done)return;
+item.dataset.done=1;
+const isTrue=btn.classList.contains('true-btn');
+btn.classList.add(isTrue?'selected-true':'selected-false');
+item.querySelectorAll('button').forEach(b=>b.disabled=true);
+const c=item.querySelector('.tf-comment');
+const explain=item.dataset.explain||'';
+if(answer===correct){
+c.textContent='✓ Верно!';
+c.className='tf-comment correct';
+}else{
+c.textContent='✗ Неверно! Правильный ответ: '+(correct?'Верно':'Неверно')+(explain?'. '+explain:'');
+c.className='tf-comment wrong';
+}
+const done=document.querySelectorAll('.tf-item[data-done]').length;
+document.getElementById('tfProgress').style.width=(done/8*100)+'%';
+document.getElementById('tfProgress').textContent=done+' / 8';
+if(done===8)spawnConfetti();
+}
+function initMatch(){
+const sels=document.querySelectorAll('.match-select');
+const shuffled=[...matchDefs.keys()].sort(()=>Math.random()-0.5);
+sels.forEach(s=>{
+shuffled.forEach(i=>{
+const o=document.createElement('option');
+o.value=i;o.textContent=matchDefs[i];
+s.appendChild(o);
+});
+});
+}
+function checkMatch(){
+let score=0;
+document.querySelectorAll('.match-select').forEach(s=>{
+const ok=+s.value===+s.dataset.correct;
+s.classList.toggle('correct',ok);s.classList.toggle('wrong',!ok);
+if(ok)score++;
+});
+const el=document.getElementById('matchScore');
+el.style.display='block';
+el.textContent='Правильных пар: '+score+' / 6';
+if(score===6)spawnConfetti();
+}
+function norm(s){
+return s.toLowerCase().replace(/[.,;:!?"']/g,'').replace(/\s+/g,' ').trim();
+}
+function checkPractice(){
+const inputs=document.querySelectorAll('.variant-content.active .ex-input');
+let score=0;
+inputs.forEach(i=>{
+const ans=i.dataset.answers.split(',').map(norm);
+const ok=ans.includes(norm(i.value));
+i.classList.toggle('correct',ok);i.classList.toggle('wrong',!ok);
+if(ok)score++;
+});
+const el=document.getElementById('practiceScore');
+el.style.display='block';
+el.textContent='Результат: '+score+' / '+inputs.length;
+if(score===inputs.length)spawnConfetti();
+}
+function showHint(btn){
+const inp=btn.previousElementSibling;
+const ans=inp.dataset.answers.split(',')[0];
+inp.value=ans.charAt(0)+'_'.repeat(ans.length-1);
+}
+function toggleHwAnswer(id){
+const el=document.getElementById(id);
+el.style.display=el.style.display==='none'?'block':'none';
+}
+function spawnConfetti(){
+const c=document.createElement('div');c.className='confetti-container';
+const colors=['#ff0','#f00','#0f0','#00f','#f0f','#0ff','#f97316','#3b82f6'];
+for(let i=0;i<80;i++){
+const p=document.createElement('div');p.className='confetti-piece';
+p.style.left=Math.random()*100+'%';
+p.style.background=colors[Math.floor(Math.random()*colors.length)];
+p.style.animationDuration=(Math.random()*2+2)+'s';
+p.style.animationDelay=Math.random()+'s';
+p.style.borderRadius=Math.random()>.5?'50%':'0';
+c.appendChild(p);
+}
+document.body.appendChild(c);
+setTimeout(()=>c.remove(),5000);
+}
+/* EXPERIMENTS */
+function runExp1(btn){
+btn.disabled=true;
+const a=document.getElementById('exp1a'),b=document.getElementById('exp1b'),arrow=document.getElementById('exp1arrow');
+arrow.style.opacity='0';
+// 1) Под действием излучения молекулы воды распадаются
+setTimeout(()=>{a.style.opacity='0';},600);
+// 2) Из атомов образуются молекулы кислорода и водорода
+setTimeout(()=>{b.style.opacity='1';},1800);
+setTimeout(()=>{
+document.getElementById('exp1result').style.display='block';
+btn.disabled=false;
+},3400);
+}
+function runExp2(btn){
+btn.disabled=true;
+const a=document.getElementById('exp2a'),b=document.getElementById('exp2b'),uv=document.getElementById('exp2uv'),label=document.getElementById('exp2label');
+// 1) Ультрафиолет воздействует на молекулы кислорода
+setTimeout(()=>{uv.style.opacity='0';},700);
+// 2) Кислород превращается в озон
+setTimeout(()=>{a.style.opacity='0';},1200);
+setTimeout(()=>{
+b.style.opacity='1';
+label.textContent='молекулы озона защищают Землю';
+label.setAttribute('fill','#8b5cf6');
+},2400);
+setTimeout(()=>{
+document.getElementById('exp2result').style.display='block';
+btn.disabled=false;
+},4000);
+}
+function runExp3(btn){
+btn.disabled=true;
+const drop=document.getElementById('exp3drop'),film=document.getElementById('exp3film'),label=document.getElementById('exp3label');
+// 1) Капля падает на воду
+setTimeout(()=>{drop.setAttribute('cy','58');},400);
+// 2) Капля растекается тончайшим слоем по всей поверхности
+setTimeout(()=>{film.style.width='314px';drop.style.opacity='0';},1600);
+// 3) Появляется оценка толщины плёнки
+setTimeout(()=>{label.style.opacity='1';},2700);
+setTimeout(()=>{
+document.getElementById('exp3result').style.display='block';
+btn.disabled=false;
+},3600);
+}
+function runExp4(btn){
+btn.disabled=true;
+const blur=document.getElementById('exp4blur'),atoms=document.getElementById('exp4atoms'),l1=document.getElementById('exp4label1');
+// Изображение «размыто» — вместо него проступают отдельные атомы
+blur.style.opacity='0';
+l1.style.opacity='0';
+atoms.style.opacity='1';
+setTimeout(()=>{
+document.getElementById('exp4result').style.display='block';
+btn.disabled=false;
+},3000);
+}
+initMatch();
+</script>
+</body>
+</html>
+
+
+
