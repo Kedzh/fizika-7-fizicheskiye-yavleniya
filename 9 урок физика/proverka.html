@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Проверочная работа. §9. Броуновское движение. Диффузия — 7 класс</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+:root{--bg:#f0f4f8;--card:#fff;--primary:#6366f1;--primary-light:#e0e7ff;--accent:#f97316;--green:#22c55e;--red:#ef4444;--text:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;--shadow:0 4px 24px rgba(0,0,0,.08);--radius:16px;--radius-sm:10px}
+[data-theme=dark]{--bg:#0f172a;--card:#1e293b;--primary:#818cf8;--primary-light:#312e81;--accent:#fb923c;--green:#4ade80;--red:#f87171;--text:#f1f5f9;--text-secondary:#94a3b8;--border:#334155;--shadow:0 4px 24px rgba(0,0,0,.3)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Nunito',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;transition:background .3s,color .3s}
+.container{max-width:900px;margin:0 auto;padding:24px 20px 120px}
+header{background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;padding:30px 24px;border-radius:var(--radius);margin-bottom:20px;text-align:center;position:relative;box-shadow:var(--shadow);overflow:hidden}
+header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 60%);animation:hp 8s ease-in-out infinite}
+@keyframes hp{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+header h1{font-size:clamp(1.9rem,4.5vw,2.8rem);font-weight:800;position:relative}
+header .subtitle{font-size:1.5rem;opacity:.9;margin-top:6px;position:relative}
+header .source{font-size:1.2rem;opacity:.7;margin-top:4px;position:relative}
+.theme-toggle{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:2rem;width:52px;height:52px;border-radius:50%;cursor:pointer;z-index:2}
+.theme-toggle:hover{background:rgba(255,255,255,.35);transform:scale(1.1)}
+.card{background:var(--card);border-radius:var(--radius);padding:26px;margin-bottom:18px;box-shadow:var(--shadow);border:1px solid var(--border);transition:background .3s,border .3s}
+.q{display:flex;gap:14px;padding:18px 20px;background:var(--bg);border-radius:var(--radius-sm);margin-bottom:14px;border-left:4px solid var(--primary);transition:border .3s}
+.q .num{width:46px;height:46px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.3rem;flex-shrink:0}
+.q .body{flex:1;min-width:0}
+.q .text{font-weight:600;font-size:1.5rem;margin-bottom:12px}
+.q.correct{border-left-color:var(--green)}
+.q.wrong{border-left-color:var(--red)}
+.choices{display:flex;flex-wrap:wrap;gap:10px}
+.choices label{display:flex;align-items:center;gap:8px;padding:10px 18px;border:2px solid var(--border);border-radius:8px;background:var(--card);font-family:inherit;font-size:1.4rem;font-weight:600;cursor:pointer;transition:all .2s}
+.choices label:hover{border-color:var(--primary);color:var(--primary)}
+.choices label input{accent-color:var(--primary);width:20px;height:20px}
+.choices label.sel{border-color:var(--primary);color:var(--primary)}
+.q.correct .choices label.sel{border-color:var(--green);color:var(--green)}
+.q.wrong .choices label.sel{border-color:var(--red);color:var(--red)}
+.q input.answer{width:100%;max-width:320px;padding:12px 16px;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:1.5rem;font-weight:700;background:var(--card);color:var(--text)}
+.q input.answer:focus{border-color:var(--primary);outline:none}
+.q.correct input.answer{border-color:var(--green);background:#dcfce7;color:#166534}
+.q.wrong input.answer{border-color:var(--red);background:#fee2e2;color:#991b1d}
+[data-theme=dark] .q.correct input.answer{background:#14532d;color:#bbf7d0}
+[data-theme=dark] .q.wrong input.answer{background:#7f1d1d;color:#fecaca}
+.comment{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:1.35rem;font-weight:600;display:none}
+.comment.show{display:block;animation:fi .3s ease}
+.comment.good{background:#dcfce7;color:#166534}
+.comment.bad{background:#fee2e2;color:#991b1d}
+[data-theme=dark] .comment.good{background:#14532d;color:#bbf7d0}
+[data-theme=dark] .comment.bad{background:#7f1d1d;color:#fecaca}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--border);box-shadow:0 -4px 24px rgba(0,0,0,.08);padding:14px 20px;z-index:50}
+.bar .inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.progress{flex:1;min-width:200px;height:26px;background:var(--bg);border-radius:20px;overflow:hidden}
+.progress div{height:100%;width:0;background:linear-gradient(90deg,var(--green),#34d399);transition:width .4s ease;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.2rem;min-width:60px}
+.btn{padding:14px 34px;background:linear-gradient(135deg,var(--accent),#ea580c);color:#fff;border:none;border-radius:var(--radius-sm);font-family:inherit;font-weight:800;font-size:1.5rem;cursor:pointer;transition:all .3s;white-space:nowrap}
+.btn:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(249,115,22,.4)}
+.btn.ghost{background:transparent;border:2px solid var(--border);color:var(--text);font-size:1.3rem;padding:10px 22px}
+.btn.ghost:hover{border-color:var(--primary);color:var(--primary);box-shadow:none}
+.result{display:none;text-align:center}
+.result.show{display:block;animation:fi .4s ease}
+.score{font-size:4rem;font-weight:800;color:var(--primary);line-height:1.2}
+.grade{font-size:2rem;font-weight:800;margin:6px 0 10px}
+.grade.g5{color:var(--green)}.grade.g4{color:#3b82f6}.grade.g3{color:var(--accent)}.grade.g2{color:var(--red)}
+.result p{font-size:1.45rem;color:var(--text-secondary)}
+.badge{display:inline-block;padding:6px 20px;border-radius:20px;background:var(--primary-light);color:var(--primary);font-weight:800;font-size:1.3rem;margin-bottom:10px}
+@media(max-width:600px){.container{padding:12px 10px 140px}.card{padding:16px}header{padding:20px 12px}.q{flex-direction:column;align-items:stretch}.q .num{margin-bottom:8px}.q input.answer{max-width:100%}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Переключить тему">🌓</button>
+<h1>Проверочная работа</h1>
+<div class="subtitle">§9. Броуновское движение. Диффузия · 7 класс · Урок 9</div>
+<div class="source">По учебнику Перышкин А.В. и др. (Просвещение, 2023)</div>
+</header>
+
+<div class="card">
+<div class="q" style="border-left-color:var(--accent)">
+<div class="num">📝</div>
+<div class="body">
+<div class="text">10 заданий на тему «Броуновское движение. Диффузия». Ответь на все вопросы и нажми «Проверить».</div>
+<div class="text" style="font-weight:400;font-size:1.35rem;color:var(--text-secondary)">Верно/неверно — выбери один вариант. В остальных вопросах выбери ответ или впиши слово.</div>
+</div>
+</div>
+</div>
+
+<div class="card" id="quiz"></div>
+
+<div class="card result" id="result">
+<div class="badge" id="resBadge">Результат</div>
+<div class="score" id="resScore">0 / 10</div>
+<div class="grade" id="resGrade"></div>
+<p id="resText"></p>
+<div style="margin-top:18px"><button class="btn" onclick="location.reload()">Попробовать снова</button></div>
+</div>
+</div>
+
+<div class="bar">
+<div class="inner">
+<div class="progress"><div id="prog">0 / 10</div></div>
+<button class="btn" id="checkBtn" onclick="check()">Проверить</button>
+<button class="btn ghost" onclick="resetAll()">Сбросить</button>
+</div>
+</div>
+
+<script>
+const QUESTIONS=[
+{type:'tf',text:'Броуновское движение — непрерывное беспорядочное (хаотическое) движение твёрдых мелких частиц, находящихся в жидкости.',answer:true,
+ ok:'Верно! Так броуновское движение определяется в §9.',
+ bad:'Неверно! Броуновское движение — непрерывное беспорядочное движение твёрдых мелких частиц, находящихся в жидкости.'},
+{type:'text',text:'Шотландский ботаник, который в 1827 году впервые наблюдал броуновское движение: ______.',answers:['броун','брон'],correct:'Броун',
+ ok:'Верно! Роберт Броун (1773—1858) наблюдал движение частиц пыльцы растений в жидкости и сначала принял их за живые существа.'},
+{type:'select',text:'Броуновская частица движется в ту сторону, в которую:',options:['воздействие молекул сильнее','воздействие молекул слабее','ударов молекул нет'],correct:'воздействие молекул сильнее',
+ ok:'Верно! С разных сторон частицу ударяет разное число молекул, и она движется туда, где воздействие сильнее.',
+ bad:'Частица движется в ту сторону, в которую воздействие молекул жидкости оказывается сильнее.'},
+{type:'text',text:'Французский физик, определивший по броуновскому движению массу атомов водорода и их количество в 1 г вещества: ______.',answers:['перрен'],correct:'Перрен',
+ ok:'Верно! Жан Перрен (1870—1942) использовал крошечные шарики смолы гуммигута и узнал массу и число атомов, ещё не видя самих атомов.'},
+{type:'text',text:'Явление взаимного проникновения соприкасающихся веществ друг в друга, происходящее в результате беспорядочного движения молекул, называется ______.',answers:['диффузией','диффузия'],correct:'диффузия',
+ ok:'Верно! Именно так определяется диффузия в §9.'},
+{type:'select',text:'В каком агрегатном состоянии диффузия протекает медленнее всего?',options:['в газах','в жидкостях','в твёрдых телах'],correct:'в твёрдых телах',
+ ok:'Верно! В твёрдых телах диффузия идёт гораздо медленнее: в опыте с золотой и свинцовой пластинами она заметна лишь через три года.',
+ bad:'Медленнее всего диффузия идёт в твёрдых телах — например, золотая и свинцовая пластины дают заметную диффузию лишь через три года.'},
+{type:'tf',text:'При увеличении температуры скорость диффузии возрастает.',answer:true,
+ ok:'Верно! При повышении температуры увеличивается расстояние между молекулами и возрастает скорость их движения.',
+ bad:'Неверно! Скорость диффузии возрастает при увеличении температуры: растёт расстояние между молекулами и скорость их движения.'},
+{type:'text',text:'В опыте с хорошо отшлифованными золотой и свинцовой пластинами заметная диффузия произойдёт лишь через ______ года.',answers:['три','3'],correct:'три',
+ ok:'Верно! Золотая и свинцовая пластины, плотно прижатые друг к другу, заметно «смешиваются» лишь через три года.'},
+{type:'select',text:'Отталкивание между молекулами проявляется на расстояниях:',options:['больших размеров молекул','сравнимых с размерами молекул','меньших размеров молекул'],correct:'меньших размеров молекул',
+ ok:'Верно! Отталкивание заметно проявляется на более близких расстояниях — меньших размеров молекул, а притяжение — на расстояниях, сравнимых с их размерами.',
+ bad:'Отталкивание проявляется на более близких расстояниях, меньших размеров молекул. Притяжение действует на расстояниях, сравнимых с размерами молекул.'},
+{type:'tf',text:'Осколки разбитого стакана не удаётся соединить, так как из-за неровностей нельзя приблизить молекулы на требуемое расстояние.',answer:true,
+ ok:'Верно! Притяжение проявляется на расстояниях, сравнимых с размерами молекул. Из-за неровностей осколков молекулы не подходят достаточно близко, и на помощь приходит клей.',
+ bad:'Неверно! Осколки действительно не соединяются: из-за неровностей молекулы нельзя сблизить на расстояние, сравнимое с их размерами. На помощь приходит клей.'}
+];
+
+function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+function norm(s){return s.toLowerCase().replace(/[.,;:!?"'()]/g,'').replace(/[\s\-–—]/g,'').replace(/ё/g,'е');}
+
+function render(){
+const box=document.getElementById('quiz');
+box.innerHTML=QUESTIONS.map((q,i)=>{
+let inner='';
+const name='q'+i;
+if(q.type==='tf'){
+inner='<div class="choices">'+
+'<label><input type="radio" name="'+name+'" value="1"> Верно</label>'+
+'<label><input type="radio" name="'+name+'" value="0"> Неверно</label></div>';
+}else if(q.type==='select'){
+inner='<div class="choices">'+shuffle(q.options).map(o=>
+'<label><input type="radio" name="'+name+'" value="'+o.replace(/"/g,'')+'"> '+o+'</label>').join('')+'</div>';
+}else{
+inner='<input class="answer" type="text" name="'+name+'" placeholder="впиши ответ" autocomplete="off">';
+}
+return '<div class="q" id="row'+i+'" data-i="'+i+'"><div class="num">'+(i+1)+'</div><div class="body">'+
+'<div class="text">'+q.text+'</div>'+inner+
+'<div class="comment" id="c'+i+'"></div></div></div>';
+}).join('');
+
+box.querySelectorAll('.choices input').forEach(r=>{
+r.addEventListener('change',()=>{
+r.closest('.q').querySelectorAll('label').forEach(l=>l.classList.remove('sel'));
+r.closest('label').classList.add('sel');
+updateProgress();
+});
+});
+box.querySelectorAll('input.answer').forEach(inp=>{
+inp.addEventListener('input',updateProgress);
+});
+updateProgress();
+}
+
+function answered(){
+return QUESTIONS.filter((q,i)=>{
+const r=document.querySelector('input[name="q'+i+'"]:checked');
+const t=document.querySelector('input.answer[name="q'+i+'"]');
+return q.type==='text'?(t&&t.value.trim()!==''):!!r;
+}).length;
+}
+function updateProgress(){
+document.getElementById('prog').style.width=(answered()/QUESTIONS.length*100)+'%';
+document.getElementById('prog').textContent=answered()+' / '+QUESTIONS.length;
+}
+
+function feedback(q,ok){
+if(ok)return q.ok;
+const right=q.type==='tf'?(q.answer?'Верно':'Неверно'):q.correct;
+return (q.bad||'Неверно!')+' Правильный ответ: <strong>'+right+'</strong>';
+}
+
+function check(){
+if(answered()<QUESTIONS.length){
+if(!confirm('Отвечено '+answered()+' из '+QUESTIONS.length+'. Всё равно проверить? Можно вернуться и дополнить.'))return;
+}
+let score=0;
+QUESTIONS.forEach((q,i)=>{
+const row=document.getElementById('row'+i);
+const c=document.getElementById('c'+i);
+row.classList.remove('correct','wrong');
+let ok=false;
+if(q.type==='tf'){
+const r=document.querySelector('input[name="q'+i+'"]:checked');
+ok=!!r&&((r.value==='1')===q.answer);
+}else if(q.type==='select'){
+const r=document.querySelector('input[name="q'+i+'"]:checked');
+ok=!!r&&r.value===q.correct;
+}else{
+const t=document.querySelector('input.answer[name="q'+i+'"]');
+const v=t?t.value:'';
+ok=q.answers.some(a=>norm(a)===norm(v));
+}
+if(ok)score++;
+row.classList.add(ok?'correct':'wrong');
+row.querySelectorAll('.choices input,input.answer').forEach(el=>el.disabled=true);
+c.className='comment show '+(ok?'good':'bad');
+c.innerHTML=(ok?'✓ ':'✗ ')+feedback(q,ok);
+});
+const total=QUESTIONS.length;
+const res=document.getElementById('result');
+document.getElementById('resScore').textContent=score+' / '+total;
+const gr=document.getElementById('resGrade');
+let g,txt;
+if(score>=Math.ceil(total*0.9)){g='5';gr.className='grade g5';txt='Отлично! Тема «Броуновское движение. Диффузия» освоена.';}
+else if(score>=Math.ceil(total*0.7)){g='4';gr.className='grade g4';txt='Хорошо! Посмотри разбор ошибок и повтори §9.';}
+else if(score>=Math.ceil(total*0.5)){g='3';gr.className='grade g3';txt='Нужно повторить §9: перечитай теорию и потренируйся в тренажёре.';}
+else{g='2';gr.className='grade g2';txt='Повтори урок 9 целиком: теорию и практику в тренажёре.';}
+gr.textContent='Оценка: '+g;
+document.getElementById('resText').textContent=txt;
+document.getElementById('resBadge').textContent=score===total?'Все ответы верны!':'Проверочная работа · §9';
+res.classList.add('show');
+res.scrollIntoView({behavior:'smooth',block:'center'});
+document.getElementById('prog').style.width='100%';
+document.getElementById('prog').textContent=score+' / '+total;
+document.getElementById('checkBtn').disabled=true;
+}
+
+function resetAll(){
+document.querySelectorAll('input').forEach(i=>{i.disabled=false;if(i.type==='radio')i.checked=false;else i.value='';});
+document.querySelectorAll('.q').forEach(r=>r.classList.remove('correct','wrong'));
+document.querySelectorAll('.choices label').forEach(l=>l.classList.remove('sel'));
+document.querySelectorAll('.comment').forEach(c=>{c.className='comment';c.innerHTML='';});
+document.getElementById('result').classList.remove('show');
+document.getElementById('checkBtn').disabled=false;
+updateProgress();
+}
+
+function toggleTheme(){
+const r=document.documentElement;
+r.dataset.theme=r.dataset.theme==='dark'?'':'dark';
+}
+render();
+</script>
+</body>
+</html>

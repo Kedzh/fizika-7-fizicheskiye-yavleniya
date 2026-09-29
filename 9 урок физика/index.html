@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§9. Броуновское движение. Диффузия — 7 класс</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+:root{--bg:#f0f4f8;--card:#fff;--primary:#3b82f6;--primary-light:#dbeafe;--accent:#f97316;--green:#22c55e;--red:#ef4444;--yellow:#eab308;--text:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;--shadow:0 4px 24px rgba(0,0,0,.08);--radius:16px;--radius-sm:10px}
+[data-theme=dark]{--bg:#0f172a;--card:#1e293b;--primary:#60a5fa;--primary-light:#1e3a5f;--accent:#fb923c;--green:#4ade80;--red:#f87171;--yellow:#facc15;--text:#f1f5f9;--text-secondary:#94a3b8;--border:#334155;--shadow:0 4px 24px rgba(0,0,0,.3)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Nunito',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;transition:background .3s,color .3s;overflow-x:hidden}
+.container{max-width:1600px;margin:0 auto;padding:24px 48px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+header{background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;padding:32px 40px;border-radius:var(--radius);margin-bottom:24px;text-align:center;position:relative;box-shadow:var(--shadow);overflow:hidden}
+header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 60%);animation:hp 8s ease-in-out infinite}
+@keyframes hp{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+header h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:800;position:relative}
+header .subtitle{font-size:1.8rem;opacity:.9;margin-top:6px;position:relative}
+header .source{font-size:1.3rem;opacity:.7;margin-top:4px;position:relative}
+.theme-toggle{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:2.2rem;width:56px;height:56px;border-radius:50%;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center}
+.theme-toggle:hover{background:rgba(255,255,255,.35);transform:scale(1.1)}
+nav{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;position:sticky;top:0;background:var(--bg);padding:12px 0;z-index:100;border-bottom:2px solid var(--border)}
+nav button{flex:1;min-width:140px;padding:16px 20px;border:2px solid var(--border);background:var(--card);color:var(--text);border-radius:var(--radius-sm);font-family:inherit;font-size:1.3rem;font-weight:700;cursor:pointer;transition:all .3s}
+nav button:hover{border-color:var(--primary);color:var(--primary);transform:translateY(-2px)}
+nav button.active{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 4px 16px rgba(59,130,246,.3)}
+nav button .nav-emoji{display:block;font-size:2rem;margin-bottom:2px}
+.section{display:none;animation:fi .4s ease}
+.section.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--card);border-radius:var(--radius);padding:32px;margin-bottom:20px;box-shadow:var(--shadow);border:1px solid var(--border);transition:background .3s,border .3s}
+.card h2{font-size:2.2rem;margin-bottom:6px;color:var(--primary)}
+.card h2 .emoji{margin-right:10px}
+.card .card-desc{color:var(--text-secondary);font-size:1.5rem;margin-bottom:18px}
+.theory-box{background:var(--primary-light);border-radius:var(--radius-sm);padding:24px;margin-bottom:20px;border-left:4px solid var(--primary)}
+.theory-box h3{font-size:1.8rem;margin-bottom:12px;color:var(--primary)}
+.theory-box p{font-size:1.5rem;margin-bottom:10px}
+.theory-box .formula{background:var(--card);border:2px solid var(--primary);border-radius:8px;padding:16px 24px;font-size:1.8rem;font-weight:700;text-align:center;margin:16px 0;color:var(--primary)}
+.theory-box .example{background:var(--card);border-radius:8px;padding:16px;margin-top:12px;font-size:1.4rem}
+.theory-box .example-title{font-weight:700;color:var(--accent);margin-bottom:6px}
+.units-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:1.4rem}
+.units-table th{background:var(--primary);color:#fff;padding:12px 16px;text-align:left;font-weight:700}
+.units-table td{padding:12px 16px;border-bottom:1px solid var(--border)}
+.units-table tr:nth-child(even){background:rgba(59,130,246,.05)}
+.labyrinth-visual{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:24px;flex-wrap:wrap}
+.labyrinth-step{width:60px;height:60px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.35rem;color:var(--text-secondary);transition:all .4s}
+.labyrinth-step.completed{background:var(--green);color:#fff;box-shadow:0 2px 12px rgba(34,197,94,.4)}
+.labyrinth-step.current{background:var(--primary);color:#fff;box-shadow:0 2px 12px rgba(59,130,246,.4);transform:scale(1.15)}
+.labyrinth-step.future{background:var(--border);color:var(--text-secondary)}
+.labyrinth-arrow{color:var(--text-secondary);font-size:1.8rem}
+.lab-task{background:rgba(59,130,246,.07);border-radius:var(--radius-sm);padding:24px;text-align:center;margin-bottom:18px}
+.lab-task .lab-question{font-size:1.8rem;font-weight:700;margin-bottom:18px;line-height:1.4}
+.lab-input-group{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.lab-input{width:100%;max-width:520px;padding:14px 18px;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:1.5rem;font-weight:600;background:var(--card);color:var(--text);cursor:pointer;line-height:1.4}
+.lab-input:focus{border-color:var(--primary);outline:none}
+.btn-lab{padding:14px 32px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-family:inherit;font-weight:700;font-size:1.6rem;cursor:pointer;transition:all .3s}
+.btn-lab:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(59,130,246,.4)}
+.btn-lab:disabled{opacity:.6;cursor:default;transform:none;box-shadow:none}
+.lab-hint{margin-top:12px;padding:10px;border-radius:8px;font-weight:700;font-size:1.5rem;display:none;animation:fi .3s ease}
+.lab-hint.show{display:block}
+.lab-hint.wrong{background:#fee2e2;color:#991b1b}
+.lab-hint.correct{background:#dcfce7;color:#166534}
+[data-theme=dark] .lab-hint.wrong{background:#7f1d1d;color:#fecaca}
+[data-theme=dark] .lab-hint.correct{background:#14532d;color:#bbf7d0}
+.lab-complete{text-align:center;padding:32px;display:none}
+.lab-complete.show{display:block;animation:fi .5s ease}
+.lab-complete h3{font-size:2.4rem;color:var(--green);margin-bottom:10px}
+.lab-complete p{font-size:1.75rem;color:var(--text-secondary)}
+.glasses{display:flex;gap:24px;align-items:flex-end}
+.glass{width:56px;height:110px;border:3px solid #94a3b8;border-top:none;border-radius:0 0 10px 10px;position:relative;background:#f8fafc}
+.glass .liquid{position:absolute;bottom:0;left:0;right:0;background:#f472b6;border-radius:0 0 7px 7px;transition:background 1s,opacity 1s}
+.tf-item{background:var(--bg);border-radius:var(--radius-sm);padding:18px 24px;margin-bottom:12px;border-left:4px solid var(--primary);animation:si .4s ease backwards}
+@keyframes si{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+.tf-statement{font-weight:600;font-size:1.65rem;margin-bottom:10px}
+.tf-buttons{display:flex;gap:12px}
+.tf-buttons button{padding:10px 24px;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-weight:700;font-size:1.5rem;cursor:pointer;transition:all .3s;background:var(--card);color:var(--text)}
+.tf-buttons button.true-btn:hover{border-color:var(--green);color:var(--green)}
+.tf-buttons button.false-btn:hover{border-color:var(--red);color:var(--red)}
+.tf-buttons button.selected-true{background:var(--green);color:#fff;border-color:var(--green);box-shadow:0 2px 12px rgba(34,197,94,.4)}
+.tf-buttons button.selected-false{background:var(--red);color:#fff;border-color:var(--red);box-shadow:0 2px 12px rgba(239,68,68,.4)}
+.tf-buttons button:disabled{cursor:default;opacity:.5}
+.tf-comment{margin-top:10px;padding:10px 16px;border-radius:8px;font-size:1.4rem;font-weight:600;display:none}
+.tf-comment.correct{background:#dcfce7;color:#166534;display:block}
+.tf-comment.wrong{background:#fee2e2;color:#991b1d;display:block}
+[data-theme=dark] .tf-comment.correct{background:#14532d;color:#bbf7d0}
+[data-theme=dark] .tf-comment.wrong{background:#7f1d1d;color:#fecaca}
+.progress-bar-wrap{margin-top:20px;background:var(--bg);border-radius:20px;overflow:hidden;height:34px}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--green),#34d399);border-radius:20px;transition:width .6s ease;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.35rem;min-width:65px}
+.variant-tabs{display:flex;gap:10px;margin-bottom:20px}
+.variant-tab{flex:1;padding:14px;border:2px solid var(--border);background:var(--card);border-radius:var(--radius-sm);font-family:inherit;font-weight:700;font-size:1.6rem;cursor:pointer;transition:all .3s;color:var(--text)}
+.variant-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 4px 16px rgba(249,115,22,.3)}
+.variant-content{display:none}
+.variant-content.active{display:block;animation:fi .4s ease}
+.exercise{display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--bg);border-radius:var(--radius-sm);margin-bottom:10px;flex-wrap:wrap}
+.exercise .ex-num{width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.35rem;flex-shrink:0}
+.exercise .ex-text{flex:1;font-weight:600;font-size:1.45rem}
+.exercise .ex-input{width:150px;padding:10px;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:1.6rem;text-align:center;font-weight:700;background:var(--card);color:var(--text)}
+.exercise .ex-input:focus{border-color:var(--primary);outline:none}
+.exercise .ex-input.correct{border-color:var(--green);background:#dcfce7}
+.exercise .ex-input.wrong{border-color:var(--red);background:#fee2e2}
+[data-theme=dark] .exercise .ex-input.correct{background:#14532d}
+[data-theme=dark] .exercise .ex-input.wrong{background:#7f1d1d}
+.btn-check-all{margin-top:16px;padding:14px 36px;background:linear-gradient(135deg,var(--accent),#ea580c);color:#fff;border:none;border-radius:var(--radius-sm);font-family:inherit;font-weight:700;font-size:1.65rem;cursor:pointer;transition:all .3s;display:block;margin-left:auto;margin-right:auto}
+.btn-check-all:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(249,115,22,.4)}
+.score-display{text-align:center;margin-top:16px;font-size:1.9rem;font-weight:700;display:none;animation:fi .4s ease}
+.btn-check{padding:14px 36px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);font-family:inherit;font-weight:700;font-size:1.65rem;cursor:pointer;transition:all .3s}
+.btn-check:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(59,130,246,.4)}
+.btn-check:disabled{opacity:.6;cursor:default;transform:none;box-shadow:none}
+.ex-hint-btn{margin-left:8px;padding:8px 14px;border:2px solid var(--accent);background:transparent;color:var(--accent);border-radius:8px;font-family:inherit;font-weight:700;font-size:1.2rem;cursor:pointer;transition:all .3s;flex-shrink:0}
+.ex-hint-btn:hover{background:var(--accent);color:#fff}
+.hw-answer{margin-top:12px;padding:16px;border-radius:8px;background:#dcfce7;color:#166534;font-size:1.4rem;font-weight:600;animation:fi .4s ease}
+[data-theme=dark] .hw-answer{background:#14532d;color:#bbf7d0}
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;overflow:hidden}
+.confetti-piece{position:absolute;width:10px;height:10px;top:-20px;animation:cf linear forwards}
+@keyframes cf{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@media(max-width:1100px){.two-col{grid-template-columns:1fr}}
+@media(max-width:600px){.container{padding:12px}.card{padding:18px}header{padding:20px 14px}nav button{min-width:100px;padding:10px 6px;font-size:1.1rem}.exercise{flex-direction:column;align-items:stretch;text-align:center}.exercise .ex-input{width:100%}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Переключить тему">🌓</button>
+<h1>§9. Броуновское движение. Диффузия</h1>
+<div class="subtitle">7 класс · Урок 9</div>
+<div class="source">По учебнику Перышкин А.В. и др. (Просвещение, 2023)</div>
+</header>
+<nav id="mainNav">
+<button class="active" onclick="showSection(0)"><span class="nav-emoji">📖</span>Теория</button>
+<button onclick="showSection(1)"><span class="nav-emoji">🔥</span>Разминка</button>
+<button onclick="showSection(2)"><span class="nav-emoji">🧩</span>Лабиринт</button>
+<button onclick="showSection(3)"><span class="nav-emoji">📝</span>Практика</button>
+<button onclick="showSection(4)"><span class="nav-emoji">📚</span>Домашняя</button>
+</nav>
+
+<!-- SECTION 0: THEORY -->
+<div class="section active" id="sec0">
+<div class="card">
+<h2><span class="emoji">📖</span>Теория. §9. Броуновское движение. Диффузия</h2>
+<p class="card-desc">Узнай, как открыли броуновское движение, что такое диффузия и почему твёрдые тела не распадаются на молекулы!</p>
+<div class="theory-box">
+<h3>Броуновское движение</h3>
+<p>Шотландский ботаник <strong>Роберт Броун</strong> (1773—1858) в <strong>1827 году</strong> сделал удивительное открытие: он наблюдал непрерывное беспорядочное (хаотическое) движение частиц пыльцы растений в жидкости. Движение было настолько причудливо, что учёный вначале принял частицы за живые существа.</p>
+<p>Броун не смог дать объяснение явлению, которое теперь носит его имя. С разных сторон каждую частицу ударяет <strong>разное число молекул жидкости</strong>. Частица движется в ту сторону, в которую воздействие молекул жидкости оказывается <strong>сильнее</strong>. Частицы, которые движутся под действием ударов молекул жидкости, называют броуновскими.</p>
+<div class="formula">Броуновское движение — непрерывное беспорядочное (хаотическое) движение твёрдых мелких частиц, находящихся в жидкости.</div>
+<p>Хаотичность движения броуновских частиц свидетельствует и о беспорядочном характере движения молекул жидкости. Значит, броуновское движение <strong>является следствием</strong> того, что молекулы находятся в непрерывном беспорядочном движении.</p>
+<table class="units-table">
+<tr><th>Что установлено</th><th>Вывод</th></tr>
+<tr><td>Частицы пыльцы хаотично движутся в жидкости</td><td>Молекулы жидкости находятся в непрерывном беспорядочном движении</td></tr>
+<tr><td>Удар с одной стороны сильнее, чем с другой</td><td>Частица движется в сторону более сильного воздействия молекул</td></tr>
+<tr><td>Такое движение наблюдается не только в жидкостях, но и в газах</td><td>Беспорядочное движение характерно для молекул любого агрегатного состояния</td></tr>
+</table>
+<div class="example">
+<div class="example-title">Жан Перрен и масса атома</div>
+<p>Французский физик <strong>Жан Перрен</strong> (1870—1942) воспроизвёл броуновское движение с помощью тщательно отобранных крошечных шариков смолы гуммигута определённого размера. Результаты опытов позволили Перрену определить массу атомов водорода и их количество в 1 г вещества. Таким образом, <strong>ещё не видя атомов</strong>, учёные смогли узнать массу и число атомов и молекул.</p>
+</div>
+<div class="example">
+<div class="example-title">Опыт, который можно повторить дома</div>
+<p>Возьми воду, немного молока и микроскоп. Добавь в чайную ложку воды несколько капель молока и помести каплю раствора между предметными стёклами. Под микроскопом ты увидишь капельки жира, находящиеся в постоянном движении. А если рассмотреть под микроскопом капельку раствора краски в воде, то мелкие частицы краски будут беспрерывно перемещаться. При нагревании воды частицы движутся заметно быстрее.</p>
+</div>
+</div>
+<div class="theory-box">
+<h3>Диффузия в газах, жидкостях и твёрдых телах</h3>
+<p>Если в комнате появилось пахучее вещество, то через некоторое время его запах ощущается по всей комнате. Быстрое распространение запахов происходит благодаря сквознякам и ветру. Но что если воздух совершенно спокойный? Запах всё равно распространялся бы — хоть и гораздо медленнее. Причина — непрерывное беспорядочное движение молекул.</p>
+<p>Проведём мысленно такой опыт. Возьмём сосуд, перегороженный надвое задвижкой: в одной части — воздух, в другой — пары иода, имеющие фиолетовый цвет. Что произойдёт, если задвижку вынуть? Пары иода распространятся в часть сосуда с воздухом, и через некоторое время вещества перемешаются.</p>
+<div class="formula">Диффузия — явление взаимного проникновения соприкасающихся веществ друг в друга, происходящее в результате беспорядочного движения молекул.</div>
+<p>Подобное явление наблюдается и в жидкостях. В измерительный цилиндр нальют воду примерно до половины, затем с помощью воронки и стеклянной трубочки аккуратно нальют на дно раствор <strong>медного купороса</strong>. Между водой и раствором видна чёткая граница. Через несколько дней граница станет размытой, а спустя примерно месяц границы раздела не будет вовсе — жидкости перемешаются.</p>
+<table class="units-table">
+<tr><th>Агрегатное состояние</th><th>Скорость диффузии</th><th>Пример из учебника</th></tr>
+<tr><td>Газы</td><td>Быстрая</td><td>Пары иода проникают в воздух даже в неподвижном воздухе</td></tr>
+<tr><td>Жидкости</td><td>Заметная</td><td>Граница воды и раствора медного купороса размывается за несколько дней</td></tr>
+<tr><td>Твёрдые тела</td><td>Очень медленная</td><td>Золотая и свинцовая пластины: заметная диффузия лишь через три года</td></tr>
+</table>
+<p><strong>Скорость диффузии возрастает при увеличении температуры.</strong> Объяснить это можно двумя причинами: при повышении температуры увеличивается расстояние между молекулами и возрастает скорость движения молекул.</p>
+<div class="example">
+<div class="example-title">Роль диффузии в живой природе</div>
+<p>Диффузия играет исключительно важную роль. Благодаря этому явлению происходит всасывание корнями растений питательных веществ из почвы, а также питание и дыхание через поверхность листьев. За счёт диффузии природные водоёмы и аквариумы снабжаются кислородом, который необходим их обитателям. Дыхание человека и животных и всасывание пищевых продуктов стенками кишечника также происходят благодаря диффузии.</p>
+</div>
+</div>
+<div class="theory-box">
+<h3>Взаимное притяжение и отталкивание молекул</h3>
+<p>Почему же жидкости и твёрдые тела не распадаются на молекулы, а сохраняют свой объём? Многие твёрдые тела обладают большой прочностью: трудно сломать или растянуть деревянный брусок, металлический прут, кусок камня. Это говорит о том, что молекулы вещества <strong>взаимно притягиваются</strong>. Притяжение между молекулами различных веществ разное — этим объясняется разная прочность веществ: чтобы разорвать лист бумаги и пищевую плёнку, требуется разное усилие.</p>
+<p>Возьмём два свинцовых цилиндра, плотно прижмём их друг к другу — и они разъединятся. Теперь зачистим цилиндры, сложим вместе, слегка придавим и подвесим на штатив: цилиндры удержат достаточно тяжёлый груз (рис. 29). Причина в том, что у плохо отшлифованных цилиндров слишком мало молекул находится достаточно близко друг к другу. У хорошо отшлифованных цилиндров площадь близкого контакта значительно больше — соответственно, больше молекул взаимно притягиваются.</p>
+<table class="units-table">
+<tr><th>Расстояние между молекулами</th><th>Что преобладает</th></tr>
+<tr><td>Увеличивается (сравнимо с размерами молекул)</td><td>Притяжение</td></tr>
+<tr><td>Уменьшается (меньше размеров молекул)</td><td>Отталкивание</td></tr>
+</table>
+<p>Взаимное притяжение между молекулами проявляется на расстояниях, <strong>сравнимых с их размерами</strong>. Отталкивание заметно проявляется на <strong>более близких</strong> расстояниях, когда расстояния между молекулами меньше размеров молекул. Именно одновременное действие притяжения и отталкивания удерживает молекулы твёрдых тел и жидкостей на определённом расстоянии. Поэтому для того, чтобы изменить расстояние между молекулами, нужно прикладывать усилие.</p>
+<div class="example">
+<div class="example-title">Взаимодействуют и молекулы разных веществ</div>
+<p>Подвесим на пружине стеклянную пластину и поднесём её к воде в блюдце так, чтобы она слегка её касалась. Начнём медленно тянуть пружину вверх: оторвать пластину от воды удастся не сразу — пружина растягивается. На пластине остался тонкий слой воды. Это значит, что <strong>притяжение между молекулами воды и молекулами стекла больше, чем притяжение молекул воды между собой</strong> (рис. 30).</p>
+</div>
+<div class="example">
+<div class="example-title">Сварка, пайка и склеивание</div>
+<p>Если два металла расплавить (что делается при сварке или пайке), молекулы окажутся на таком расстоянии, когда проявляется притяжение между ними, и соединение будет очень прочным. Хранят стёкла, перекладывая листами бумаги: иначе гладкие стеклянные поверхности слипнутся. А осколки разбитого стакана соединить не удастся — из-за неровностей не получится приблизить молекулы на требуемое расстояние. Тогда на помощь приходит клей. Если между штукатуркой и кирпичной стеной попадёт вода, штукатурка отвалится: вода ослабляет притяжение между частицами.</p>
+</div>
+</div>
+<div class="theory-box">
+<h3>Вопросы для самопроверки</h3>
+<div class="example">
+<p>1. Что такое броуновская частица?<br>2. Что представляет собой броуновское движение?<br>3. Как объяснить броуновское движение?<br>4. Почему нельзя наблюдать броуновское движение чаинок в стакане чая?<br>5. Какое явление называют диффузией?<br>6. Опираясь на знания о строении вещества, объясните, как происходит диффузия в жидкостях.<br>7. От чего зависит скорость диффузии?<br>8. Почему тела не рассыпаются, хотя и состоят из отдельных молекул?<br>9. Почему для того, чтобы сжать или растянуть ластик, нужно приложить усилие?<br>10. При каком условии заметнее проявляется отталкивание молекул, при каком — притяжение между молекулами?</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- SECTION 1: WARM-UP (True/False) -->
+<div class="section" id="sec1">
+<div class="card">
+<h2><span class="emoji">🔥</span>Разминка. Верно или неверно?</h2>
+<p class="card-desc">Выбери «Верно» или «Неверно» для каждого утверждения (10 утверждений)</p>
+<div class="two-col">
+<div>
+<div class="tf-item" style="animation-delay:.05s" data-explain="Верно! Шотландский ботаник Роберт Броун в 1827 г. наблюдал непрерывное беспорядочное движение частиц пыльцы растений в жидкости. Он сначала принял их за живые существа.">
+<div class="tf-statement">1. Роберт Броун в 1827 году наблюдал движение частиц пыльцы растений в жидкости.</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,true)">Верно</button><button class="false-btn" onclick="answerTF(this,false,true)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+<div class="tf-item" style="animation-delay:.1s" data-explain="Верно! Именно так определяется броуновское движение: непрерывное беспорядочное (хаотическое) движение твёрдых мелких частиц, находящихся в жидкости.">
+<div class="tf-statement">2. Броуновским называют непрерывное беспорядочное движение твёрдых мелких частиц в жидкости.</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,true)">Верно</button><button class="false-btn" onclick="answerTF(this,false,true)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+<div class="tf-item" style="animation-delay:.15s" data-explain="Неверно! Частица движется в ту сторону, в которую воздействие молекул жидкости оказывается СИЛЬНЕЕ.">
+<div class="tf-statement">3. Частица движется в ту сторону, в которую воздействие молекул жидкости оказывается слабее.</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,false)">Верно</button><button class="false-btn" onclick="answerTF(this,false,false)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+<div class="tf-item" style="animation-delay:.2s" data-explain="Неверно! Броуновское движение возможно не только в жидкостях, но и в газах.">
+<div class="tf-statement">4. Броуновское движение можно наблюдать только в жидкостях.</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,false)">Верно</button><button class="false-btn" onclick="answerTF(this,false,false)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+<div class="tf-item" style="animation-delay:.25s" data-explain="Верно! Жан Перрен (1870—1942) использовал крошечные шарики смолы гуммигута и смог определить массу атомов водорода и их число в 1 г вещества.">
+<div class="tf-statement">5. Жан Перрен с помощью шариков смолы гуммигута определил массу атомов водорода и их количество в 1 г вещества.</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,true)">Верно</button><button class="false-btn" onclick="answerTF(this,false,true)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+</div>
+<div>
+<div class="tf-item" style="animation-delay:.3s" data-explain="Верно! Диффузия — явление взаимного проникновения соприкасающихся веществ друг в друга, происходящее в результате беспорядочного движения молекул.">
+<div class="tf-statement">6. Диффузия — это взаимное проникновение соприкасающихся веществ в результате беспорядочного движения молекул.</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,true)">Верно</button><button class="false-btn" onclick="answerTF(this,false,true)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+<div class="tf-item" style="animation-delay:.35s" data-explain="Неверно! В твёрдых телах диффузия протекает гораздо медленнее: золотая и свинцовая пластины дают заметную диффузию лишь через три года.">
+<div class="tf-statement">7. В твёрдых телах диффузия происходит быстрее, чем в жидкостях.</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,false)">Верно</button><button class="false-btn" onclick="answerTF(this,false,false)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+<div class="tf-item" style="animation-delay:.4s" data-explain="Верно! При повышении температуры увеличивается расстояние между молекулами и возрастает скорость движения молекул.">
+<div class="tf-statement">8. При увеличении температуры скорость диффузии возрастает.</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,true)">Верно</button><button class="false-btn" onclick="answerTF(this,false,true)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+<div class="tf-item" style="animation-delay:.45s" data-explain="Неверно! Отталкивание проявляется на более близких расстояниях — меньших размеров молекул. Притяжение проявляется на расстояниях, сравнимых с размерами молекул.">
+<div class="tf-statement">9. Отталкивание между молекулами проявляется на расстояниях, больших размеров молекул.</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,false)">Верно</button><button class="false-btn" onclick="answerTF(this,false,false)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+<div class="tf-item" style="animation-delay:.5s" data-explain="Верно! Осколки стакана не соединить: из-за неровностей не получается приблизить молекулы на требуемое расстояние. На помощь приходит клей.">
+<div class="tf-statement">10. Осколки разбитого стакана нельзя соединить, так как из-за неровностей нельзя приблизить молекулы на необходимое расстояние.</div>
+<div class="tf-buttons"><button class="true-btn" onclick="answerTF(this,true,true)">Верно</button><button class="false-btn" onclick="answerTF(this,false,true)">Неверно</button></div>
+<div class="tf-comment"></div>
+</div>
+</div>
+</div>
+<div class="progress-bar-wrap"><div class="progress-bar" id="tfProgress" style="width:0%">0 / 10</div></div>
+</div>
+</div>
+
+<!-- SECTION 2: LABYRINTH -->
+<div class="section" id="sec2">
+<div class="card">
+<h2><span class="emoji">🧩</span>Лабиринт «Молекулярные секреты»</h2>
+<p class="card-desc">Отвечай на вопросы, чтобы пройти лабиринт и открыть все шесть ворот!</p>
+<div class="labyrinth-visual" id="labVisual"></div>
+<div class="lab-task" id="labTask">
+<div class="lab-question" id="labQuestion"></div>
+<div class="lab-input-group">
+<select class="lab-input" id="labInput"></select>
+<button class="btn-lab" id="labBtn" onclick="checkLabStep()">Далее ➡️</button>
+</div>
+<div class="lab-hint" id="labHint"></div>
+</div>
+<div class="lab-complete" id="labComplete">
+<h3>🎉 Поздравляем!</h3>
+<p>Ты успешно прошёл лабиринт «Молекулярные секреты»!</p>
+<button class="btn-check" onclick="resetLabyrinth()" style="display:block;margin:20px auto 0">🔄 Пройти заново</button>
+</div>
+</div>
+</div>
+
+<!-- SECTION 3: PRACTICE -->
+<div class="section" id="sec3">
+<div class="card">
+<h2><span class="emoji">📝</span>Практика</h2>
+<p class="card-desc">Введи ответ и нажми «Проверить» (3 варианта по 5 заданий)</p>
+<div class="variant-tabs">
+<button class="variant-tab active" onclick="showVariant(0)">Вариант 1</button>
+<button class="variant-tab" onclick="showVariant(1)">Вариант 2</button>
+<button class="variant-tab" onclick="showVariant(2)">Вариант 3</button>
+</div>
+<div class="variant-content active" data-v="0">
+<div class="exercise"><div class="ex-num">1</div><div class="ex-text">Шотландский ботаник, открывший броуновское движение в 1827 году: ______.</div><input class="ex-input" data-answers="броун,брон" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">2</div><div class="ex-text">Броуновское движение — следствие того, что молекулы находятся в непрерывном ______ движении.</div><input class="ex-input" data-answers="беспорядочном,хаотическом,неупорядоченном" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">3</div><div class="ex-text">Явление взаимного проникновения соприкасающихся веществ друг в друга называется ______.</div><input class="ex-input" data-answers="диффузией,диффузия" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">4</div><div class="ex-text">В опыте с раствором медного купороса граница между жидкостями становится размытой через несколько ______.</div><input class="ex-input" data-answers="дней,день,дня" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">5</div><div class="ex-text">Притяжение между молекулами проявляется на расстояниях, сравнимых с их ______.</div><input class="ex-input" data-answers="размерами,размеров,размерами молекул" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+</div>
+<div class="variant-content" data-v="1">
+<div class="exercise"><div class="ex-num">1</div><div class="ex-text">Отталкивание между молекулами проявляется на расстояниях, ______ размеров молекул.</div><input class="ex-input" data-answers="меньших,меньше" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">2</div><div class="ex-text">В опыте с отшлифованными золотой и свинцовой пластинами заметная диффузия произойдёт лишь через ______ года.</div><input class="ex-input" data-answers="три,3" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">3</div><div class="ex-text">Скорость диффузии возрастает при ______ температуры.</div><input class="ex-input" data-answers="увеличении,повышении,увеличении температуры" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">4</div><div class="ex-text">Оторвать стеклянную пластину от воды удаётся не сразу, потому что между молекулами воды и стекла действует ______.</div><input class="ex-input" data-answers="притяжение,притяжение между молекулами" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">5</div><div class="ex-text">Французский физик, определивший по броуновскому движению массу атомов водорода: ______.</div><input class="ex-input" data-answers="перрен" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+</div>
+<div class="variant-content" data-v="2">
+<div class="exercise"><div class="ex-num">1</div><div class="ex-text">Броуновское движение возможно не только в жидкостях, но и в ______.</div><input class="ex-input" data-answers="газах,газ" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">2</div><div class="ex-text">Между молекулами вещества существует не только притяжение, но и ______.</div><input class="ex-input" data-answers="отталкивание" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">3</div><div class="ex-text">Стеклянные листы при хранении перекладывают листами бумаги, иначе стёкла ______.</div><input class="ex-input" data-answers="слипнутся,слипнут,сольются" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">4</div><div class="ex-text">Диффузия в твёрдых телах протекает ______, чем в жидкостях.</div><input class="ex-input" data-answers="медленнее,гораздо медленнее" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+<div class="exercise"><div class="ex-num">5</div><div class="ex-text">Чтобы огурцы долго оставались малосольными, рассол хранят в ______ помещении.</div><input class="ex-input" data-answers="холодном,прохладном" placeholder="..." size="12"><button class="ex-hint-btn" onclick="showHint(this)">Подсказка</button></div>
+</div>
+<button class="btn-check-all" onclick="checkPractice()">Проверить все</button>
+<div class="score-display" id="practiceScore"></div>
+</div>
+</div>
+
+<!-- SECTION 4: HOMEWORK -->
+<div class="section" id="sec4">
+<div class="card">
+<h2><span class="emoji">📚</span>Домашняя работа</h2>
+<p class="card-desc">Повтори изученный материал и отработай его в тренажёре</p>
+<div class="theory-box">
+<h3>0. Проверочная работа</h3>
+<p>Пройди проверочную работу по уроку: <a href="proverka.html" style="color:var(--primary);font-weight:700">📝 Проверочная работа. §9. Броуновское движение. Диффузия</a> — 10 заданий, оценка и разбор ошибок.</p>
+</div>
+<div class="theory-box">
+<h3>1. Повтори теорию</h3>
+<p>Перечитай §9 учебника и ответь на вопросы:</p>
+<div class="example"><p>1. Что такое броуновская частица и что представляет собой броуновское движение?<br>2. Как объясняется броуновское движение?<br>3. Какое явление называют диффузией и от чего зависит её скорость?<br>4. Приведите примеры диффузии в природе.<br>5. Почему тела не рассыпаются, хотя состоят из отдельных молекул?<br>6. При каком условии заметнее проявляется отталкивание молекул, а при каком — притяжение?</p></div>
+</div>
+<div class="theory-box">
+<h3>2. Отработай в тренажёре</h3>
+<p>Пройди вкладки «Разминка» (Верно/Неверно) и «Лабиринт» — добейся 100% в каждой. Затем реши все 3 варианта на вкладке «Практика».</p>
+</div>
+<div class="theory-box">
+<h3>3. Выпиши определения</h3>
+<div class="example"><p>• Броуновское движение —<br>• Броуновская частица —<br>• Диффузия —<br>• Притяжение молекул —<br>• Отталкивание молекул —</p></div>
+</div>
+<div class="theory-box">
+<h3>4. Вопросы к §9 из учебника</h3>
+<div class="exercise" style="background:var(--card)"><div class="ex-num">1</div><div class="ex-text">Почему нельзя наблюдать броуновское движение чаинок в стакане чая?</div><button class="ex-hint-btn" onclick="toggleHwAnswer('hw1')">Показать ответ</button></div>
+<div class="hw-answer" id="hw1" style="display:none">Чаинки слишком крупные. Чтобы сдвинуть такую частицу, разность ударов молекул с разных сторон должна быть значительной, а для мелких броуновских частиц даже небольшая разница ударов заметно меняет их движение. Поэтому броуновское движение наблюдают под микроскопом у мелких частиц.</div>
+<div class="exercise" style="background:var(--card)"><div class="ex-num">2</div><div class="ex-text">Почему, когда вы вынимаете одежду из шкафа, она пахнет лавандой? Почему пятна краски легче удалить сразу, чем спустя некоторое время?</div><button class="ex-hint-btn" onclick="toggleHwAnswer('hw2')">Показать ответ</button></div>
+<div class="hw-answer" id="hw2" style="display:none">В обоих случаях работает диффузия. Молекулы запаха лаванды проникают в волокна одежды и остаются в ней, а молекулы краски успевают проникнуть вглубь поверхности. Поэтому пахнет одежда, извлечённая из закрытого шкафа, а свежее пятно ещё можно смыть, пока краска не въехала в поры материала.</div>
+<div class="exercise" style="background:var(--card)"><div class="ex-num">3</div><div class="ex-text">Штукатурка отваливается, если между ней и кирпичной стеной попадает вода. Как это можно объяснить?</div><button class="ex-hint-btn" onclick="toggleHwAnswer('hw3')">Показать ответ</button></div>
+<div class="hw-answer" id="hw3" style="display:none">Вода проникает между частицами штукатурки и кирпича и ослабляет взаимное притяжение молекул. Сцепление становится недостаточным, чтобы удержать слой штукатурки, и она отваливается.</div>
+</div>
+</div>
+</div>
+
+<script>
+const labSteps=[
+{q:'Кто первым наблюдал броуновское движение частиц в жидкости?',a:['Роберт Броун','Жан Перрен','Галилео Галилей','Альберт Эйнштейн'],c:0},
+{q:'Как называется непрерывное беспорядочное движение твёрдых мелких частиц в жидкости?',a:['Диффузия','Броуновское движение','Испарение','Кристаллизация'],c:1},
+{q:'Как называется взаимное проникновение веществ друг в друга?',a:['Диффузия','Броуновское движение','Гравитация','Теплопроводность'],c:0},
+{q:'Притяжение молекул проявляется...',a:['на любых расстояниях','только на очень больших расстояниях','на расстояниях, сравнимых с размерами молекул','только внутри ядра атома'],c:2},
+{q:'Почему осколки разбитого стакана невозможно соединить обратно?',a:['молекулы перестают двигаться','их поверхности неровные, и молекулы нельзя сблизить на нужное расстояние','между ними нет воздуха','стекло становится холоднее'],c:1},
+{q:'Как зависит скорость диффузии от температуры?',a:['не зависит','при повышении температуры возрастает','при повышении температуры убывает','сначала растёт, потом убывает'],c:1}];
+let labCurrent=0,labCorrectCount=0;
+
+function initLabyrinth(){
+const visual=document.getElementById('labVisual');
+visual.innerHTML='';
+labSteps.forEach((_,i)=>{
+if(i>0){const a=document.createElement('span');a.className='labyrinth-arrow';a.textContent='→';visual.appendChild(a)}
+const s=document.createElement('div');s.className='labyrinth-step future';s.textContent=i+1;s.id='labStep'+i;visual.appendChild(s);
+});
+updateLabVisual();
+loadLabStep(0);
+}
+function loadLabStep(i){
+const sel=document.getElementById('labInput');
+sel.innerHTML='<option value="">Выбери ответ...</option>';
+labSteps[i].a.forEach((t,j)=>{const o=document.createElement('option');o.value=j;o.textContent=t;sel.appendChild(o)});
+sel.value='';
+document.getElementById('labQuestion').textContent=(i+1)+'. '+labSteps[i].q;
+const hint=document.getElementById('labHint');
+hint.className='lab-hint';
+hint.textContent='';
+}
+function updateLabVisual(){
+labSteps.forEach((_,i)=>{
+document.getElementById('labStep'+i).className='labyrinth-step '+(i<labCurrent?'completed':i===labCurrent?'current':'future');
+});
+}
+function checkLabStep(){
+if(labCurrent>=labSteps.length)return;
+const input=document.getElementById('labInput'),hint=document.getElementById('labHint');
+if(input.value===''){input.style.borderColor='var(--red)';return}
+if(+input.value===labSteps[labCurrent].c){
+labCorrectCount++;
+hint.className='lab-hint correct show';
+hint.textContent='✅ Правильно! Ворота '+labCurrent+' открыты.';
+labCurrent++;
+updateLabVisual();
+document.getElementById('labBtn').disabled=true;
+setTimeout(()=>{
+if(labCurrent>=labSteps.length){
+document.getElementById('labTask').style.display='none';
+document.getElementById('labComplete').classList.add('show');
+spawnConfetti();
+}else{
+loadLabStep(labCurrent);
+document.getElementById('labBtn').disabled=false;
+}
+},800);
+}else{
+hint.className='lab-hint wrong show';
+hint.textContent='❌ Попробуй ещё раз!';
+input.style.borderColor='var(--red)';
+input.value='';
+input.focus();
+setTimeout(()=>{hint.className='lab-hint'},1500);
+}
+}
+function resetLabyrinth(){
+labCurrent=0;labCorrectCount=0;
+document.getElementById('labTask').style.display='';
+document.getElementById('labComplete').classList.remove('show');
+document.getElementById('labBtn').disabled=false;
+initLabyrinth();
+}
+function toggleTheme(){
+const r=document.documentElement;
+r.dataset.theme=r.dataset.theme==='dark'?'':'dark';
+}
+function showSection(i){
+document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+document.getElementById('sec'+i).classList.add('active');
+document.querySelectorAll('nav button')[i].classList.add('active');
+window.scrollTo({top:0,behavior:'smooth'});
+}
+function showVariant(i){
+document.querySelectorAll('.variant-tab').forEach((t,j)=>{t.classList.toggle('active',j===i)});
+document.querySelectorAll('.variant-content').forEach((c,j)=>{c.classList.toggle('active',j===i)});
+}
+function answerTF(btn,answer,correct){
+const item=btn.closest('.tf-item');
+if(item.dataset.done)return;
+item.dataset.done=1;
+const isTrue=btn.classList.contains('true-btn');
+btn.classList.add(isTrue?'selected-true':'selected-false');
+item.querySelectorAll('button').forEach(b=>b.disabled=true);
+const c=item.querySelector('.tf-comment');
+const explain=item.dataset.explain||'';
+if(answer===correct){
+c.textContent='✓ Верно! '+(explain||'');
+c.className='tf-comment correct';
+}else{
+c.textContent='✗ Неверно! Правильный ответ: '+(correct?'Верно':'Неверно')+(explain?'. '+explain:'');
+c.className='tf-comment wrong';
+}
+const done=document.querySelectorAll('.tf-item[data-done]').length;
+document.getElementById('tfProgress').style.width=(done/10*100)+'%';
+document.getElementById('tfProgress').textContent=done+' / 10';
+if(done===10)spawnConfetti();
+}
+function norm(s){
+return s.toLowerCase().replace(/[.,;:!?"']/g,'').replace(/\s+/g,' ').trim();
+}
+function checkPractice(){
+const inputs=document.querySelectorAll('.variant-content.active .ex-input');
+let score=0;
+inputs.forEach(i=>{
+const ans=i.dataset.answers.split(',').map(norm);
+const ok=ans.includes(norm(i.value));
+i.classList.toggle('correct',ok);i.classList.toggle('wrong',!ok);
+if(ok)score++;
+});
+const el=document.getElementById('practiceScore');
+el.style.display='block';
+el.textContent='Результат: '+score+' / '+inputs.length;
+if(score===inputs.length)spawnConfetti();
+}
+function showHint(btn){
+const inp=btn.previousElementSibling;
+const ans=inp.dataset.answers.split(',')[0];
+inp.value=ans.charAt(0)+'_'.repeat(ans.length-1);
+}
+function toggleHwAnswer(id){
+const el=document.getElementById(id);
+el.style.display=el.style.display==='none'?'block':'none';
+}
+function spawnConfetti(){
+const c=document.createElement('div');c.className='confetti-container';
+const colors=['#ff0','#f00','#0f0','#00f','#f0f','#0ff','#f97316','#3b82f6'];
+for(let i=0;i<80;i++){
+const p=document.createElement('div');p.className='confetti-piece';
+p.style.left=Math.random()*100+'%';
+p.style.background=colors[Math.floor(Math.random()*colors.length)];
+p.style.animationDuration=(Math.random()*2+2)+'s';
+p.style.animationDelay=Math.random()+'s';
+p.style.borderRadius=Math.random()>.5?'50%':'0';
+c.appendChild(p);
+}
+document.body.appendChild(c);
+setTimeout(()=>c.remove(),5000);
+}
+initLabyrinth();
+document.addEventListener('keydown',e=>{
+if(e.key==='Enter'&&document.getElementById('sec2').classList.contains('active')&&labCurrent<labSteps.length)checkLabStep();
+});
+</script>
+</body>
+</html>
