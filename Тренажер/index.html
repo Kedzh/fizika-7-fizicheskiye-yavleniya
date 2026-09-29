@@ -797,7 +797,14 @@ const ODD_ROUNDS2=[
   {items:['Амперметр','Барометр','Спидометр','Микроволновка'],c:3,note:'Микроволновка — бытовая техника, не прибор измерения!'},
   {items:['Градус Цельсия','Паскаль','Ампер','Джоуль'],c:3,note:'Джоуль — единица энергии, не основная величина!'},
   {items:['Секундомер','Часы','Календарь','Барометр'],c:3,note:'Барометр измеряет давление, а не время!'},
-  {items:['Вольтметр','Амперметр','Омметр','Термометр'],c:3,note:'Термометр измеряет температуру, а не электрические величины!'}
+  {items:['Вольтметр','Амперметр','Омметр','Термометр'],c:3,note:'Термометр измеряет температуру, а не электрические величины!'},
+  {items:['Рулетка','Линейка','Сантиметровая лента','Глаза'],c:3,note:'Глаза — не измерительный прибор, хотя их и называют «прибором пощупывания»!'},
+  {items:['Грамм','Килограмм','Тонна','Литр'],c:3,note:'Литр — единица объёма, а не массы!'},
+  {items:['Метр','Километр','Сантиметр','Градус'],c:3,note:'Градус — единица температуры и угловой меры, а не длины!'},
+  {items:['Часы','Секундомер','Термометр','Линейка'],c:2,note:'Термометр измеряет температуру, а не время!'},
+  {items:['Площадь','Объём','Масса','Давление'],c:3,note:'Давление — тоже физическая величина, но не измеряется линейкой и весами!'},
+  {items:['Килограмм','Метр','Секунда','Градус Цельсия'],c:3,note:'Градус Цельсия измеряет температуру, остальные — основные единицы СИ для массы, длины и времени!'},
+  {items:['Электронные весы','Рычажные весы','Линейка','Часы'],c:2,note:'Линейка измеряет длину, а не массу!'}
 ];
 
 // ===== УРОК 4: ИЗМЕРЕНИЕ ТЕМПЕРАТУРЫ =====
@@ -843,7 +850,15 @@ const ODD_ROUNDS3=[
   {items:['Ртуть','Спирт','Толуол','Вода'],c:3,note:'Вода не используется в жидкостных термометрах!'},
   {items:['Медицинский','Бытовой','Лабораторный','Электронный'],c:3,note:'Электронный — не жидкостной термометр!'},
   {items:['Тепловое расширение','Изменение сопротивления','Давление газа','ТермоЭДС'],c:2,note:'Давление газа — не принцип работы термометра!'},
-  {items:['Резервуар','Капилляр','Шкала','Дисплей'],c:3,note:'Дисплея нет в жидкостном термометре!'}
+  {items:['Резервуар','Капилляр','Шкала','Дисплей'],c:3,note:'Дисплея нет в жидкостном термометре!'},
+  {items:['Градусник','Термометр','Термодатчик','Барометр'],c:3,note:'Барометр измеряет давление, а не температуру!'},
+  {items:['−10 °С','0 °С','50 °С','100 °С'],c:0,note:'100 °С — температура кипения воды, а не таяния льда!'},
+  {items:['Кухонный термометр','Медицинский термометр','Лабораторный термометр','Термометр для мяса'],c:0,note:'Кухонный термометр имеет самую широкую шкалу для измерения температуры воды и воздуха!'},
+  {items:['Плавление','Испарение','Конденсация','Излучение'],c:3,note:'Излучение — способ передачи теплоты, а не агрегатное превращение жидкости!'},
+  {items:['Ртутьный термометр','Спиртовой термометр','Водяной термометр','Стеклянный термометр'],c:2,note:'Вода не применяется в термометрах: она замерзает при 0 °С и плохо расширяется!'},
+  {items:['37 °С','36,6 °С','20 °С','0 °С'],c:1,note:'36,6 °С — нормальная температура тела человека, а 37 °С — округлённое значение!'},
+  {items:['Нагревание','Охлаждение','Расширение','Сжатие'],c:1,note:'Сжатие — противоположный процесс, а не то, что происходит при нагревании!'},
+  {items:['Шкала Цельсия','Шкала Кельвина','Шкала Фаренгейта','Шкала Реомюра'],c:3,note:'Шкала Реомюра используется редко и не является привычной школьной!'}
 ];
 
 // ===== УРОК 6: ФИЗИКА И ТЕХНИКА =====
@@ -883,7 +898,14 @@ const ODD_ROUNDS5=[
   {items:['📻 Радио','📺 Телевидение','💻 Компьютер','⚡ Высокотемпературная сверхпроводимость'],c:3,note:'Сверхпроводимость — проблема современной физики, остальные — достижения техники!'},
   {items:['📡 Радиолокатор','🔬 Электронный микроскоп','⚛️ Ядерная установка','🏛️ Пирамида Хеопса'],c:3,note:'Пирамида построена без приборов, остальные — установки, созданные благодаря развитию техники!'},
   {items:['🧬 Биофизика','🌌 Астрофизика','🌍 Геофизика','📐 Механика'],c:3,note:'Механика — классический раздел физики, остальные — науки на стыке с другими науками!'},
-  {items:['👨‍🚀 Ю. А. Гагарин','🚶 А. А. Леонов','🛰️ С. П. Королёв','🧠 В. Л. Гинзбург'],c:3,note:'Гинзбург — физик-теоретик, остальные связаны с космонавтикой!'}
+  {items:['👨‍🚀 Ю. А. Гагарин','🚶 А. А. Леонов','🛰️ С. П. Королёв','🧠 В. Л. Гинзбург'],c:3,note:'Гинзбург — физик-теоретик, остальные связаны с космонавтикой!'},
+  {items:['🔭 Телескоп','⚛️ Ядерный реактор','📡 Радиотелескоп','🛖 Землянка'],c:3,note:'Землянка — жилище, а остальные созданы с опорой на физику и технику!'},
+  {items:['Галилео Галилей','Исаак Ньютон','Джеймс Максвелл','Эйнштейн'],c:3,note:'Эйнштейн жил в XX веке, остальные — предшественники классической физики!'},
+  {items:['🧭 Компас','📻 Радиоприёмник','🔋 Аккумулятор','🖨️ Принтер'],c:3,note:'Принтер — бытовой прибор, не связанный с развитием физики и техники!'},
+  {items:['📅 4 октября 1957 г.','📅 12 апреля 1961 г.','📅 1965 г.','📅 12 июня 1941 г.'],c:3,note:'12 июня 1941 года — дата начала Великой Отечественной войны, а не космическая!'},
+  {items:['🧲 Магнитный компас','🔭 Оптический телескоп','🧪 Микроскоп','⏱️ Песочные часы'],c:3,note:'Песочные часы не требуют научных приборов и не созданы на основе физики!'},
+  {items:['🚂 Паровоз','✈️ Самолёт','🚗 Автомобиль','🛖 Повозка'],c:3,note:'Повозка — простое приспособление, остальные — техника, созданная наукой!'},
+  {items:['💻 Компьютер','🌐 Интернет','🛰️ Спутниковая связь','🐴 Лошадь'],c:3,note:'Лошадь — живое существо, а не результат научно-технического прогресса!'}
 ];
 
 // ===== УРОК 7: СТРОЕНИЕ ВЕЩЕСТВА =====
@@ -933,7 +955,14 @@ const ODD_ROUNDS6=[
   {items:['🌡️ Нагревание','❄️ Охлаждение','💧 Разбавление краски','🔥 Плавление'],c:2,note:'Разбавление краски — опыт о строении вещества, остальные — тепловые процессы!'},
   {items:['Демокрит','Ломоносов','Галилей','Ньютон'],c:2,note:'Галилей — не атомист! С атомными представлениями связаны Демокрит и Ломоносов.'},
   {items:['Увеличение объёма при нагревании','Уменьшение объёма при охлаждении','Величина промежутков между частицами','Скорость автомобиля'],c:3,note:'Скорость автомобиля не имеет отношения к строению вещества!'},
-  {items:['Твёрдые тела','Жидкости','Газы','Солнце'],c:3,note:'Солнце — источник света и тепла, а не агрегатное состояние вещества!'}
+  {items:['Твёрдые тела','Жидкости','Газы','Солнце'],c:3,note:'Солнце — источник света и тепла, а не агрегатное состояние вещества!'},
+  {items:['🧱 Кирпич','🪨 Камень','🧊 Лёд','📄 Бумага'],c:0,note:'Лёд — это жидкость, замёрзшая, то есть агрегатное состояние!'},
+  {items:['⚛️ Гипотеза','🔬 Теория','🧪 Опыт','📖 Учебник'],c:3,note:'Учебник — не научный способ познания, остальные — методы и результаты науки!'},
+  {items:['🔬 Опыт с краской','🔬 Опыт с шаром','🔬 Опыт с жидкостью в колбе','🔬 Опыт с электричеством'],c:3,note:'Опыт с электричеством не относится к теме строения вещества!'},
+  {items:['Молекула','Атом','Протон','Нейтрон'],c:2,note:'Протон и нейтрон — частицы ядра атома, а не мельчайшая частица вещества в §7!'},
+  {items:['Железо','Дерево','Вода','Воздух'],c:0,note:'Вода, дерево и воздух состоят из молекул, железо — из атомов!'},
+  {items:['Нагревание','Охлаждение','Расширение','Испарение'],c:3,note:'Испарение — переход жидкости в газ, а не следствие движения частиц при нагревании!'},
+  {items:['Демокрит','Галилей','Ньютон','Ломоносов'],c:1,note:'Галилей не выдвигал атомистической гипотезы, её развили Ломоносов и наука XX века!'}
 ];
 
 // ===== УРОК 8: МОЛЕКУЛЫ =====
@@ -984,7 +1013,12 @@ const ODD_ROUNDS7=[
   {items:['☀️ Ультрафиолет Солнца','🛡️ Слой озона','🌍 Защита организмов','🍎 Яблоко'],c:3,note:'Яблоко — просто фрукт, остальное связано с образованием озона!'},
   {items:['📏 Метод масляных плёнок','👨‍🔬 Рентген и Рэлей','📏 Оценка размеров молекул','🚗 Скорость автомобиля'],c:3,note:'Скорость автомобиля не имеет отношения к измерению размеров молекул!'},
   {items:['⚛️ Атом','🔬 Молекула','🧪 Озон','⚖️ Скорость'],c:3,note:'Скорость — физическая величина, а не частица вещества!'},
-  {items:['💨 Гелий','🧊 Кремний','☠️ Мышьяк','🌊 Вода'],c:3,note:'Вода состоит из молекул H₂O, остальные вещества — из атомов!'}
+  {items:['💨 Гелий','🧊 Кремний','☠️ Мышьяк','🌊 Вода'],c:3,note:'Вода состоит из молекул H₂O, остальные вещества — из атомов!'},
+  {items:['🔬 Туннельный микроскоп','🔬 Электронный микроскоп','🔬 Оптический микроскоп','🔬 Люстра'],c:3,note:'Люстра — светильник, а настоящие микроскопы позволили увидеть атомы и молекулы!'},
+  {items:['🧪 Озон','💧 Водяной пар','❄️ Лёд','🛡️ Слой озона'],c:2,note:'Лёд — не новое вещество, а твёрдое состояние воды, тогда как озон — новое вещество!'},
+  {items:['📏 Метод масляных плёнок','🔭 Метод измерения расстояний до звёзд','🧮 Метод угадывания','🎲 Метод случайного выбора'],c:3,note:'Угадывание и случайный выбор не имеют отношения к оценке размеров молекул!'},
+  {items:['CO₂','H₂O','O₂','O₃'],c:0,note:'В молекуле CO₂ два атома кислорода и один атом углерода, а не три атома кислорода!'},
+  {items:['⚛️ Атом водорода','🔬 Молекула водорода H₂','💧 Молекула воды','🟢 Атом кислорода'],c:0,note:'В природе водород существует в виде двухатомных молекул H₂, поэтому одиночного атома водорода как частицы вещества нет!'}
 ];
 
 // ===== МЕХАНИКА =====
@@ -1015,6 +1049,11 @@ function stopQTimer(){
   if(el)el.textContent='';
 }
 function scheduleAdvance(fn,delay){clearTimeout(qAdvanceT);qAdvanceT=setTimeout(fn,delay)}
+function updateRoundBar(done,total){
+  const pct=Math.round((done/total)*100);
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('progressBar').textContent=pct+'%';
+}
 function onTimeUp(){
   if(qMode==='mix')timeUpMix();
   else if(qMode==='odd')timeUpOdd();
@@ -1042,6 +1081,9 @@ function timeUpOdd(){
   const fb=document.getElementById('feedback');
   fb.className='feedback show fail';
   fb.textContent='⏰ Время вышло! '+oddDeck[oddIdx-1].note;
+  oddFail++;
+  document.getElementById('statFail').textContent=oddFail;
+  updateRoundBar(oddIdx,oddDeck.length);
   const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.odd)stats.odd={ok:0,fail:0};stats.odd.fail++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
   scheduleAdvance(()=>showOddRound(),2000);
 }
@@ -1054,6 +1096,9 @@ function timeUpTF(){
   const fb=document.getElementById('feedback');
   fb.className='feedback show fail';
   fb.textContent='⏰ Время вышло! '+r.e;
+  tfFail++;
+  document.getElementById('statFail').textContent=tfFail;
+  updateRoundBar(tfIdx,tfDeck.length);
   const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.tf)stats.tf={ok:0,fail:0};stats.tf.fail++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
   scheduleAdvance(()=>showTFRound(),2000);
 }
@@ -1079,8 +1124,7 @@ function renderMenu(){
   });
 }
 function getMenuForTopic(topic){
-  if(topic==='measure')return[{id:'mix',label:'Микс (все темы)',icon:'🎲',hint:'10 вопросов'},{id:'odd',label:'Найди лишнее',icon:'🕵️',hint:''},{id:'tf',label:'Правда или ложь',icon:'⚖️',hint:''}];
-  return[{id:'mix',label:'Микс (все темы)',icon:'🎲',hint:'10 вопросов'},{id:'odd',label:'Найди лишнее',icon:'🕵️',hint:''},{id:'tf',label:'Правда или ложь',icon:'⚖️',hint:''}];
+  return[{id:'mix',label:'Микс (все темы)',icon:'🎲',hint:'10 вопросов'},{id:'odd',label:'Найди лишнее',icon:'🕵️',hint:'10 раундов'},{id:'tf',label:'Правда или ложь',icon:'⚖️',hint:'10 вопросов'}];
 }
 
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const el=document.getElementById(id);if(el)el.classList.add('active')}
@@ -1211,6 +1255,28 @@ function finish(){
   showScreen('screenResult');if(pct>=85)launchConfetti();
 }
 
+function finishRoundGame(title){
+  stopQTimer();
+  const isOdd=qMode==='odd';
+  qMode='';
+  const ok=isOdd?oddOk:tfOk,fail=isOdd?oddFail:tfFail;
+  const total=ok+fail;
+  const sec=Math.floor((Date.now()-(isOdd?oddStart:tfStart))/1000);const m=Math.floor(sec/60),s=sec%60;
+  const pct=total?Math.round((ok/total)*100):0;
+  let cls='red',msg='Нужно подтянуть :(',grade=2;
+  if(pct>=85){cls='green';msg='Отлично! 🎉';grade=5}
+  else if(pct>=70){cls='green';msg='Хорошо!';grade=4}
+  else if(pct>=50){cls='yellow';msg='Неплохо';grade=3}
+  document.getElementById('resultTitle').textContent=title+' — Ученик';
+  document.getElementById('resultScore').className='result-big '+cls;document.getElementById('resultScore').textContent=pct+'% — оценка '+grade;
+  document.getElementById('resultMsg').textContent=msg;
+  document.getElementById('resultStats').innerHTML=`
+    <div class="stat-box green"><div class="stat-val">${ok}</div><div class="stat-label">Верно</div></div>
+    <div class="stat-box red"><div class="stat-val">${fail}</div><div class="stat-label">Ошибки</div></div>
+    <div class="stat-box"><div class="stat-val">${m}:${String(s).padStart(2,'0')}</div><div class="stat-label">Время</div></div>`;
+  showScreen('screenResult');if(pct>=85)launchConfetti();
+}
+
 function launchConfetti(){
   const c=document.getElementById('confettiBox');const colors=['#3b82f6','#f97316','#22c55e','#ef4444','#eab308','#8b5cf6','#ec4899'];
   for(let i=0;i<50;i++){const p=document.createElement('div');p.className='confetti-p';p.style.left=Math.random()*100+'%';p.style.background=colors[Math.floor(Math.random()*colors.length)];p.style.width=(Math.random()*6+4)+'px';p.style.height=(Math.random()*6+4)+'px';p.style.borderRadius=Math.random()>.5?'50%':'2px';p.style.animationDuration=(Math.random()*2+1.5)+'s';p.style.animationDelay=(Math.random()*1)+'s';c.appendChild(p)}
@@ -1218,7 +1284,8 @@ function launchConfetti(){
 }
 
 // ===== ИГРА «НАЙДИ ЛИШНЕЕ» =====
-let oddDeck=[],oddIdx=0,oddLocked=false;
+let oddDeck=[],oddIdx=0,oddLocked=false,oddOk=0,oddFail=0,oddStart=0;
+const ROUND_TOTAL=10;
 function startOddGame(){
   qMode='odd';clearTimeout(qAdvanceT);stopQTimer();
   let deck=ODD_ROUNDS;
@@ -1227,11 +1294,13 @@ function startOddGame(){
   if(currentTopic==='tech')deck=ODD_ROUNDS5;
   if(currentTopic==='matter')deck=ODD_ROUNDS6;
   if(currentTopic==='molecules')deck=ODD_ROUNDS7;
-  oddDeck=shuffle([...deck]);oddIdx=0;showOddRound()
+  oddDeck=shuffle([...deck]).slice(0,ROUND_TOTAL);oddIdx=0;oddOk=0;oddFail=0;oddStart=Date.now();
+  document.getElementById('statOk').textContent='0';document.getElementById('statFail').textContent='0';
+  showOddRound()
 }
 function showOddRound(){
   if(qMode!=='odd')return;
-  if(oddIdx>=oddDeck.length){oddDeck=shuffle([...oddDeck]);oddIdx=0}
+  if(oddIdx>=oddDeck.length){finishRoundGame('Найди лишнее');return}
   const r=oddDeck[oddIdx];oddIdx++;
   const order=[0,1,2,3];shuffle(order);
   const rndC=order.indexOf(r.c);
@@ -1239,8 +1308,9 @@ function showOddRound(){
   showScreen('screenTrain');
   document.getElementById('navTrainTitle').textContent='🕵️ Найди лишнее';
   document.getElementById('exLabel').textContent=currentTopic==='measure'?'Какой объект лишний?':(currentTopic==='matter'||currentTopic==='molecules')?'Что лишнее?':'Какое явление лишнее?';
-  document.getElementById('exProgress').textContent='';
-  document.getElementById('progressBar').style.width='0%';document.getElementById('progressBar').textContent='';
+  document.getElementById('exProgress').textContent=oddIdx+' из '+oddDeck.length;
+  const pct=Math.round(((oddIdx-1)/oddDeck.length)*100);
+  document.getElementById('progressBar').style.width=pct+'%';document.getElementById('progressBar').textContent=pct+'%';
   const grid=document.getElementById('optionsGrid');grid.innerHTML='';grid.className='odd-grid';
   document.getElementById('exTask').textContent=currentTopic==='measure'?'Нажми на лишний объект':(currentTopic==='matter'||currentTopic==='molecules')?'Нажми на лишний элемент':'Нажми на лишнее явление';
   document.getElementById('feedback').className='feedback';document.getElementById('feedback').textContent='';
@@ -1256,16 +1326,18 @@ function handleOddPick(i,btn,r,rndC){
   const grid=document.getElementById('optionsGrid');
   grid.querySelectorAll('.odd-card').forEach(b=>b.disabled=true);
   const fb=document.getElementById('feedback');
-  if(i===rndC){btn.classList.add('correct');fb.className='feedback show ok';fb.textContent='✅ Верно! '+r.note;
+  if(i===rndC){oddOk++;btn.classList.add('correct');fb.className='feedback show ok';fb.textContent='✅ Верно! '+r.note;
     const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.odd)stats.odd={ok:0,fail:0};stats.odd.ok++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
-  }else{btn.classList.add('wrong');grid.querySelectorAll('.odd-card')[rndC].classList.add('odd-out');fb.className='feedback show fail';fb.textContent='🤔 '+r.note;
+  }else{oddFail++;btn.classList.add('wrong');grid.querySelectorAll('.odd-card')[rndC].classList.add('odd-out');fb.className='feedback show fail';fb.textContent='🤔 '+r.note;
     const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.odd)stats.odd={ok:0,fail:0};stats.odd.fail++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
   }
+  document.getElementById('statOk').textContent=oddOk;document.getElementById('statFail').textContent=oddFail;
+  updateRoundBar(oddIdx,oddDeck.length);
   scheduleAdvance(()=>showOddRound(),2500);
 }
 
 // ===== ИГРА «ПРАВДА ИЛИ ЛОЖЬ» =====
-let tfDeck=[],tfIdx=0,tfLocked=false;
+let tfDeck=[],tfIdx=0,tfLocked=false,tfOk=0,tfFail=0,tfStart=0;
 function startTFGame(){
   qMode='tf';clearTimeout(qAdvanceT);stopQTimer();
   let deck=TRUE_FALSE;
@@ -1274,22 +1346,20 @@ function startTFGame(){
   if(currentTopic==='tech')deck=TRUE_FALSE5;
   if(currentTopic==='matter')deck=TRUE_FALSE6;
   if(currentTopic==='molecules')deck=TRUE_FALSE7;
-  tfDeck=shuffle([...deck]);tfIdx=0;showTFRound()
+  tfDeck=shuffle([...deck]).slice(0,ROUND_TOTAL);tfIdx=0;tfOk=0;tfFail=0;tfStart=Date.now();
+  document.getElementById('statOk').textContent='0';document.getElementById('statFail').textContent='0';
+  showTFRound()
 }
 function showTFRound(){
   if(qMode!=='tf')return;
-  let deck=TRUE_FALSE;
-  if(currentTopic==='measure')deck=TRUE_FALSE2;
-  if(currentTopic==='temp')deck=TRUE_FALSE3;
-  if(currentTopic==='tech')deck=TRUE_FALSE5;
-  if(currentTopic==='matter')deck=TRUE_FALSE6;
-  if(tfIdx>=tfDeck.length){tfDeck=shuffle([...deck]);tfIdx=0}
+  if(tfIdx>=tfDeck.length){finishRoundGame('Правда или ложь');return}
   const r=tfDeck[tfIdx];tfIdx++;
   showScreen('screenTrain');
   document.getElementById('navTrainTitle').textContent='⚖️ Правда или ложь?';
   document.getElementById('exLabel').textContent='Верное ли утверждение?';
-  document.getElementById('exProgress').textContent='';
-  document.getElementById('progressBar').style.width='0%';document.getElementById('progressBar').textContent='';
+  document.getElementById('exProgress').textContent=tfIdx+' из '+tfDeck.length;
+  const pct=Math.round(((tfIdx-1)/tfDeck.length)*100);
+  document.getElementById('progressBar').style.width=pct+'%';document.getElementById('progressBar').textContent=pct+'%';
   document.getElementById('exTask').textContent=r.q;
   document.getElementById('optionsGrid').className='options';
   const grid=document.getElementById('optionsGrid');grid.innerHTML='';
@@ -1305,11 +1375,13 @@ function handleTFPick(pick,b1,b2,r){
   if(tfLocked)return;tfLocked=true;stopQTimer();b1.disabled=true;b2.disabled=true;
   const fb=document.getElementById('feedback');
   const correct=pick===r.a;
-  if(correct){(pick?b1:b2).classList.add('correct');fb.className='feedback show ok';fb.textContent='✅ '+r.e;
+  if(correct){tfOk++;(pick?b1:b2).classList.add('correct');fb.className='feedback show ok';fb.textContent='✅ '+r.e;
     const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.tf)stats.tf={ok:0,fail:0};stats.tf.ok++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
-  }else{(pick?b1:b2).classList.add('wrong');(r.a?b1:b2).classList.add('correct');fb.className='feedback show fail';fb.textContent='❌ '+r.e;
+  }else{tfFail++;(pick?b1:b2).classList.add('wrong');(r.a?b1:b2).classList.add('correct');fb.className='feedback show fail';fb.textContent='❌ '+r.e;
     const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.tf)stats.tf={ok:0,fail:0};stats.tf.fail++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
   }
+  document.getElementById('statOk').textContent=tfOk;document.getElementById('statFail').textContent=tfFail;
+  updateRoundBar(tfIdx,tfDeck.length);
   scheduleAdvance(()=>showTFRound(),2200);
 }
 
