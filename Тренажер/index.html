@@ -1386,8 +1386,8 @@ const ODD_ROUNDS8=[
 let state={mode:'',total:5,current:0,ok:0,fail:0,answers:[],startTime:0,timerInterval:null};
 let currentQ=null,selectedIdx=-1;
 
-// ===== ТАЙМЕР ВОПРОСА (5 секунд) =====
-const Q_TIME=5;
+// ===== ТАЙМЕР ВОПРОСА (15 секунд) =====
+const Q_TIME=15;
 let qTimeLeft=Q_TIME,qTimerInt=null,qMode='mix',qAdvanceT=null;
 function startQTimer(){
   clearInterval(qTimerInt);
