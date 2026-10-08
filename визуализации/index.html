@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Анимация атома — 3D-модель атома</title>
+<meta name="description" content="Интерактивная трёхмерная модель атома: ядро из протонов и нейтронов, электронные оболочки, интерактивная периодическая таблица и статистика по свойствам элементов.">
+<meta name="keywords" content="атом, периодическая таблица, строение атома, модель Бора, электронная конфигурация, химия, 3D">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div class="layout">
+  <main class="main main--flush">
+    <div id="scene" style="position:absolute;inset:0"></div>
+    <div id="fallback" hidden style="position:absolute;inset:0;display:grid;place-items:center;padding:40px;text-align:center;color:#8b90a0">
+      Не удалось загрузить библиотеку 3D-рендеринга.<br>
+      Проверьте подключение к интернету — Three.js загружается с CDN.
+    </div>
+  </main>
+
+  <!-- Мобильная верхняя панель -->
+  <div class="topbar">
+    <div class="topbar__spacer"></div>
+    <div class="topbar__info">
+      <span class="topbar__sym" id="mSym">Ti</span>
+      <span class="topbar__name" id="mName">Титан</span>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <!-- Карточка элемента -->
+    <div class="card" id="card" tabindex="0" role="button" aria-label="Подробнее об элементе">
+      <div class="card__z" id="cZ">22</div>
+      <div class="card__config mono" id="cConfig">[Ar] 3d² 4s²</div>
+      <div class="card__sym" id="cSym">Ti</div>
+      <div class="card__name" id="cName">Титан</div>
+      <div class="card__mass mono" id="cMass">47,867</div>
+    </div>
+
+    <!-- Управление -->
+    <div class="controls">
+      <div class="controls__row">
+        <div class="eselect" id="eselect">
+          <span class="controls__label">Элемент:</span>
+          <div class="eselect__display" id="esDisplay" tabindex="0" role="combobox" aria-expanded="false" aria-haspopup="listbox">
+            <span id="esName">Титан</span>
+            <span class="eselect__arrow">▼</span>
+          </div>
+          <div class="eselect__list" id="esList" role="listbox"></div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn" id="prevBtn" title="Предыдущий элемент" aria-label="Предыдущий элемент">▼</button>
+          <button class="btn" id="nextBtn" title="Следующий элемент" aria-label="Следующий элемент">▲</button>
+        </div>
+      </div>
+
+      <div class="controls__row">
+        <span class="controls__label" id="speedLabel" role="button" tabindex="0">Скорость:</span>
+        <input id="speed" type="range" min="1" max="100" value="30" aria-label="Скорость вращения">
+        <div style="display:flex;gap:6px">
+          <button class="btn" id="shakeBtn" title="Встряхнуть атом" aria-label="Встряхнуть атом">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h8.5a2.5 2.5 0 1 0-2.34-3.24"></path><path d="M3 12h15.5a2.5 2.5 0 1 1-2.34 3.24"></path><path d="M4 16h5.5a2.5 2.5 0 1 1-2.34 3.24"></path></svg>
+          </button>
+          <button class="btn" id="resetBtn" title="Сбросить вид" aria-label="Сбросить вид">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="legend" id="legend"></div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/elements.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+  if (!window.THREE) {
+    document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"><\/script>');
+  }
+</script>
+<script src="assets/js/atom.js"></script>
+</body>
+</html>

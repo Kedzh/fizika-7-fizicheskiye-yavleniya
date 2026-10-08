@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Урок-исследование: Измерение температуры — 7 класс</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg: #f0f4f8;
+  --card: #ffffff;
+  --primary: #3b82f6;
+  --primary-light: #dbeafe;
+  --accent: #f97316;
+  --green: #22c55e;
+  --red: #ef4444;
+  --yellow: #eab308;
+  --text: #1e293b;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --card: #1e293b; --primary: #60a5fa; --primary-light: #1e3a5f;
+  --accent: #fb923c; --green: #4ade80; --red: #f87171; --yellow: #facc15;
+  --text: #f1f5f9; --text-secondary: #94a3b8; --border: #334155;
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.6;
+  transition: background 0.3s, color 0.3s; overflow-x: hidden;
+}
+.container { max-width: 1600px; margin: 0 auto; padding: 24px 48px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+
+header {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: white; padding: 32px 40px; border-radius: var(--radius);
+  margin-bottom: 24px; text-align: center; position: relative;
+  box-shadow: var(--shadow); overflow: hidden;
+}
+header::before {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+  animation: headerPulse 8s ease-in-out infinite;
+}
+@keyframes headerPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+header h1 { font-size: clamp(2.2rem, 4.5vw, 3.4rem); font-weight: 800; position: relative; }
+header .subtitle { font-size: 1.8rem; opacity: 0.9; margin-top: 6px; position: relative; }
+header .source { font-size: 1.3rem; opacity: 0.7; margin-top: 4px; position: relative; }
+.theme-toggle {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(255,255,255,0.2); border: none; color: white;
+  font-size: 2.2rem; width: 56px; height: 56px; border-radius: 50%;
+  cursor: pointer; z-index: 2; display: flex; align-items: center; justify-content: center;
+}
+.theme-toggle:hover { background: rgba(255,255,255,0.35); transform: scale(1.1); }
+
+nav {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px;
+  position: sticky; top: 0; background: var(--bg);
+  padding: 12px 0; z-index: 100; border-bottom: 2px solid var(--border);
+}
+nav button {
+  flex: 1; min-width: 140px; padding: 16px 20px;
+  border: 2px solid var(--border); background: var(--card); color: var(--text);
+  border-radius: var(--radius-sm); font-family: inherit; font-size: 1.3rem;
+  font-weight: 700; cursor: pointer; transition: all 0.3s;
+}
+nav button:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+nav button.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 16px rgba(59,130,246,0.3); }
+nav button .nav-emoji { display: block; font-size: 2rem; margin-bottom: 2px; }
+
+.section { display: none; animation: fadeIn 0.4s ease; }
+.section.active { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+.card {
+  background: var(--card); border-radius: var(--radius); padding: 32px;
+  margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--border);
+  transition: background 0.3s, border 0.3s;
+}
+.card h2 { font-size: 2.2rem; margin-bottom: 6px; color: var(--primary); }
+.card h2 .emoji { margin-right: 10px; }
+.card .card-desc { color: var(--text-secondary); font-size: 1.5rem; margin-bottom: 18px; }
+
+.theory-box {
+  background: var(--primary-light); border-radius: var(--radius-sm); padding: 24px;
+  margin-bottom: 20px; border-left: 4px solid var(--primary);
+}
+.theory-box h3 { font-size: 1.8rem; margin-bottom: 12px; color: var(--primary); }
+.theory-box p { font-size: 1.5rem; margin-bottom: 10px; }
+.theory-box .formula {
+  background: var(--card); border: 2px solid var(--primary); border-radius: 8px;
+  padding: 16px 24px; font-size: 1.8rem; font-weight: 700; text-align: center;
+  margin: 16px 0; color: var(--primary);
+}
+.theory-box .example {
+  background: var(--card); border-radius: 8px; padding: 16px;
+  margin-top: 12px; font-size: 1.4rem;
+}
+.theory-box .example-title { font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+
+.units-table {
+  width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 1.4rem;
+}
+.units-table th {
+  background: var(--primary); color: white; padding: 12px 16px;
+  text-align: left; font-weight: 700;
+}
+.units-table td {
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+}
+.units-table tr:nth-child(even) { background: rgba(59,130,246,0.05); }
+
+.instruments-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px; margin: 16px 0;
+}
+.instrument-card {
+  background: var(--bg); border-radius: var(--radius-sm); padding: 16px;
+  text-align: center; border: 2px solid var(--border); transition: all 0.3s;
+}
+.instrument-card:hover { border-color: var(--primary); box-shadow: 0 4px 16px rgba(59,130,246,0.2); }
+.instrument-card .inst-emoji { font-size: 3rem; margin-bottom: 6px; }
+.instrument-card .inst-name { font-size: 1.4rem; font-weight: 700; margin-bottom: 2px; }
+.instrument-card .inst-measures { font-size: 1.2rem; color: var(--text-secondary); }
+
+.tf-item {
+  background: var(--bg); border-radius: var(--radius-sm); padding: 18px 24px;
+  margin-bottom: 12px; border-left: 4px solid var(--primary);
+  animation: slideIn 0.4s ease backwards;
+}
+@keyframes slideIn { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+.tf-statement { font-weight: 600; font-size: 1.65rem; margin-bottom: 10px; }
+.tf-buttons { display: flex; gap: 12px; }
+.tf-buttons button {
+  padding: 10px 24px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-weight: 700; font-size: 1.5rem;
+  cursor: pointer; transition: all 0.3s; background: var(--card); color: var(--text);
+}
+.tf-buttons button.true-btn:hover { border-color: var(--green); color: var(--green); }
+.tf-buttons button.false-btn:hover { border-color: var(--red); color: var(--red); }
+.tf-buttons button.selected-true { background: var(--green); color: white; border-color: var(--green); box-shadow: 0 2px 12px rgba(34,197,94,0.4); }
+.tf-buttons button.selected-false { background: var(--red); color: white; border-color: var(--red); box-shadow: 0 2px 12px rgba(239,68,68,0.4); }
+.tf-buttons button:disabled { cursor: default; opacity: 0.5; }
+.tf-comment { margin-top: 10px; padding: 10px 16px; border-radius: 8px; font-size: 1.4rem; font-weight: 600; display: none; }
+.tf-comment.correct { background: #dcfce7; color: #166534; display: block; }
+.tf-comment.wrong { background: #fee2e2; color: #991b1b; display: block; }
+[data-theme="dark"] .tf-comment.correct { background: #14532d; color: #bbf7d0; }
+[data-theme="dark"] .tf-comment.wrong { background: #7f1d1d; color: #fecaca; }
+
+.progress-bar-wrap { margin-top: 20px; background: var(--bg); border-radius: 20px; overflow: hidden; height: 34px; }
+.progress-bar {
+  height: 100%; background: linear-gradient(90deg, var(--green), #34d399);
+  border-radius: 20px; transition: width 0.6s ease; display: flex;
+  align-items: center; justify-content: center; color: white;
+  font-weight: 700; font-size: 1.35rem; min-width: 65px;
+}
+
+.match-game { max-width: 700px; margin: 0 auto; }
+.match-row {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 12px;
+  background: var(--bg); border-radius: var(--radius-sm); padding: 14px 18px;
+  border-left: 4px solid var(--primary);
+}
+.match-qty { flex: 1; font-weight: 700; font-size: 1.5rem; }
+.match-select {
+  flex: 1; padding: 12px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-size: 1.5rem; font-weight: 700;
+  background: var(--card); color: var(--text); cursor: pointer; transition: border 0.3s;
+}
+.match-select:focus { border-color: var(--primary); outline: none; }
+.match-select.correct { border-color: var(--green); background: #dcfce7; }
+.match-select.wrong { border-color: var(--red); background: #fee2e2; }
+[data-theme="dark"] .match-select.correct { background: #14532d; }
+[data-theme="dark"] .match-select.wrong { background: #7f1d1d; }
+
+.labyrinth-visual { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+.labyrinth-step {
+  width: 60px; height: 60px; border-radius: 50%; background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.35rem; color: var(--text-secondary); transition: all 0.4s;
+}
+.labyrinth-step.completed { background: var(--green); color: white; box-shadow: 0 2px 12px rgba(34,197,94,0.4); }
+.labyrinth-step.current { background: var(--primary); color: white; box-shadow: 0 2px 12px rgba(59,130,246,0.4); transform: scale(1.15); }
+.labyrinth-step.future { background: var(--border); color: var(--text-secondary); }
+.labyrinth-arrow { color: var(--text-secondary); font-size: 1.8rem; }
+.lab-task { background: var(--primary-light); border-radius: var(--radius-sm); padding: 24px; text-align: center; margin-bottom: 18px; }
+.lab-task .lab-question { font-size: 1.9rem; font-weight: 700; margin-bottom: 18px; }
+.lab-input-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.lab-input {
+  width: 240px; padding: 14px 18px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-size: 1.75rem; text-align: center; font-weight: 700;
+  background: var(--card); color: var(--text);
+}
+.lab-input:focus { border-color: var(--primary); outline: none; }
+.btn-lab {
+  padding: 14px 32px; background: var(--primary); color: white; border: none;
+  border-radius: 8px; font-family: inherit; font-weight: 700; font-size: 1.6rem;
+  cursor: pointer; transition: all 0.3s;
+}
+.btn-lab:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
+.lab-hint { margin-top: 12px; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 1.5rem; display: none; animation: fadeIn 0.3s ease; }
+.lab-hint.show { display: block; }
+.lab-hint.wrong { background: #fee2e2; color: #991b1b; }
+.lab-hint.correct { background: #dcfce7; color: #166534; }
+[data-theme="dark"] .lab-hint.wrong { background: #7f1d1d; color: #fecaca; }
+[data-theme="dark"] .lab-hint.correct { background: #14532d; color: #bbf7d0; }
+.lab-complete { text-align: center; padding: 32px; display: none; }
+.lab-complete.show { display: block; animation: fadeIn 0.5s ease; }
+.lab-complete h3 { font-size: 2.4rem; color: var(--green); margin-bottom: 10px; }
+.lab-complete p { font-size: 1.75rem; color: var(--text-secondary); }
+
+.variant-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+.variant-tab {
+  flex: 1; padding: 14px; border: 2px solid var(--border); background: var(--card);
+  border-radius: var(--radius-sm); font-family: inherit; font-weight: 700;
+  font-size: 1.6rem; cursor: pointer; transition: all 0.3s; color: var(--text);
+}
+.variant-tab.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 16px rgba(249,115,22,0.3); }
+.variant-content { display: none; }
+.variant-content.active { display: block; animation: fadeIn 0.4s ease; }
+.exercise {
+  display: flex; align-items: center; gap: 14px; padding: 16px 20px;
+  background: var(--bg); border-radius: var(--radius-sm); margin-bottom: 10px; flex-wrap: wrap;
+}
+.exercise .ex-num {
+  width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.35rem; flex-shrink: 0;
+}
+.exercise .ex-text { flex: 1; font-weight: 600; font-size: 1.45rem; }
+.exercise .ex-input {
+  width: 150px; padding: 10px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-size: 1.6rem; text-align: center; font-weight: 700;
+  background: var(--card); color: var(--text);
+}
+.exercise .ex-input:focus { border-color: var(--primary); outline: none; }
+.exercise .ex-input.correct { border-color: var(--green); background: #dcfce7; }
+.exercise .ex-input.wrong { border-color: var(--red); background: #fee2e2; }
+[data-theme="dark"] .exercise .ex-input.correct { background: #14532d; }
+[data-theme="dark"] .exercise .ex-input.wrong { background: #7f1d1d; }
+.btn-check-all {
+  margin-top: 16px; padding: 14px 36px; background: linear-gradient(135deg, var(--accent), #ea580c);
+  color: white; border: none; border-radius: var(--radius-sm); font-family: inherit;
+  font-weight: 700; font-size: 1.65rem; cursor: pointer; transition: all 0.3s;
+  display: block; margin-left: auto; margin-right: auto;
+}
+.btn-check-all:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(249,115,22,0.4); }
+.score-display { text-align: center; margin-top: 16px; font-size: 1.9rem; font-weight: 700; display: none; animation: fadeIn 0.4s ease; }
+.btn-check { padding: 14px 36px; background: var(--primary); color: white; border: none; border-radius: var(--radius-sm); font-family: inherit; font-weight: 700; font-size: 1.65rem; cursor: pointer; transition: all 0.3s; }
+.btn-check:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
+.btn-check:disabled { opacity: 0.6; cursor: default; transform: none; box-shadow: none; }
+.ex-answer { margin-top: 6px; padding: 6px 12px; border-radius: 8px; background: #dcfce7; color: #166534; font-size: 1.3rem; font-weight: 700; display: none; animation: fadeIn 0.3s ease; }
+[data-theme="dark"] .ex-answer { background: #14532d; color: #bbf7d0; }
+.ex-hint-btn { margin-left: 8px; padding: 8px 14px; border: 2px solid var(--accent); background: transparent; color: var(--accent); border-radius: 8px; font-family: inherit; font-weight: 700; font-size: 1.2rem; cursor: pointer; transition: all 0.3s; flex-shrink: 0; }
+.ex-hint-btn:hover { background: var(--accent); color: white; }
+.ex-hint-btn:disabled { opacity: 0.5; cursor: default; }
+
+.hw-answer {
+  margin-top: 12px; padding: 16px; border-radius: 8px;
+  background: #dcfce7; color: #166534; font-size: 1.4rem; font-weight: 600;
+  animation: fadeIn 0.4s ease;
+}
+[data-theme="dark"] .hw-answer { background: #14532d; color: #bbf7d0; }
+
+.confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: hidden; }
+.confetti-piece { position: absolute; width: 10px; height: 10px; top: -20px; animation: confettiFall linear forwards; }
+@keyframes confettiFall { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+
+@media (max-width: 1100px) { .two-col { grid-template-columns: 1fr; } }
+@media (max-width: 600px) {
+  .container { padding: 12px; } .card { padding: 18px; } header { padding: 20px 14px; }
+  nav button { min-width: 100px; padding: 10px 6px; font-size: 1.1rem; }
+  .exercise { flex-direction: column; align-items: stretch; text-align: center; }
+  .exercise .ex-input { width: 100%; }
+  .lab-input-group { flex-direction: column; align-items: center; }
+  .lab-input { width: 100%; max-width: 280px; }
+  .labyrinth-step { width: 44px; height: 44px; font-size: 1.1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Переключить тему">🌓</button>
+  <h1>Урок-исследование: Измерение температуры</h1>
+  <div class="subtitle">7 класс · Урок 4 · Лабораторная работа</div>
+  <div class="source">По учебнику Перышкин А.В. и др. (Просвещение, 2023)</div>
+</header>
+
+<nav id="mainNav">
+  <button class="active" onclick="showSection(0)"><span class="nav-emoji">📖</span>Теория</button>
+  <button onclick="showSection(1)"><span class="nav-emoji">🔥</span>Разминка</button>
+  <button onclick="showSection(2)"><span class="nav-emoji">🔗</span>Соответствие</button>
+  <button onclick="showSection(3)"><span class="nav-emoji">🧩</span>Лабиринт</button>
+  <button onclick="showSection(4)"><span class="nav-emoji">📝</span>Практика</button>
+  <button onclick="showSection(5)"><span class="nav-emoji">📚</span>Домашняя</button>
+</nav>
+
+<!-- ===== SECTION 0: THEORY ===== -->
+<div class="section active" id="sec0">
+  <div class="card">
+    <h2><span class="emoji">📖</span>Теория. Температура и термометры</h2>
+    <p class="card-desc">Изучи, как измеряется температура, какие приборы для этого существуют и чем они отличаются!</p>
+
+    <div class="theory-box">
+      <h3>Что такое температура?</h3>
+      <p><strong>Температура</strong> — физическая величина, характеризующая степень нагретости тела.</p>
+      <p>Температуру тел измеряют с помощью <strong>термометра</strong> и выражают в <strong>градусах Цельсия (°С)</strong>.</p>
+      <p>Ощущение «тепла» и «холода» субъективно. Чтобы измерить температуру объективно, нужен прибор — термометр.</p>
+    </div>
+
+    <div class="theory-box">
+      <h3>Жидкостный термометр</h3>
+      <p><strong>Жидкостный термометр</strong> работает на принципе <strong>теплового расширения жидкости</strong>: при нагревании жидкость расширяется и поднимается вверх по трубке, при охлаждении — сокращается и опускается.</p>
+      <p><strong>Устройство:</strong></p>
+      <div class="example">
+        <div class="example-title">Составные части:</div>
+        <p>• <strong>Стеклянная трубка</strong> (капилляр) с тонким отверстием<br>
+        • <strong>Резервуар</strong> (колба) с жидкостью (ртуть, спирт, толуол)<br>
+        • <strong>Шкала</strong> с делениями рядом с трубкой</p>
+      </div>
+      <p><strong>Принцип действия:</strong> Жидкость в резервуаре при нагревании расширяется и поднимается по капилляру. По положению столбика жидкости на шкале определяют температуру.</p>
+      <div class="formula">Температура = положение столбика жидкости на шкале</div>
+      <div class="example">
+        <div class="example-title">Виды жидкостных термометров:</div>
+        <p>• <strong>Медицинский</strong> — шкала от 35 до 42 °С, деление 0,1 °С<br>
+        • <strong>Бытовой (комнатный)</strong> — шкала от −30 до +50 °С, деление 1 °С<br>
+        • <strong>Лабораторный</strong> — широкий диапазон, точная шкала</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Датчик температуры (электронный термометр)</h3>
+      <p><strong>Датчик температуры</strong> — электронный прибор, который преобразует температуру в электрический сигнал и выводит результат на экран.</p>
+      <p><strong>Принцип действия:</strong> Основан на изменении электрического сопротивления проводника при изменении температуры (термометр сопротивления) или на эффекте термоЭДС (термопара).</p>
+      <div class="example">
+        <div class="example-title">Преимущества датчика перед жидкостным термометром:</div>
+        <p>• <strong>Более высокая точность</strong> (погрешность ±0,1 °С и менее)<br>
+        • <strong>Быстрота измерения</strong> (результат за 1–3 секунды)<br>
+        • <strong>Безопасность</strong> (нет ртути и стекла)<br>
+        • <strong>Цифровой вывод</strong> — результат на экране, легко считывать</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Шкала Цельсия</h3>
+      <p><strong>Градус Цельсия (°С)</strong> — единица измерения температуры.</p>
+      <p>Шкала Цельсия основана на двух фиксированных точках:</p>
+      <table class="units-table">
+        <tr><th>Точка</th><th>Температура</th><th>Описание</th></tr>
+        <tr><td>Нижняя фиксированная точка</td><td>0 °С</td><td>Температура таяния льда (при нормальном давлении)</td></tr>
+        <tr><td>Верхняя фиксированная точка</td><td>100 °С</td><td>Температура кипения воды (при нормальном давлении)</td></tr>
+      </table>
+      <p>Расстояние между 0 °С и 100 °С делят на 100 равных частей — каждая часть равна <strong>1 градусу Цельсия</strong>.</p>
+    </div>
+
+    <div class="theory-box">
+      <h3>Цена деления термометра</h3>
+      <p><strong>Цена деления</strong> — температура, соответствующая одному наименьшему делению шкалы.</p>
+      <div class="formula">Цена деления = (t₂ − t₁) / n</div>
+      <p>где t₂ и t₁ — соседние числовые отметки, n — количество делений между ними.</p>
+      <div class="example">
+        <div class="example-title">Пример:</div>
+        <p>На шкале между отметками 30 °С и 40 °С — 10 делений.<br>
+        Цена деления = (40 − 30) / 10 = <strong>1 °С</strong>.</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Термометрыcomparison</h3>
+      <div class="instruments-grid">
+        <div class="instrument-card">
+          <div class="inst-emoji">🌡️</div>
+          <div class="inst-name">Жидкостный термометр</div>
+          <div class="inst-measures">Погрешность ±1 °С, время ~3 мин</div>
+        </div>
+        <div class="instrument-card">
+          <div class="inst-emoji">📟</div>
+          <div class="inst-name">Датчик температуры</div>
+          <div class="inst-measures">Погрешность ±0,1 °С, время ~2 сек</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Порядок измерения температуры жидкостным термометром</h3>
+      <div class="example">
+        <div class="example-title">Пошаговая инструкция:</div>
+        <p>1. Определите <strong>цену деления</strong> шкалы термометра.<br>
+        2. Убедитесь, что столбик жидкости опустился ниже минимальной отметки шкалы.<br>
+        3. Погрузите резервуар термометра в измеряемую среду так, чтобы он <strong>не касался стенок</strong> сосуда.<br>
+        4. Подождите, пока столбик жидкости <strong>остановится</strong> (установится тепловое равновесие).<br>
+        5. Снимите показания <strong>по верхнему краю столбика жидкости</strong>.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 1: WARM-UP ===== -->
+<div class="section" id="sec1">
+  <div class="card">
+    <h2><span class="emoji">🔥</span>Разминка. Проверь знания!</h2>
+    <p class="card-desc">Определи, верно ли утверждение.</p>
+
+    <div class="slide active" id="sec1-s0">
+      <div class="two-col">
+        <div>
+          <div class="tf-item" id="tf0">
+            <div class="tf-statement">1. Температура — физическая величина, характеризующая степень нагретости тела.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(0, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(0, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-0"></div>
+          </div>
+          <div class="tf-item" id="tf1">
+            <div class="tf-statement">2. Жидкостный термометр работает на основе закона сохранения энергии.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(1, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(1, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-1"></div>
+          </div>
+          <div class="tf-item" id="tf2">
+            <div class="tf-statement">3. В градусах Цельсия температура таяния льда равна 0 °С.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(2, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(2, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-2"></div>
+          </div>
+          <div class="tf-item" id="tf3">
+            <div class="tf-statement">4. Датчик температуры безопаснее жидкостного термометра, так как в нём нет ртути.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(3, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(3, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-3"></div>
+          </div>
+        </div>
+        <div>
+          <div class="tf-item" id="tf4">
+            <div class="tf-statement">5. Температура кипения воды при нормальном давлении — 50 °С.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(4, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(4, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-4"></div>
+          </div>
+          <div class="tf-item" id="tf5">
+            <div class="tf-statement">6. Датчик температуры измеряет быстрее, чем жидкостной термометр.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(5, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(5, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-5"></div>
+          </div>
+          <div class="tf-item" id="tf6">
+            <div class="tf-statement">7. Медицинский термометр имеет диапазон шкалы от −30 до +50 °С.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(6, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(6, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-6"></div>
+          </div>
+          <div class="tf-item" id="tf7">
+            <div class="tf-statement">8. При снятии показаний термометра нужно смотреть на верхний край столбика жидкости.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(7, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(7, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-7"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="tfProgress" style="width:0%">0 / 8</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 2: MATCH ===== -->
+<div class="section" id="sec2">
+  <div class="card">
+    <h2><span class="emoji">🔗</span>Соответствие. Прибор и его свойства</h2>
+    <p class="card-desc">Соедини каждый прибор с его характеристикой.</p>
+
+    <div class="match-game" id="matchGame"></div>
+
+    <div style="text-align:center">
+      <button class="btn-check-all" onclick="checkMatch()">Проверить всё ✔️</button>
+    </div>
+    <div class="score-display" id="matchScore"></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 3: LABYRINTH ===== -->
+<div class="section" id="sec3">
+  <div class="card">
+    <h2><span class="emoji">🧩</span>Физический лабиринт</h2>
+    <p class="card-desc">Реши все задачи, чтобы пройти лабиринт!</p>
+    <div class="labyrinth-visual" id="labVisual"></div>
+    <div class="lab-task" id="labTask">
+      <div class="lab-question" id="labQuestion"></div>
+      <div class="lab-input-group">
+        <input type="text" class="lab-input" id="labInput" placeholder="Ответ">
+        <button class="btn-lab" id="labBtn" onclick="checkLabStep()">Далее ➡️</button>
+      </div>
+      <div class="lab-hint" id="labHint"></div>
+    </div>
+    <div class="lab-complete" id="labComplete">
+      <h3>🎉 Поздравляем!</h3>
+      <p>Ты успешно прошёл физический лабиринт!</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 4: PRACTICE ===== -->
+<div class="section" id="sec4">
+  <div class="card">
+    <h2><span class="emoji">📝</span>Практика. Самостоятельная работа</h2>
+    <p class="card-desc">Выбери вариант и реши все задачи.</p>
+
+    <div class="variant-tabs">
+      <button class="variant-tab active" onclick="switchVariant(0)">Вариант 1</button>
+      <button class="variant-tab" onclick="switchVariant(1)">Вариант 2</button>
+      <button class="variant-tab" onclick="switchVariant(2)">Вариант 3</button>
+    </div>
+
+    <div class="variant-content active" id="var0">
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">1</span><span class="ex-text">На шкале термометра между 20 °С и 30 °С — 10 делений. Чему равна цена деления?</span><input type="number" class="ex-input" id="v0e0" placeholder="?"><button class="ex-hint-btn" onclick="showExAnswer('v0e0ans',this)">Ответ</button></div><div class="ex-answer" id="v0e0ans">1</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">2</span><span class="ex-text">Температура воды 36,6 °С. Это нормальная температура тела человека?</span><input type="text" class="ex-input" id="v0e1" placeholder="да/нет" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v0e1ans',this)">Ответ</button></div><div class="ex-answer" id="v0e1ans">да</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">3</span><span class="ex-text">При какой температуре по Цельсию кипит вода при нормальном давлении?</span><input type="number" class="ex-input" id="v0e2" placeholder="°С"><button class="ex-hint-btn" onclick="showExAnswer('v0e2ans',this)">Ответ</button></div><div class="ex-answer" id="v0e2ans">100</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">4</span><span class="ex-text">Какой прибор точнее: жидкостной термометр или датчик температуры?</span><input type="text" class="ex-input" id="v0e3" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v0e3ans',this)">Ответ</button></div><div class="ex-answer" id="v0e3ans">датчик температуры</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">5</span><span class="ex-text">На каком принципе работает жидкостной термометр? (слово)</span><input type="text" class="ex-input" id="v0e4" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v0e4ans',this)">Ответ</button></div><div class="ex-answer" id="v0e4ans">расширение</div></div>
+    </div>
+
+    <div class="variant-content" id="var1">
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">1</span><span class="ex-text">На шкале между 50 °С и 60 °С — 5 делений. Чему равна цена деления?</span><input type="number" class="ex-input" id="v1e0" placeholder="?"><button class="ex-hint-btn" onclick="showExAnswer('v1e0ans',this)">Ответ</button></div><div class="ex-answer" id="v1e0ans">2</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">2</span><span class="ex-text">Температура на уле −15 °С. Вода замёрзнет или нет?</span><input type="text" class="ex-input" id="v1e1" placeholder="да/нет" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v1e1ans',this)">Ответ</button></div><div class="ex-answer" id="v1e1ans">да</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">3</span><span class="ex-text">Какова погрешность датчика температуры? (через запятую)</span><input type="text" class="ex-input" id="v1e2" placeholder="°С"><button class="ex-hint-btn" onclick="showExAnswer('v1e2ans',this)">Ответ</button></div><div class="ex-answer" id="v1e2ans">0,1</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">4</span><span class="ex-text">Какая жидкость используется в медицинском термометре? (слово)</span><input type="text" class="ex-input" id="v1e3" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v1e3ans',this)">Ответ</button></div><div class="ex-answer" id="v1e3ans">ртуть</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">5</span><span class="ex-text">При какой температуре тает лёд? (число)</span><input type="number" class="ex-input" id="v1e4" placeholder="°С"><button class="ex-hint-btn" onclick="showExAnswer('v1e4ans',this)">Ответ</button></div><div class="ex-answer" id="v1e4ans">0</div></div>
+    </div>
+
+    <div class="variant-content" id="var2">
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">1</span><span class="ex-text">Цена деления термометра 2 °С. Столбик на 15 делениях выше 0. Какова температура?</span><input type="number" class="ex-input" id="v2e0" placeholder="°С"><button class="ex-hint-btn" onclick="showExAnswer('v2e0ans',this)">Ответ</button></div><div class="ex-answer" id="v2e0ans">30</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">2</span><span class="ex-text">В каком году была принята шкала Цельсия?</span><input type="number" class="ex-input" id="v2e1" placeholder="?"><button class="ex-hint-btn" onclick="showExAnswer('v2e1ans',this)">Ответ</button></div><div class="ex-answer" id="v2e1ans">1742</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">3</span><span class="ex-text">Что безопаснее: ртутный или электронный термометр?</span><input type="text" class="ex-input" id="v2e2" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e2ans',this)">Ответ</button></div><div class="ex-answer" id="v2e2ans">электронный</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">4</span><span class="ex-text">Сколько делений между 0 °С и 100 °С?</span><input type="number" class="ex-input" id="v2e3" placeholder="?"><button class="ex-hint-btn" onclick="showExAnswer('v2e3ans',this)">Ответ</button></div><div class="ex-answer" id="v2e3ans">100</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">5</span><span class="ex-text">Как называется прибор для измерения температуры? (слово)</span><input type="text" class="ex-input" id="v2e4" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e4ans',this)">Ответ</button></div><div class="ex-answer" id="v2e4ans">термометр</div></div>
+    </div>
+
+    <button class="btn-check-all" onclick="checkAllExercises()">Проверить всё ✔️</button>
+    <div class="score-display" id="varScore"></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 5: HOMEWORK ===== -->
+<div class="section" id="sec5">
+  <div class="card">
+    <h2><span class="emoji">📚</span>Домашняя работа</h2>
+    <p class="card-desc">Повтори изученный материал и отработай его в тренажёре.</p>
+
+    <div class="theory-box">
+      <h3>1. Повтори теорию</h3>
+      <div class="example">
+        <p>1. Что такое температура?<br>
+        2. На каком принципе работает жидкостной термометр?<br>
+        3. Как устроен жидкостной термометр?<br>
+        4. Чем датчик температуры отличается от жидкостного термометра?<br>
+        5. При какой температуре тает лёд? Кипит вода?<br>
+        6. Как определить цену деления шкалы термометра?</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>2. Отработай в тренажёре</h3>
+      <div class="example">
+        <div class="example-title">Решить задания:</div>
+        <p>• Разминка (вопросы True/False) — 8 вопросов<br>
+        • Соответствие — соедини приборы с их свойствами<br>
+        • Лабиринт — пройди все 8 шагов<br>
+        • Практика — реши все 3 варианта</p>
+      </div>
+      <div class="example">
+        <div class="example-title">Цель:</div>
+        <p>Набери <strong>100%</strong> хотя бы в одном из разделов тренажёра. Если не получается сразу — повтори теорию и попробуй снова!</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>3. Запиши в тетрадь</h3>
+      <div class="example">
+        <div class="example-title">Выучи определения:</div>
+        <p>• <strong>Температура</strong> — физическая величина, характеризующая степень нагретости тела.<br>
+        • <strong>Жидкостной термометр</strong> — прибор, работающий на принципе теплового расширения жидкости.<br>
+        • <strong>Датчик температуры</strong> — электронный прибор, преобразующий температуру в электрический сигнал.<br>
+        • <strong>Шкала Цельсия</strong> — 0 °С (таяние льда), 100 °С (кипение воды).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? '' : 'dark');
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+}
+(function() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+})();
+
+function showSection(idx) {
+  document.querySelectorAll('.section').forEach((s, i) => s.classList.toggle('active', i === idx));
+  document.querySelectorAll('#mainNav button').forEach((b, i) => b.classList.toggle('active', i === idx));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== TRUE / FALSE =====================
+const tfData = [
+  { correctAnswer: true, explanation: 'Верно! Это точное определение температуры из учебника.' },
+  { correctAnswer: false, explanation: 'Неверно! Жидкостной термометр работает на принципе теплового расширения жидкости, а не на законе сохранения энергии.' },
+  { correctAnswer: true, explanation: 'Верно! 0 °С — температура таяния льда при нормальном давлении.' },
+  { correctAnswer: true, explanation: 'Верно! В датчике нет ртути и стеклянной трубки — он безопаснее.' },
+  { correctAnswer: false, explanation: 'Неверно! Температура кипения воды при нормальном давлении — 100 °С, а не 50 °С.' },
+  { correctAnswer: true, explanation: 'Верно! Датчик выдаёт результат за 1–3 секунды, а жидкостной термометр нужно держать 2–3 минуты.' },
+  { correctAnswer: false, explanation: 'Неверно! Медицинский термометр имеет диапазон от 35 до 42 °С, а бытовой — от −30 до +50 °С.' },
+  { correctAnswer: true, explanation: 'Верно! Показания снимаются по верхнему краю столбика жидкости (ртути или спирта).' }
+];
+let tfAnswered = 0, tfCorrect = 0;
+
+function checkTF(idx, userAnswer) {
+  const item = document.getElementById('tf' + idx);
+  const buttons = item.querySelectorAll('.tf-buttons button');
+  if (buttons[0].disabled) return;
+  buttons.forEach(b => b.disabled = true);
+  const isCorrect = userAnswer === tfData[idx].correctAnswer;
+  tfAnswered++; if (isCorrect) tfCorrect++;
+  buttons[userAnswer ? 0 : 1].classList.add(isCorrect ? 'selected-true' : 'selected-false');
+  const comment = document.getElementById('tf-comment-' + idx);
+  comment.className = 'tf-comment ' + (isCorrect ? 'correct' : 'wrong');
+  comment.innerHTML = (isCorrect ? '✅ Правильно! ' : '❌ Неправильно. ') + tfData[idx].explanation;
+  updateTFProgress();
+}
+
+function updateTFProgress() {
+  const bar = document.getElementById('tfProgress');
+  bar.style.width = (tfAnswered / 8 * 100) + '%';
+  bar.textContent = tfCorrect + ' / 8';
+  if (tfAnswered === 8) {
+    bar.style.background = tfCorrect === 8 ? 'linear-gradient(90deg,#22c55e,#34d399)' : 'linear-gradient(90deg,#eab308,#facc15)';
+    if (tfCorrect === 8) launchConfetti();
+  }
+}
+
+// ===================== MATCH GAME =====================
+const matchData = [
+  { qty: 'Жидкостной термометр', correct: 'Работает на тепловом расширении жидкости' },
+  { qty: 'Датчик температуры', correct: 'Преобразует температуру в электрический сигнал' },
+  { qty: 'Медицинский термометр', correct: 'Диапазон 35–42 °С, деление 0,1 °С' },
+  { qty: 'Бытовой термометр', correct: 'Диапазон −30…+50 °С, деление 1 °С' },
+  { qty: 'Температура таяния льда', correct: '0 °С' },
+  { qty: 'Температура кипения воды', correct: '100 °С' }
+];
+const allUnits = [
+  'Работает на тепловом расширении жидкости',
+  'Преобразует температуру в электрический сигнал',
+  'Диапазон 35–42 °С, деление 0,1 °С',
+  'Диапазон −30…+50 °С, деление 1 °С',
+  '0 °С', '100 °С',
+  'Более безопасен, нет ртути', 'Погрешность ±1 °С'
+];
+
+function initMatch() {
+  const game = document.getElementById('matchGame');
+  game.innerHTML = '';
+  matchData.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'match-row';
+    const shuffled = [...allUnits].sort(() => Math.random() - 0.5);
+    const options = shuffled.map(u => `<option value="${u}">${u}</option>`).join('');
+    row.innerHTML = `
+      <div class="match-qty">${item.qty}</div>
+      <select class="match-select" id="match${i}">
+        <option value="">— Выбери —</option>
+        ${options}
+      </select>
+    `;
+    game.appendChild(row);
+  });
+}
+
+function checkMatch() {
+  let correct = 0;
+  matchData.forEach((item, i) => {
+    const sel = document.getElementById('match' + i);
+    sel.classList.remove('correct', 'wrong');
+    if (sel.value === item.correct) { sel.classList.add('correct'); correct++; }
+    else if (sel.value) { sel.classList.add('wrong'); }
+  });
+  const scoreEl = document.getElementById('matchScore');
+  scoreEl.style.display = 'block';
+  const pct = Math.round((correct / matchData.length) * 100);
+  const color = pct === 100 ? 'var(--green)' : pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+  scoreEl.innerHTML = 'Результат: <span style="color:' + color + '">' + correct + ' из ' + matchData.length + '</span> (' + pct + '%)';
+  if (correct === matchData.length) launchConfetti();
+}
+
+// ===================== LABYRINTH =====================
+const labSteps = [
+  { q: 'При какой температуре кипит вода? (число)', a: '100' },
+  { q: 'При какой температуре тает лёд? (число)', a: '0' },
+  { q: 'Как называется прибор для измерения температуры?', a: 'термометр' },
+  { q: 'Цена деления: между 30 и 40 °С — 10 делений. Чему равна?', a: '1' },
+  { q: 'Какой прибор точнее: жидкостной или датчик? (слово)', a: 'датчик' },
+  { q: 'Медицинский термометр: максимальная температура шкалы? (число)', a: '42' },
+  { q: 'На каком принципе работает жидкостной термометр? (слово)', a: 'расширение' },
+  { q: 'Какой при безопаснее: ртутный или электронный? (слово)', a: 'электронный' }
+];
+let labCurrent = 0, labCorrectCount = 0;
+
+function initLabyrinth() {
+  const visual = document.getElementById('labVisual');
+  visual.innerHTML = '';
+  labSteps.forEach((_, i) => {
+    if (i > 0) { const a = document.createElement('span'); a.className = 'labyrinth-arrow'; a.textContent = '→'; visual.appendChild(a); }
+    const s = document.createElement('div'); s.className = 'labyrinth-step future'; s.textContent = i + 1; s.id = 'labStep' + i; visual.appendChild(s);
+  });
+  updateLabVisual();
+  document.getElementById('labQuestion').textContent = labSteps[0].q;
+  document.getElementById('labInput').value = '';
+}
+
+function updateLabVisual() {
+  labSteps.forEach((_, i) => {
+    document.getElementById('labStep' + i).className = 'labyrinth-step ' + (i < labCurrent ? 'completed' : i === labCurrent ? 'current' : 'future');
+  });
+}
+
+function checkLabStep() {
+  const input = document.getElementById('labInput'), hint = document.getElementById('labHint');
+  const val = input.value.trim().toLowerCase().replace(',', '.');
+  if (!val) { input.style.borderColor = 'var(--red)'; return; }
+  const expected = labSteps[labCurrent].a.toLowerCase().replace(',', '.');
+  if (val === expected || parseFloat(val) === parseFloat(expected)) {
+    labCorrectCount++; hint.className = 'lab-hint correct show'; hint.textContent = '✅ Правильно!'; labCurrent++;
+    setTimeout(() => {
+      if (labCurrent >= labSteps.length) {
+        document.getElementById('labTask').style.display = 'none';
+        document.getElementById('labComplete').classList.add('show');
+        updateLabVisual(); launchConfetti();
+      } else {
+        document.getElementById('labQuestion').textContent = labSteps[labCurrent].q;
+        input.value = ''; input.style.borderColor = 'var(--border)'; hint.className = 'lab-hint'; updateLabVisual();
+      }
+    }, 800);
+  } else {
+    hint.className = 'lab-hint wrong show'; hint.textContent = '❌ Попробуй ещё раз!';
+    input.style.borderColor = 'var(--red)'; input.value = ''; input.focus();
+    setTimeout(() => { hint.className = 'lab-hint'; }, 1500);
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('sec3').classList.contains('active') && labCurrent < labSteps.length) checkLabStep();
+});
+
+// ===================== PRACTICE =====================
+const variants = [
+  { answers: [1, 'да', 100, 'датчик температуры', 'расширение'] },
+  { answers: [2, 'да', '0,1', 'ртуть', 0] },
+  { answers: [30, 1742, 'электронный', 100, 'термометр'] }
+];
+let activeVariant = 0;
+
+function switchVariant(idx) {
+  activeVariant = idx;
+  document.querySelectorAll('.variant-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  document.querySelectorAll('.variant-content').forEach((v, i) => v.classList.toggle('active', i === idx));
+  document.getElementById('varScore').style.display = 'none';
+}
+
+function checkAllExercises() {
+  const v = variants[activeVariant]; let correct = 0;
+  for (let i = 0; i < 5; i++) {
+    const input = document.getElementById('v' + activeVariant + 'e' + i);
+    const val = input.value.trim().toLowerCase().replace(',', '.');
+    const expected = String(v.answers[i]).toLowerCase().replace(',', '.');
+    input.classList.remove('correct', 'wrong');
+    if (val === expected || parseFloat(val) === parseFloat(expected)) { input.classList.add('correct'); correct++; } else input.classList.add('wrong');
+  }
+  const scoreEl = document.getElementById('varScore'); scoreEl.style.display = 'block';
+  const pct = Math.round((correct / 5) * 100);
+  const color = pct === 100 ? 'var(--green)' : pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+  scoreEl.innerHTML = 'Результат: <span style="color:' + color + '">' + correct + ' из 5</span> (' + pct + '%)';
+  if (correct === 5) launchConfetti();
+}
+
+function showExAnswer(id, btn) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+  btn.textContent = el.style.display === 'block' ? 'Скрыть' : 'Ответ';
+  btn.style.background = el.style.display === 'block' ? 'var(--accent)' : 'transparent';
+  btn.style.color = el.style.display === 'block' ? 'white' : 'var(--accent)';
+}
+
+// ===================== CONFETTI =====================
+function launchConfetti() {
+  const c = document.getElementById('confettiContainer');
+  const colors = ['#6366f1','#8b5cf6','#22c55e','#ef4444','#eab308','#3b82f6','#ec4899'];
+  for (let i = 0; i < 120; i++) {
+    const p = document.createElement('div'); p.className = 'confetti-piece';
+    p.style.left = Math.random()*100+'%'; p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.width = (Math.random()*8+6)+'px'; p.style.height = (Math.random()*8+6)+'px';
+    p.style.borderRadius = Math.random()>0.5?'50%':'2px';
+    p.style.animationDuration = (Math.random()*2+2)+'s'; p.style.animationDelay = (Math.random()*1.5)+'s';
+    c.appendChild(p);
+  }
+  setTimeout(() => { c.innerHTML = ''; }, 5000);
+}
+
+// ===================== INIT =====================
+initMatch();
+initLabyrinth();
+</script>
+</body>
+</html>

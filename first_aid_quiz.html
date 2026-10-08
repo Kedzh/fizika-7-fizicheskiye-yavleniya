@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ОПП — Интерактивный классный час</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e17;--s1:#111827;--s2:#1a2332;--bd:#1e2d3d;--ac:#06d6a0;--ac2:#118ab2;--dg:#ef476f;--wn:#ffd166;--tx:#e2e8f0;--tx2:#94a3b8;--gl:0 0 30px rgba(6,214,160,0.15)}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);overflow-x:hidden}
+.sendbox{margin-top:20px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;max-width:480px;margin-left:auto;margin-right:auto}
+.sendbox input,.sendbox select{padding:10px 14px;border-radius:10px;border:1px solid var(--bd);background:var(--s2);color:var(--tx);font-family:inherit;font-size:14px}
+.sendbox input::placeholder{color:var(--tx2)}
+.sendbox .bag{margin-top:4px}
+body::before{content:'';position:fixed;inset:0;z-index:-1;background:linear-gradient(rgba(6,214,160,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(6,214,160,0.03) 1px,transparent 1px);background-size:60px 60px}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px;position:relative}
+.hero::before{content:'';position:absolute;top:50%;left:50%;width:600px;height:600px;background:radial-gradient(circle,rgba(6,214,160,0.12) 0%,transparent 70%);transform:translate(-50%,-50%);animation:glo 6s ease-in-out infinite}
+@keyframes glo{0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}}
+.hero-icon{width:120px;height:120px;background:linear-gradient(135deg,var(--ac),var(--ac2));border-radius:32px;display:flex;align-items:center;justify-content:center;font-size:56px;margin-bottom:32px;position:relative;z-index:1;box-shadow:0 0 60px rgba(6,214,160,0.3);animation:fl 4s ease-in-out infinite}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.hero h1{font-size:clamp(32px,6vw,64px);font-weight:900;letter-spacing:-2px;position:relative;z-index:1;margin-bottom:16px;background:linear-gradient(135deg,#fff,var(--ac));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero .sub{font-size:clamp(15px,2vw,20px);color:var(--tx2);max-width:600px;position:relative;z-index:1;margin-bottom:36px;line-height:1.6}
+.hero-tags{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;position:relative;z-index:1;margin-bottom:36px}
+.hero-tag{padding:8px 20px;border-radius:100px;font-size:13px;font-weight:600;border:1px solid var(--bd);background:rgba(17,24,39,0.7);backdrop-filter:blur(12px);color:var(--tx2)}
+.hero-tag em{font-style:normal;color:var(--ac)}
+.btn-go{position:relative;z-index:1;display:inline-flex;align-items:center;gap:10px;padding:18px 44px;border:none;border-radius:16px;background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--bg);font-size:18px;font-weight:800;cursor:pointer;transition:all .3s;box-shadow:0 0 40px rgba(6,214,160,0.25);text-decoration:none;font-family:inherit}
+.btn-go:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 0 60px rgba(6,214,160,0.4)}
+
+/* TOPBAR */
+.topbar{position:fixed;top:0;left:0;right:0;height:56px;z-index:1000;background:rgba(10,14,23,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);display:none;align-items:center;justify-content:space-between;padding:0 24px}
+.topbar.on{display:flex}
+.tb-logo{font-weight:800;font-size:15px;color:var(--ac);display:flex;align-items:center;gap:8px}
+.tb-r{display:flex;align-items:center;gap:16px}
+.tb-b{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:10px;font-size:13px;font-weight:600;background:var(--s1);border:1px solid var(--bd)}
+.tb-b span{color:var(--ac);font-family:'JetBrains Mono',monospace;font-size:15px}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:999;background:rgba(10,14,23,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--bd);padding:12px 20px;display:none}
+.nav.on{display:block}
+.nav-in{max-width:1100px;margin:0 auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.nav a{padding:7px 16px;border-radius:10px;font-size:12px;font-weight:600;color:var(--tx2);text-decoration:none;transition:all .2s;border:1px solid transparent}
+.nav a:hover{color:var(--ac);border-color:var(--ac);background:rgba(6,214,160,0.08)}
+
+/* SECTIONS */
+section{padding:70px 20px;max-width:1100px;margin:0 auto}
+.sec-h{text-align:center;margin-bottom:48px}
+.sec-h .tg{display:inline-block;padding:6px 16px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(6,214,160,0.1);color:var(--ac);border:1px solid rgba(6,214,160,0.2);margin-bottom:16px}
+.sec-h h2{font-size:clamp(26px,4vw,42px);font-weight:900;letter-spacing:-1px;margin-bottom:10px}
+.sec-h p{color:var(--tx2);font-size:16px;max-width:600px;margin:0 auto}
+
+/* POSTERS */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.pcard{background:var(--s1);border:1px solid var(--bd);border-radius:20px;overflow:hidden;transition:all .35s;cursor:pointer;position:relative}
+.pcard:hover{transform:translateY(-6px);border-color:var(--ac);box-shadow:var(--gl)}
+.pcard-top{height:8px;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+.pcard-body{padding:24px}
+.pcard .pi{font-size:40px;margin-bottom:12px}
+.pcard h3{font-size:18px;font-weight:700;margin-bottom:8px}
+.pcard p{font-size:13px;color:var(--tx2);line-height:1.6}
+.pcard .ptag{position:absolute;top:20px;right:20px;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;background:var(--dg);color:#fff;text-transform:uppercase;letter-spacing:.5px}
+
+/* MODAL */
+.mbg{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px}
+.mbg.on{display:flex}
+.mbox{background:var(--s1);border:1px solid var(--bd);border-radius:24px;padding:40px;max-width:480px;width:100%;position:relative;animation:min .3s}
+@keyframes min{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.mx{position:absolute;top:16px;right:20px;background:none;border:none;color:var(--tx2);font-size:22px;cursor:pointer}
+
+/* TIMELINE */
+.tl{max-width:700px;margin:0 auto;position:relative;padding-left:48px}
+.tl::before{content:'';position:absolute;left:18px;top:0;bottom:0;width:2px;background:linear-gradient(var(--ac),var(--ac2),var(--wn))}
+.tli{position:relative;margin-bottom:24px;padding:20px 24px;background:var(--s1);border:1px solid var(--bd);border-radius:16px;transition:all .3s}
+.tli:hover{border-color:var(--ac);transform:translateX(6px)}
+.tli::before{content:'';position:absolute;left:-38px;top:24px;width:14px;height:14px;border-radius:50%;background:var(--ac);border:3px solid var(--bg);box-shadow:0 0 12px rgba(6,214,160,0.5)}
+.tli .tt{display:inline-block;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(6,214,160,0.1);color:var(--ac);margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+.tli h4{font-size:16px;font-weight:700;margin-bottom:4px}
+.tli p{font-size:13px;color:var(--tx2)}
+
+/* RULES */
+.rr{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.rc{background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:24px;text-align:center;transition:all .3s}
+.rc:hover{border-color:var(--ac);transform:translateY(-4px)}
+.rc .ri{font-size:36px;margin-bottom:10px}
+.rc h4{font-size:15px;font-weight:700;margin-bottom:6px}
+.rc p{font-size:12px;color:var(--tx2);line-height:1.5}
+.rc:nth-child(1){border-top:3px solid var(--ac)}
+.rc:nth-child(2){border-top:3px solid var(--ac2)}
+.rc:nth-child(3){border-top:3px solid var(--dg)}
+.rc:nth-child(4){border-top:3px solid var(--wn)}
+
+/* QUIZ */
+.qw{max-width:780px;margin:0 auto}
+.qd{display:flex;gap:6px;justify-content:center;margin-bottom:28px;flex-wrap:wrap}
+.qdot{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:var(--s1);border:1px solid var(--bd);color:var(--tx2);transition:all .3s;font-family:'JetBrains Mono',monospace}
+.qdot.act{background:var(--ac);color:var(--bg);border-color:var(--ac);transform:scale(1.15);box-shadow:0 0 16px rgba(6,214,160,0.4)}
+.qdot.ok{background:#065f46;border-color:#065f46;color:#fff}
+.qdot.no{background:#7f1d1d;border-color:#7f1d1d;color:#fff}
+.qc{display:none;background:var(--s1);border:1px solid var(--bd);border-radius:24px;padding:36px;animation:qi .35s}
+.qc.on{display:block}
+@keyframes qi{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.qcat{display:inline-block;padding:5px 14px;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:rgba(255,209,102,0.1);color:var(--wn);margin-bottom:12px}
+.qnum{font-size:12px;color:var(--tx2);font-weight:600;margin-bottom:6px;font-family:'JetBrains Mono',monospace}
+.qc h3{font-size:19px;font-weight:700;margin-bottom:24px;line-height:1.4}
+.qos{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.qo{display:flex;align-items:center;gap:14px;padding:14px 18px;border:1px solid var(--bd);border-radius:14px;cursor:pointer;transition:all .2s;font-size:14px;font-weight:500;background:var(--s2)}
+.qo:hover:not(.lk){border-color:var(--ac);background:rgba(6,214,160,0.05)}
+.qo .ql{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;background:var(--bg);border:1px solid var(--bd);transition:all .2s;font-family:'JetBrains Mono',monospace}
+.qo:hover:not(.lk) .ql{border-color:var(--ac);color:var(--ac)}
+.qo.ok{border-color:#06d6a0;background:rgba(6,214,160,0.08)}.qo.ok .ql{background:#06d6a0;color:var(--bg);border-color:#06d6a0}
+.qo.nw{border-color:var(--dg);background:rgba(239,71,111,0.08)}.qo.nw .ql{background:var(--dg);color:#fff;border-color:var(--dg)}
+.qo.lk{pointer-events:none;opacity:.6}
+.qex{display:none;padding:16px 20px;border-radius:14px;background:rgba(17,138,178,0.08);border:1px solid rgba(17,138,178,0.2);font-size:13px;line-height:1.6;color:var(--tx2)}
+.qex.on{display:block;animation:qi .3s}
+.qex strong{color:var(--ac2)}
+.qnav{display:flex;justify-content:flex-end;margin-top:20px}
+.bnext{padding:12px 24px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--bg);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:none;transition:all .2s}
+.bnext.on{display:inline-flex;align-items:center;gap:8px}
+.bnext:hover{transform:translateY(-2px);box-shadow:0 0 20px rgba(6,214,160,0.3)}
+
+/* RESULT */
+.res{display:none;text-align:center;padding:60px 20px}
+.res.on{display:block}
+.res .re{font-size:72px;margin-bottom:16px;animation:fl 3s ease-in-out infinite}
+.res h2{font-size:32px;font-weight:900;margin-bottom:8px}
+.res .rs{font-size:56px;font-weight:900;margin:16px 0;font-family:'JetBrains Mono',monospace;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.res .rm{font-size:16px;color:var(--tx2);max-width:480px;margin:0 auto 28px}
+.bag{padding:14px 32px;border:none;border-radius:14px;background:var(--s1);border:1px solid var(--bd);color:var(--tx);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.bag:hover{border-color:var(--ac);color:var(--ac)}
+
+/* DRAG */
+.dds{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;padding:16px;border:2px dashed var(--bd);border-radius:16px;margin-bottom:24px;min-height:60px;background:var(--s1)}
+.ddc{padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;background:var(--s2);border:1px solid var(--bd);cursor:grab;transition:all .2s;user-select:none}
+.ddc:hover{border-color:var(--ac);background:rgba(6,214,160,0.06)}
+.ddc.used{opacity:.3;pointer-events:none}
+.ddr{margin-bottom:14px}
+.ddr .dl{font-size:14px;font-weight:600;margin-bottom:6px}
+.ddr .dl span{color:var(--ac);font-weight:800}
+.ddt{min-height:48px;border:2px dashed var(--bd);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--tx2);transition:all .2s;background:var(--s1);padding:10px}
+.ddt.over{border-color:var(--ac);background:rgba(6,214,160,0.04)}
+.ddt.filled{border-style:solid;border-color:var(--ac);color:var(--tx);font-weight:600}
+.ddt.bad{border-color:var(--dg);background:rgba(239,71,111,0.06)}
+.dda{display:flex;gap:10px;justify-content:center;margin-bottom:16px}
+.ddm{text-align:center;font-size:16px;font-weight:700;margin-top:16px}
+
+/* MEMO */
+.memo{max-width:560px;margin:0 auto;background:var(--s1);border:2px solid var(--ac);border-radius:24px;padding:36px;position:relative}
+.memo::before{content:'\1F4CC';position:absolute;top:-18px;left:32px;font-size:28px}
+.memo h3{font-size:22px;font-weight:800;text-align:center;margin-bottom:24px;color:var(--ac)}
+.mnums{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;justify-content:center}
+.mnum{flex:1;min-width:160px;padding:20px;border-radius:16px;text-align:center;background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--bg)}
+.mnum .mv{font-size:36px;font-weight:900;font-family:'JetBrains Mono',monospace}
+.mnum .ml{font-size:12px;font-weight:600;opacity:.8;margin-top:4px}
+.msec{background:var(--bg);border-radius:14px;padding:20px;margin-bottom:16px;border:1px solid var(--bd)}
+.msec h4{font-size:14px;font-weight:700;color:var(--wn);margin-bottom:10px}
+.msec ol,.msec ul{padding-left:20px;font-size:13px;line-height:1.8;color:var(--tx2)}
+.msec strong{color:var(--tx)}
+.mfoot{text-align:center;padding:14px;border-radius:12px;background:rgba(6,214,160,0.08);border:1px solid rgba(6,214,160,0.2);font-weight:700;color:var(--ac);font-size:14px}
+
+/* REFLEXION */
+.rxrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.rxc{background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:24px 16px;text-align:center;cursor:pointer;transition:all .3s}
+.rxc:hover{border-color:var(--ac);transform:scale(1.04)}
+.rxc.picked{border-color:var(--ac);background:rgba(6,214,160,0.08);box-shadow:var(--gl)}
+.rxc .rxe{font-size:36px;margin-bottom:10px}
+.rxc h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.rxc p{font-size:11px;color:var(--tx2)}
+
+/* CONFETTI */
+.cbox{position:fixed;inset:0;pointer-events:none;z-index:3000}
+.cpiece{position:absolute;border-radius:3px;animation:cfall linear forwards}
+@keyframes cfall{0%{transform:translateY(-10vh) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+footer{text-align:center;padding:48px 20px;border-top:1px solid var(--bd);color:var(--tx2);font-size:13px}
+footer a{color:var(--ac);text-decoration:none}
+
+@media(max-width:600px){section{padding:48px 16px}.qc{padding:24px 18px}.memo{padding:24px 18px}.hero-icon{width:90px;height:90px;font-size:42px;border-radius:24px}}
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar">
+  <div class="tb-logo">&#10010; ОПП Квиз</div>
+  <div class="tb-r">
+    <div class="tb-b">⏱ <span id="tTimer">00:00</span></div>
+    <div class="tb-b">★ <span id="tScore">0</span></div>
+  </div>
+</div>
+
+<div class="cbox" id="cbox"></div>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-icon">&#10010;</div>
+  <h1>Оказание первой помощи</h1>
+  <p class="sub">Интерактивный классный час по ОБЖ для 6 класса. Викторина, плакаты, задания — всё в одном окне.</p>
+  <div class="hero-tags">
+    <span class="hero-tag">📚 <em>6 класс</em></span>
+    <span class="hero-tag">⏱ <em>40–45 мин</em></span>
+    <span class="hero-tag">👥 <em>2–3 команды</em></span>
+  </div>
+  <button class="btn-go" onclick="go()">Начать викторину →</button>
+</section>
+
+<!-- NAV -->
+<div class="nav" id="nav">
+  <div class="nav-in">
+    <a href="#s-post">Плакаты</a><a href="#s-plan">План</a><a href="#s-rule">Правила</a><a href="#s-quiz">Викторина</a><a href="#s-drag">Задание</a><a href="#s-memo">Памятка</a><a href="#s-ref">Рефлексия</a>
+  </div>
+</div>
+
+<!-- POSTERS -->
+<section id="s-post">
+  <div class="sec-h"><div class="tg">Плакаты</div><h2>Правила первой помощи</h2><p>Кликни на плакат — откроется подробная информация</p></div>
+  <div class="pgrid">
+    <div class="pcard" onclick="om(0)"><div class="pcard-top"></div><div class="ptag">Важно</div><div class="pcard-body"><div class="pi">🩸</div><h3>Кровотечения</h3><p>Артериальное — ярко-красная пульсирует. Венозное — тёмная течёт ровно. Капиллярное — мелкое, останавливается само.</p></div></div>
+    <div class="pcard" onclick="om(1)"><div class="pcard-top"></div><div class="ptag">Срочно</div><div class="pcard-body"><div class="pi">🔥</div><h3>Ожоги</h3><p>Охлади водой 15–20 мин. Не прокалывай пузыри. Не мажь маслом. Наложи стерильную повязку.</p></div></div>
+    <div class="pcard" onclick="om(2)"><div class="pcard-top"></div><div class="pcard-body"><div class="pi">🦴</div><h3>Переломы и вывихи</h3><p>Не двигай! Зафиксируй шиной. Не вправляй вывих. Вызывай скорую.</p></div></div>
+    <div class="pcard" onclick="om(3)"><div class="pcard-top"></div><div class="pcard-body"><div class="pi">📞</div><h3>Вызов скорой</h3><p>103 или 112. Скажи: адрес, что случилось, сколько пострадавших, имя. Не клади трубку!</p></div></div>
+    <div class="pcard" onclick="om(4)"><div class="pcard-top"></div><div class="pcard-body"><div class="pi">😵</div><h3>Обморок</h3><p>Уложить, приподнять ноги. Расстегнуть воротник. Свежий воздух. Нашатырь. Не брызгать водой!</p></div></div>
+    <div class="pcard" onclick="om(5)"><div class="pcard-top"></div><div class="ptag">Жизнь!</div><div class="pcard-body"><div class="pi">🫁</div><h3>Инородное тело</h3><p>Кашляет — не мешай. Не дышит — приём Геймлиха: 5 толчков под рёбра, 5 нажатий на живот.</p></div></div>
+  </div>
+</section>
+
+<div class="mbg" id="mbg" onclick="if(event.target===this)cm()">
+  <div class="mbox"><button class="mx" onclick="cm()">✕</button><div id="mi"></div></div>
+</div>
+
+<!-- PLAN -->
+<section id="s-plan">
+  <div class="sec-h"><div class="tg">Структура</div><h2>План классного часа</h2></div>
+  <div class="tl">
+    <div class="tli"><span class="tt">3–5 мин</span><h4>🎯 Организационный момент</h4><p>Приветствие, формирование команд, правила. Девиз: «Знай — и помоги, но не навреди!»</p></div>
+    <div class="tli"><span class="tt">5 мин</span><h4>🟢 Разминка «Верю — не верю»</h4><p>7 утверждений, зелёная/красная карточка.</p></div>
+    <div class="tli"><span class="tt">25 мин</span><h4>🎯 Раунды викторины</h4><p>5 раундов + ситуационные задачи.</p></div>
+    <div class="tli"><span class="tt">3 мин</span><h4>🏃 Физкультминутка</h4><p>«Вызов скорой», «Наложи повязку», «Вдох-выдох».</p></div>
+    <div class="tli"><span class="tt">5 мин</span><h4>🏆 Итоги и рефлексия</h4><p>Подсчёт баллов, награждение, раздача памяток.</p></div>
+  </div>
+</section>
+
+<!-- RULES -->
+<section id="s-rule">
+  <div class="sec-h"><div class="tg">Система</div><h2>Правила начисления баллов</h2></div>
+  <div class="rr">
+    <div class="rc"><div class="ri">✅</div><h4>Правильный ответ</h4><p>2 балла за ответ, 3 — с пояснением</p></div>
+    <div class="rc"><div class="ri">🎯</div><h4>Ситуационная задача</h4><p>5 баллов за полное решение</p></div>
+    <div class="rc"><div class="ri">🚫</div><h4>Нарушение</h4><p>−1 балл за грубость или перебивание</p></div>
+    <div class="rc"><div class="ri">🤝</div><h4>Команда</h4><p>Обсуждай с командой, но ответ — один</p></div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="s-quiz">
+  <div class="sec-h"><div class="tg">Викторина</div><h2>Проверь свои знания</h2><p>12 вопросов по теме первой помощи</p></div>
+  <div class="qw">
+    <div class="qd" id="qd"></div>
+    <div id="qbox"></div>
+    <div class="res" id="res">
+      <div class="re" id="remo">🏆</div>
+      <h2>Готово!</h2>
+      <div class="rs" id="rsc">0/0</div>
+      <p class="rm" id="rms"></p>
+      <button class="bag" onclick="restart()">Пройти ещё раз</button>
+      <div class="sendbox">
+        <input id="gfsur" placeholder="Фамилия">
+        <input id="gfnam" placeholder="Имя">
+        <select id="gfcls"><option value="">Класс</option><option>6в</option><option>6г</option><option>6д</option></select>
+        <button class="bag" style="border-color:var(--ac);color:var(--ac)" id="gfsend" onclick="sendQuiz()">📨 Отправить ответ учителю</button>
+        <p id="gfgone" style="display:none;margin-top:8px;font-weight:700;color:var(--ac)">✅ Ответ отправлен!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DRAG -->
+<section id="s-drag">
+  <div class="sec-h"><div class="tg">Интерактив</div><h2>Сопоставь: ситуация → действие</h2><p>Перетащи правильный ответ в поле</p></div>
+  <div>
+    <div class="dda">
+      <button class="bag" onclick="ckDD()" style="border-color:var(--ac);color:var(--ac)">✅ Проверить</button>
+      <button class="bag" onclick="rsDD()">🔄 Сбросить</button>
+    </div>
+    <div class="dds" id="ddsrc"></div>
+    <div id="ddtgt"></div>
+    <div class="ddm" id="ddm"></div>
+  </div>
+</section>
+
+<!-- MEMO -->
+<section id="s-memo">
+  <div class="sec-h"><div class="tg">Памятка</div><h2>Как вызвать скорую помощь</h2><p>Распечатай и сохрани</p></div>
+  <div class="memo">
+    <h3>📞 Экстренные номера</h3>
+    <div class="mnums">
+      <div class="mnum"><div class="mv">103</div><div class="ml">Скорая помощь</div></div>
+      <div class="mnum" style="background:linear-gradient(135deg,var(--ac2),#073b4c)"><div class="mv">112</div><div class="ml">Единый номер · без SIM</div></div>
+    </div>
+    <div class="msec"><h4>📋 Что сказать диспетчеру:</h4><ol><li><strong>Адрес</strong> — улица, дом, ориентир</li><li><strong>Что произошло</strong> — падение, ожог, обморок…</li><li><strong>Сколько пострадавших</strong> и состояние</li><li><strong>Ваше имя</strong> и номер телефона</li></ol></div>
+    <div class="msec"><h4>⚡ Правила:</h4><ul><li>Говори <strong>спокойно и чётко</strong></li><li><strong>Не клади трубку</strong> первым</li><li>Не знаешь адрес — скажи <strong>ориентир</strong></li><li>112 работает <strong>без SIM</strong></li></ul></div>
+    <div class="mfoot">🛡 Знай — и помоги, но не навреди!</div>
+  </div>
+</section>
+
+<!-- REFLEXION -->
+<section id="s-ref">
+  <div class="sec-h"><div class="tg">Рефлексия</div><h2>Как ты себя чувствуешь?</h2><p>Нажми на тот вариант, который тебе ближе</p></div>
+  <div class="rxrow">
+    <div class="rxc" onclick="prx(this)"><div class="rxe">🆕</div><h4>Новое</h4><p>Узнал много полезного</p></div>
+    <div class="rxc" onclick="prx(this)"><div class="rxe">💪</div><h4>Уверен</h4><p>Могу помочь если нужно</p></div>
+    <div class="rxc" onclick="prx(this)"><div class="rxe">📖</div><h4>Учить</h4><p>Нужно повторить</p></div>
+    <div class="rxc" onclick="prx(this)"><div class="rxe">😰</div><h4>Страшно</h4><p>Боюсь оказаться в такой ситуации</p></div>
+  </div>
+</section>
+
+<footer>
+  <p>Классный час по ОБЖ · 6 класс · Оказание первой помощи</p>
+  <p style="margin-top:6px;opacity:.5">По программе Латчука В.Н. и Захарова В.Н.</p>
+</footer>
+
+<script>
+var Q=[
+{q:"Что такое первая помощь?",c:"Основы",o:["Лечение больного врачом","Срочные действия до приезда врачей","Перевязка ран в больнице"],a:1,e:"Первая помощь — экстренные меры до приезда медиков. Любой может оказать, если знает правила."},
+{q:"Какой номер для вызова скорой?",c:"Вызов",o:["101","102","103","112"],a:2,e:"Скорая — 103. Единый номер — 112 (работает без SIM)."},
+{q:"Как выглядит артериальное кровотечение?",c:"Кровотечения",o:["Тёмная кровь, течёт ровно","Ярко-красная, пульсирует","Мелкое, каплями"],a:1,e:"Артериальная кровь ярко-красная и вытекает толчками. Самое опасное!"},
+{q:"Что делать при кровотечении из носа?",c:"Кровотечения",o:["Запрокинуть голову назад","Наклонить голову вперёд, зажать ноздри","Вставить вату"],a:1,e:"Голову вперёд, зажать переносицу 10–15 мин. Запрокидывать опасно."},
+{q:"Чем НЕЛЬЗЯ смазывать ожог?",c:"Ожоги",o:["Прохладной водой","Маслом или сметаной","Стерильной повязкой"],a:1,e:"Масло задерживает тепло. Правильно: вода 15–20 мин + повязка."},
+{q:"Как долго держать жгут?",c:"Кровотечения",o:["Сколько угодно","Не более 1–2 часов","Не более 5 минут"],a:1,e:"Дольше 1–2 часов — необратимые изменения. Запиши время!"},
+{q:"Как остановить капиллярное кровотечение?",c:"Кровотечения",o:["Наложить жгут","Промыть и наложить повязку","Ничего — само перестанет"],a:1,e:"Достаточно промыть, обработать и закрыть повязкой."},
+{q:"Что делать при обмороке?",c:"Экстренные ситуации",o:["Полить водой","Уложить, приподнять ноги, воздух","Посадить и дать попить"],a:1,e:"Уложить, приподнять ноги, расстегнуть одежду, обеспечить воздух."},
+{q:"Как согреть обмороженные руки?",c:"Обморожения",o:["Растирать снегом","Тёплая вода ~37°С","Горячая вода"],a:1,e:"Постепенно в тёплой воде. Снег и горячая вода — нельзя!"},
+{q:"Какую шину можно сделать из подручных средств?",c:"Переломы",o:["Только из палки","Из линейки, зонта, картона","Только в больнице"],a:1,e:"Любые твёрдые предметы: линейка, зонт, журнал, картон."},
+{q:"Человек подавился, не дышит. Что делать?",c:"Экстренные ситуации",o:["Хлопнуть по спине","Приём Геймлиха — надавить под рёбра","Полить водой"],a:1,e:"Приём Геймлиха: 5 толчков под рёбра сзади, затем 5 нажатий на живот."},
+{q:"Первое действие при виде происшествия?",c:"Основы",o:["Бежать к пострадавшему","Оценить обстановку — безопасно ли?","Снимать видео"],a:1,e:"Сначала оцени безопасность. Только потом действуй."}
+];
+
+var cur=0,score=0,ans=[],tsec=0,tid=null;
+
+function go(){
+  document.getElementById('topbar').className='topbar on';
+  document.getElementById('nav').className='nav on';
+  mkQuiz();mkDD();startT();
+  document.getElementById('s-post').scrollIntoView({behavior:'smooth'});
+}
+
+function mkQuiz(){
+  var d=document.getElementById('qd'),b=document.getElementById('qbox');
+  d.innerHTML='';b.innerHTML='';
+  for(var i=0;i<Q.length;i++){
+    d.innerHTML+='<div class="qdot'+(i===0?' act':'')+'" id="dt'+i+'">'+(i+1)+'</div>';
+    var L='ABCD',os='';
+    for(var j=0;j<Q[i].o.length;j++){
+      os+='<div class="qo" id="o'+i+'_'+j+'" onclick="pick('+i+','+j+')"><span class="ql">'+L[j]+'</span><span>'+Q[i].o[j]+'</span></div>';
+    }
+    b.innerHTML+='<div class="qc'+(i===0?' on':'')+'" id="qc'+i+'">'+
+      '<div class="qcat">'+Q[i].c+'</div><div class="qnum">Вопрос '+(i+1)+'/'+Q.length+'</div>'+
+      '<h3>'+Q[i].q+'</h3><div class="qos">'+os+'</div>'+
+      '<div class="qex" id="ex'+i+'"><strong>💡</strong> '+Q[i].e+'</div>'+
+      '<div class="qnav"><button class="bnext" id="bn'+i+'" onclick="nx('+i+')">'+(i<Q.length-1?'Далее →':'Результат 🏆')+'</button></div>'+
+      '</div>';
+  }
+}
+
+function pick(qi,oi){
+  var q=Q[qi],os=document.querySelectorAll('#qc'+qi+' .qo');
+  if(os[0].className.indexOf('lk')>-1)return;
+  for(var j=0;j<os.length;j++){
+    os[j].className+=' lk';
+    if(j===q.a)os[j].className+=' ok';
+    if(j===oi&&j!==q.a)os[j].className+=' nw';
+  }
+  if(oi===q.a)score+=3;
+  ans[qi]=(oi===q.a);
+  document.getElementById('tScore').innerHTML=score;
+  document.getElementById('ex'+qi).className+=' on';
+  document.getElementById('bn'+qi).className+=' on';
+  var dot=document.getElementById('dt'+qi);
+  dot.className=dot.className.replace(' act','')+(ans[qi]?' ok':' no');
+}
+
+function nx(qi){
+  document.getElementById('qc'+qi).className='qc';
+  if(qi<Q.length-1){
+    cur=qi+1;
+    document.getElementById('qc'+cur).className='qc on';
+    document.getElementById('dt'+cur).className+=' act';
+  }else{
+    showRes();
+  }
+}
+
+function showRes(){
+  var c=0;
+  for(var i=0;i<ans.length;i++)if(ans[i])c++;
+  var t=Q.length,p=c/t;
+  document.getElementById('res').className='res on';
+  document.getElementById('rsc').innerHTML=c+'/'+t;
+  var e,m;
+  if(p>=.9){e='🏆';m='Превосходно! Ты настоящий спасатель!';fire();}
+  else if(p>=.7){e='🥈';m='Отлично! Хорошие знания!';fire();}
+  else if(p>=.5){e='📖';m='Неплохо, но стоит повторить.';}
+  else{e='💪';m='Не сдавайся! Повтори правила.';}
+  document.getElementById('remo').innerHTML=e;
+  document.getElementById('rms').innerHTML=m;
+}
+
+function restart(){
+  cur=0;score=0;ans=[];
+  document.getElementById('tScore').innerHTML='0';
+  document.getElementById('res').className='res';
+  mkQuiz();
+}
+
+function startT(){
+  if(tid)return;
+  tid=setInterval(function(){
+    tsec++;
+    var m=String(Math.floor(tsec/60)).replace(/^(\d)$/,'0$1');
+    var s=String(tsec%60).replace(/^(\d)$/,'0$1');
+    document.getElementById('tTimer').innerHTML=m+':'+s;
+  },1000);
+}
+
+function fire(){
+  var b=document.getElementById('cbox'),cols=['#06d6a0','#118ab2','#ef476f','#ffd166','#073b4c'];
+  for(var i=0;i<70;i++){
+    var c=document.createElement('div');
+    c.className='cpiece';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=cols[Math.floor(Math.random()*cols.length)];
+    c.style.width=(6+Math.random()*8)+'px';
+    c.style.height=(6+Math.random()*8)+'px';
+    c.style.animationDuration=(2+Math.random()*3)+'s';
+    c.style.animationDelay=Math.random()*2+'s';
+    b.appendChild(c);
+  }
+  setTimeout(function(){b.innerHTML='';},6000);
+}
+
+var PD=[
+{ic:'🩸',t:'Кровотечения',b:'<b>Артериальное:</b> ярко-красная, пульсирует. Наложить жгут выше раны, запомнить время.<br><br><b>Венозное:</b> тёмная, течёт ровно. Давящая повязка.<br><br><b>Капиллярное:</b> мелкое, останавливается само.'},
+{ic:'🔥',t:'Ожоги',b:'<b>Что делать:</b> охладить водой 15–20 минут, наложить стерильную повязку.<br><br><b>Что НЕЛЬЗЯ:</b> прокалывать пузыри, мазать маслом/сметаной, прикладывать лёд напрямую.'},
+{ic:'🦴',t:'Переломы и вывихи',b:'<b>Действие:</b> обеспечить неподвижность, наложить шину из подручных средств.<br><br><b>Важно:</b> не вправлять вывих, не двигать, вызвать скорую.'},
+{ic:'📞',t:'Вызов скорой помощи',b:'<b>Номера:</b> 103 (скорая) или 112 (единый, без SIM).<br><br><b>Что сказать:</b> адрес, что случилось, сколько пострадавших, имя и телефон. Не кладите трубку!'},
+{ic:'😵',t:'Обморок',b:'<b>Действие:</b> уложить, приподнять ноги, расстегнуть воротник, свежий воздух.<br><br><b>Нельзя:</b> поливать водой, хлопать по щекам. Не приходит в себя — скорая.'},
+{ic:'🫁',t:'Инородное тело в горле',b:'<b>Если кашляет:</b> не мешать, поощрять кашлять.<br><br><b>Если не дышит:</b> приём Геймлиха — встать сзади, 5 толчков под рёбра, 5 нажатий на живот.'}
+];
+function om(i){
+  var d=PD[i];
+  document.getElementById('mi').innerHTML='<div style="font-size:48px;margin-bottom:12px">'+d.ic+'</div><h3>'+d.t+'</h3><p style="margin-top:12px;line-height:1.7">'+d.b+'</p>';
+  document.getElementById('mbg').className='mbg on';
+}
+function cm(){document.getElementById('mbg').className='mbg';}
+
+var DD=[
+{s:'Ребёнок порезал палец',a:'Промыть водой и наложить повязку'},
+{s:'Человек потерял сознание',a:'Уложить, приподнять ноги, вызвать скорую'},
+{s:'Ожог руки кипятком',a:'Охладить водой 15–20 мин, наложить повязку'},
+{s:'Подозрение на перелом',a:'Не двигать, наложить шину, вызвать скорую'},
+{s:'Артериальное кровотечение',a:'Наложить жгут выше раны, запомнить время'}
+];
+var DDA=["Промыть водой и наложить повязку","Уложить, приподнять ноги, вызвать скорую","Охладить водой 15–20 мин, наложить повязку","Не двигать, наложить шину, вызвать скорую","Наложить жгут выше раны, запомнить время","Смазать маслом и забинтовать","Растирать снегом","Посадить и дать попить"];
+var ddD=null;
+
+function mkDD(){
+  var s=document.getElementById('ddsrc'),t=document.getElementById('ddtgt');
+  s.innerHTML='';t.innerHTML='';
+  var sh=DDA.slice().sort(function(){return Math.random()-.5;});
+  for(var i=0;i<sh.length;i++){
+    s.innerHTML+='<div class="ddc" draggable="true" data-v="'+sh[i]+'" id="dc'+i+'">'+sh[i]+'</div>';
+  }
+  for(var i=0;i<DD.length;i++){
+    t.innerHTML+='<div class="ddr"><div class="dl"><span>'+(i+1)+'. </span>'+DD[i].s+'</div><div class="ddt" id="dt'+i+'" data-c="'+DD[i].a+'">Перетащи сюда</div></div>';
+  }
+  var chips=document.querySelectorAll('.ddc');
+  for(var i=0;i<chips.length;i++){
+    chips[i].ondragstart=function(e){ddD=this;this.style.opacity='.4';};
+    chips[i].ondragend=function(){this.style.opacity='1';ddD=null;};
+  }
+  var drops=document.querySelectorAll('.ddt');
+  for(var i=0;i<drops.length;i++){
+    drops[i].ondragover=function(e){e.preventDefault();this.className=this.className.replace(' over','')+' over';};
+    drops[i].ondragleave=function(){this.className=this.className.replace(' over','');};
+    drops[i].ondrop=(function(el){return function(e){
+      e.preventDefault();
+      el.className=el.className.replace(' over','').replace(' filled','').replace(' bad','');
+      if(ddD){
+        el.innerHTML=ddD.innerHTML;
+        el.setAttribute('data-p',ddD.getAttribute('data-v'));
+        el.className+=' filled';
+        ddD.className+=' used';
+      }
+    }})(drops[i]);
+  }
+}
+
+function ckDD(){
+  var c=0;
+  for(var i=0;i<DD.length;i++){
+    var z=document.getElementById('dt'+i);
+    z.className=z.className.replace(' filled','').replace(' bad','');
+    var p=z.getAttribute('data-p');
+    if(p===z.getAttribute('data-c')){z.className+=' filled';c++;}
+    else if(p){z.className+=' bad';}
+  }
+  document.getElementById('ddm').innerHTML=c===DD.length?'🎉 Все верно!':c+'/'+DD.length+' — '+(c>=3?'Неплохо!':'Попробуй ещё раз');
+}
+
+function rsDD(){
+  var chips=document.querySelectorAll('.ddc');
+  for(var i=0;i<chips.length;i++)chips[i].className=chips[i].className.replace(' used','');
+  var drops=document.querySelectorAll('.ddt');
+  for(var i=0;i<drops.length;i++){
+    drops[i].innerHTML='Перетащи сюда';
+    drops[i].className='ddt';
+    drops[i].removeAttribute('data-p');
+  }
+  document.getElementById('ddm').innerHTML='';
+}
+
+function prx(el){
+  var all=document.querySelectorAll('.rxc');
+  for(var i=0;i<all.length;i++)all[i].className=all[i].className.replace(' picked','');
+  el.className+=' picked';
+}
+
+/* ─── Отправка результата в Google Форму ─── */
+var GF_FORM='1FAIpQLSdU1FptvVHI6GSI5inf4QyBZacYEqp3MVqQfqnzo8jSeYuUvQ';
+var GF_ENTRY={f:'825945223',i:'1853725621',k:'1264801517',t:'1363648081',d:'653831040',o:'1775522361'};
+function gfSubmit(data){
+  var f=document.createElement('form');
+  f.method='POST';
+  f.action='https://docs.google.com/forms/d/e/'+GF_FORM+'/formResponse';
+  f.target='gfiframe';
+  var ifr=document.createElement('iframe');ifr.name='gfiframe';ifr.style.display='none';
+  document.body.appendChild(ifr);document.body.appendChild(f);
+  for(var k in GF_ENTRY){
+    var inp=document.createElement('input');
+    inp.type='hidden';inp.name='entry.'+GF_ENTRY[k];inp.value=data[k]||'';
+    f.appendChild(inp);
+  }
+  f.submit();
+  setTimeout(function(){f.remove();ifr.remove();},5000);
+}
+function qgfGrade(){
+  var c=0;for(var i=0;i<ans.length;i++)if(ans[i])c++;
+  var t=Q.length,p=t?c/t:0;
+  if(p>=.9)return '5';
+  if(p>=.7)return '4';
+  if(p>=.5)return '3';
+  return '2';
+}
+function sendQuiz(){
+  var sur=document.getElementById('gfsur').value.trim();
+  var nam=document.getElementById('gfnam').value.trim();
+  var cls=document.getElementById('gfcls').value;
+  if(!sur||!nam||!cls){alert('Заполни фамилию, имя и класс!');return;}
+  var c=0;for(var i=0;i<ans.length;i++)if(ans[i])c++;
+  var t=Q.length;
+  var m=String(Math.floor(tsec/60)).replace(/^(\d)$/,'0$1');
+  var s=String(tsec%60).replace(/^(\d)$/,'0$1');
+  var g=qgfGrade();
+  gfSubmit({
+    f:sur,i:nam,k:cls,
+    t:'Первая помощь (викторина)',
+    d:new Date().toLocaleDateString('ru-RU'),
+    o:g+' ('+c+'/'+t+', '+(t?Math.round(c/t*100):0)+'%, время '+m+':'+s+')'
+  });
+  var btn=document.getElementById('gfsend');
+  btn.disabled=true;btn.style.opacity=.5;
+  document.getElementById('gfgone').style.display='block';
+}
+</script>
+</body>
+</html>

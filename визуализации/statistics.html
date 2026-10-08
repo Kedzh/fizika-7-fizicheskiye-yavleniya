@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Статистика по элементам — Анимация атома</title>
+<meta name="description" content="Сводная статистика по химическим элементам: распределение по категориям, магнитным свойствам, агрегатным состояниям при нормальных условиях, средние значения физических величин и самые распространённые элементы во Вселенной.">
+<meta name="keywords" content="статистика элементов, периодическая система, распределение элементов, химия">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<main class="main">
+  <div class="page">
+    <h1 class="page__title">Статистика</h1>
+    <p class="page__sub">
+      Сводные данные по всем известным химическим элементам: сколько их в каждой
+      категории, какие из них стабильны и ферромагнитны, как распределены
+      агрегатные состояния при нормальных условиях и какие элементы
+      преобладают во Вселенной.
+    </p>
+
+    <div class="cards" id="top"></div>
+
+    <h2 class="page__title" style="font-size:20px;margin:34px 0 14px">Физические свойства</h2>
+    <div class="cards" id="props"></div>
+
+    <h2 class="page__title" style="font-size:20px;margin:34px 0 14px">Электронная структура</h2>
+    <div class="cards" id="shells"></div>
+  </div>
+</main>
+
+<script src="assets/js/elements.js"></script>
+<script src="assets/js/common.js"></script>
+<script src="assets/js/stats.js"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Периодическая таблица — Анимация атома</title>
+<meta name="description" content="Интерактивная периодическая таблица Менделеева на русском языке: фильтры по категориям и магнитным свойствам, раскраска по температуре плавления, плотности, энергии ионизации и другим свойствам, агрегатные состояния при заданной температуре.">
+<meta name="keywords" content="периодическая таблица Менделеева, химические элементы, свойства элементов, плотность, температура плавления">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<main class="main">
+  <div class="page">
+    <h1 class="page__title">Периодическая таблица</h1>
+    <p class="page__sub">
+      Все 118 элементов с русскими названиями. Раскрашивайте таблицу по любому
+      свойству, фильтруйте элементы по происхождению и магнитным свойствам,
+      задавайте температуру, чтобы увидеть агрегатное состояние вещества.
+      Нажмите на элемент, чтобы открыть его 3D-модель.
+    </p>
+
+    <!-- Температурный вид -->
+    <section class="toolbar">
+      <div class="tool">
+        <span class="tool__title">Состояние при температуре</span>
+        <div class="temp">
+          <input id="temp" type="range" min="-300" max="5000" step="5" value="0" aria-label="Температура">
+          <span class="temp__val" id="tempVal">0 °C</span>
+        </div>
+        <div class="states" id="states" style="margin-top:4px">
+          <div class="state" data-state="Газ">Газ</div>
+          <div class="state" data-state="Жидкость">Жидкость</div>
+          <div class="state" data-state="Твёрдое">Твёрдое вещество</div>
+          <div class="state" data-state="Нет данных">Нет данных</div>
+        </div>
+      </div>
+
+      <div class="tool">
+        <span class="tool__title">Состояние при НУП (0 °C, 1 атм)</span>
+        <div class="states" id="stp">
+          <div class="state" data-state="Газ">Газ</div>
+          <div class="state" data-state="Жидкость">Жидкость</div>
+          <div class="state" data-state="Твёрдое">Твёрдое вещество</div>
+          <div class="state" data-state="Нет данных">Нет данных</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Фильтры и раскраска -->
+    <section class="toolbar">
+      <div class="tool">
+        <span class="tool__title">Фильтр по категории</span>
+        <div class="chips" id="catFilter"></div>
+      </div>
+
+      <div class="tool">
+        <span class="tool__title">Цвет по свойству</span>
+        <select id="propSelect" class="eselect__display" style="min-width:260px"></select>
+        <div class="seg" id="scaleSeg" style="align-self:flex-start">
+          <button class="seg__btn is-on" data-scale="inferno">Линейная</button>
+          <button class="seg__btn" data-scale="viridis">Другая палитра</button>
+        </div>
+        <div class="seg" id="logSeg" style="align-self:flex-start">
+          <button class="seg__btn is-on" data-log="0">Линейная шкала</button>
+          <button class="seg__btn" data-log="1">Логарифмическая</button>
+        </div>
+      </div>
+
+      <div class="tool" style="justify-content:flex-end;margin-left:auto">
+        <span class="tool__title">&nbsp;</span>
+        <button class="btn btn--wide" id="resetView">Сбросить вид</button>
+      </div>
+    </section>
+
+    <!-- Легенда цвета -->
+    <section class="toolbar" id="colorLegend">
+      <div class="tool" style="flex:1;min-width:260px">
+        <span class="tool__title" id="legendTitle">Цвет по категории элемента</span>
+        <div id="legendBox"></div>
+      </div>
+    </section>
+
+    <!-- Таблица -->
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:10px">
+      <span class="tool__title">Периодическая система Менделеева</span>
+      <span class="tool__title" id="countNote">Показано 118 из 118</span>
+    </div>
+    <div class="tablewrap">
+      <div class="ptable" id="ptable"></div>
+      <p style="color:#8b90a0;font-size:12px;margin:14px 0 0">
+        Наведите курсор — подробности об элементе. Щелчок — выбрать, двойной щелчок — открыть 3D-модель.
+      </p>
+    </div>
+
+    <!-- Выбранный элемент -->
+    <div class="cards" style="margin-top:26px" id="detail"></div>
+  </div>
+</main>
+
+<script src="assets/js/elements.js"></script>
+<script src="assets/js/common.js"></script>
+<script src="assets/js/table.js"></script>
+</body>
+</html>

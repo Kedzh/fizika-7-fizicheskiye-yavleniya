@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Различие в молекулярном строении — §13, физика 7 класс</title>
+<meta name="description" content="Интерактивная визуализация опытов и примеров из §13 учебника по физике (7 класс): сравнение трёх агрегатных состояний, расстояние между молекулами и сила притяжения, опыт с запаянным серебряным шаром, сравнение твёрдого тела и газа, тепловое расширение.">
+<meta name="keywords" content="молекулярное строение, агрегатные состояния, §13, физика 7 класс, твёрдое тело, жидкость, газ, притяжение молекул, тепловое расширение, опыт, 3D, урок">
+<style>
+:root{
+  --bg:#08080b; --panel:rgba(19,19,25,.86); --panel-2:#14141a;
+  --border:rgba(255,255,255,.1); --border-2:rgba(255,255,255,.2);
+  --text:#eceff4; --dim:#8b90a0;
+  --accent:#33ccff; --v:#ffb347; --h:#ff5fa2; --g:#7ee081; --warn:#ff6b6b;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--bg); color:var(--text); overflow:hidden;
+  font-family:'Segoe UI',Inter,system-ui,-apple-system,sans-serif; font-size:14px;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'JetBrains Mono','SF Mono',Consolas,ui-monospace,monospace}
+button,input,select{font:inherit;color:inherit}
+
+.app{
+  height:100%; display:grid;
+  grid-template-columns:1fr 360px;
+  grid-template-rows:56px 1fr;
+  grid-template-areas:"top top" "stage panel";
+}
+.top{grid-area:top;display:flex;align-items:center;gap:16px;padding:0 18px;border-bottom:1px solid var(--border);background:var(--panel-2);z-index:5}
+.brand{display:flex;flex-direction:column;line-height:1.15;min-width:200px}
+.brand b{font-size:15px;letter-spacing:.2px}
+.brand span{font-size:11px;color:var(--dim)}
+.steps{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.step{
+  border:1px solid var(--border);background:transparent;color:var(--dim);
+  padding:7px 12px;border-radius:10px;cursor:pointer;transition:.16s;white-space:nowrap;
+}
+.step:hover{color:var(--text);border-color:var(--border-2)}
+.step.is-on{color:var(--accent);border-color:rgba(51,204,255,.45);background:rgba(51,204,255,.12)}
+.top__hint{font-size:11px;color:var(--dim);white-space:nowrap}
+
+.stage{grid-area:stage;position:relative;overflow:hidden}
+#scene{position:absolute;inset:0}
+#scene canvas{display:block}
+
+.labels{position:absolute;inset:0;pointer-events:none}
+.lab{
+  position:absolute;transform:translate(-50%,-50%);
+  background:rgba(10,10,14,.82);border:1px solid var(--border);
+  padding:2px 8px;border-radius:8px;font-size:12px;white-space:nowrap;
+  backdrop-filter:blur(6px);
+}
+.lab--a{color:var(--accent);border-color:rgba(51,204,255,.4)}
+.lab--h{color:var(--h);border-color:rgba(255,95,162,.4)}
+.lab--g{color:var(--g);border-color:rgba(126,224,129,.4)}
+.lab--v{color:var(--v);border-color:rgba(255,179,71,.4)}
+
+.hud{position:absolute;left:16px;top:14px;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.chip{
+  background:rgba(10,10,14,.7);border:1px solid var(--border);border-radius:10px;
+  padding:6px 11px;font-size:12px;backdrop-filter:blur(6px);
+}
+.chip b{color:var(--accent);font-weight:600}
+.legend{position:absolute;right:16px;top:14px;display:flex;flex-direction:column;gap:7px;
+  background:rgba(10,10,14,.7);border:1px solid var(--border);border-radius:10px;padding:10px 13px;
+  font-size:12px;backdrop-filter:blur(6px)}
+.legend i{display:inline-block;width:15px;height:15px;border-radius:50%;vertical-align:middle;margin-right:8px}
+
+.panel{grid-area:panel;border-left:1px solid var(--border);background:var(--panel-2);
+  overflow-y:auto;display:flex;flex-direction:column;gap:0}
+.sec{padding:14px 16px;border-bottom:1px solid var(--border);display:none}
+.sec.is-on{display:block}
+.sec__t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.row:last-child{margin-bottom:0}
+.row label{font-size:13px;color:var(--text)}
+.row output{font-size:13px;color:var(--accent);min-width:74px;text-align:right}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;
+  background:rgba(255,255,255,.14);outline:none;margin:6px 0 14px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--accent);cursor:pointer;box-shadow:0 0 0 4px rgba(51,204,255,.18)}
+input[type=range]::-moz-range-thumb{width:0;border:0;border-radius:50%;background:var(--accent);cursor:pointer}
+
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi div{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:9px 11px}
+.kpi span{display:block;font-size:10px;color:var(--dim);letter-spacing:.05em;margin-bottom:3px}
+.kpi b{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.kpi .u{font-size:11px;color:var(--dim);margin-left:3px}
+
+.btn{
+  width:100%;padding:10px;border-radius:11px;cursor:pointer;
+  border:1px solid var(--border);background:rgba(255,255,255,.05);transition:.16s;
+}
+.btn:hover{border-color:var(--border-2);background:rgba(255,255,255,.09)}
+.btn--main{background:rgba(51,204,255,.14);border-color:rgba(51,204,255,.4);color:var(--accent)}
+.btn--main:hover{background:rgba(51,204,255,.22)}
+.btn--go{background:rgba(126,224,129,.14);border-color:rgba(126,224,129,.4);color:var(--g)}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btns3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+.sBtn{padding:9px 4px;border-radius:10px;cursor:pointer;font-size:12.5px;
+  border:1px solid var(--border);background:rgba(255,255,255,.05);transition:.16s;color:var(--text)}
+.sBtn:hover{border-color:var(--border-2)}
+.sBtn.is-on{color:#1a1a1a;border-color:transparent;font-weight:600}
+.sBtn--s{background:rgba(51,204,255,.25)} .sBtn--l{background:rgba(255,179,71,.3)} .sBtn--g{background:rgba(255,95,162,.28)}
+.sBtn--s.is-on{background:#33ccff} .sBtn--l.is-on{background:#ffb347} .sBtn--g.is-on{background:#ff5fa2}
+
+.bar{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;height:8px;overflow:hidden;margin:6px 0 10px}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+.bar--s i{background:#33ccff} .bar--l i{background:#ffb347} .bar--g i{background:#ff5fa2}
+
+.problem{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:11px;padding:12px}
+.problem__q{font-size:13.5px;line-height:1.55;margin-bottom:12px}
+.problem__q b{color:var(--accent)}
+.opt{display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:8px;border-radius:10px;
+  border:1px solid var(--border);background:rgba(255,255,255,.04);cursor:pointer;transition:.15s;font-size:13px}
+.opt:hover{border-color:var(--border-2);background:rgba(255,255,255,.08)}
+.opt.is-right{border-color:rgba(126,224,129,.7);background:rgba(126,224,129,.14);color:var(--g)}
+.opt.is-wrong{border-color:rgba(255,107,107,.6);background:rgba(255,107,107,.12);color:var(--warn)}
+.expl{font-size:12.5px;line-height:1.5;color:var(--dim);margin-top:8px;display:none}
+.expl.is-on{display:block}
+.expl b{color:var(--g)}
+
+.formula{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:10px;
+  padding:11px 12px;margin-bottom:9px;font-size:14px;text-align:center;line-height:1.7}
+.formula span{color:var(--dim);font-size:11px;display:block;margin-top:2px}
+.formula .k{color:var(--accent)} .formula .w{color:var(--h)} .formula .s{color:var(--v)}
+
+#cvPlot{width:100%;height:130px;display:block;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:10px;margin-bottom:10px}
+.statLine{font-size:13px;margin-bottom:9px}
+.statLine b{color:var(--accent)}
+.hint{font-size:11.5px;color:var(--dim);line-height:1.5;margin-top:10px}
+
+.note{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);
+  background:rgba(10,10,14,.9);border:1px solid var(--border);border-radius:11px;
+  padding:9px 15px;font-size:12.5px;max-width:82%;text-align:center;backdrop-filter:blur(8px);
+  opacity:0;transition:.25s;pointer-events:none;z-index:3}
+.note.is-on{opacity:1}
+.note b{color:var(--accent)}
+
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:5px}
+::-webkit-scrollbar-track{background:transparent}
+.stage,.panel{min-width:0;min-height:0}
+
+@media(max-width:1000px){
+  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 42dvh auto;
+       grid-template-areas:"top" "stage" "panel"}
+  .panel{border-left:0;border-top:1px solid var(--border)}
+  .legend{display:none}
+  .top__hint{display:none}
+  .top{flex-wrap:wrap;padding:9px 14px}
+  .brand{min-width:0}
+  .steps{margin-left:0;width:100%}
+  .step{flex:1;text-align:center;padding:7px 3px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="brand">
+      <b>Молекулярное строение состояний</b>
+      <span>Физика · 7 класс · §13</span>
+    </div>
+    <div class="steps" id="steps">
+      <button class="step is-on" data-step="0">1 · Три состояния</button>
+      <button class="step" data-step="1">2 · Расстояние и притяжение</button>
+      <button class="step" data-step="2">3 · Серебряный шар</button>
+      <button class="step" data-step="3">4 · Прут и шарик</button>
+      <button class="step" data-step="4">5 · Нагревание</button>
+      <button class="step" data-step="5">6 · Проверка</button>
+    </div>
+    <div class="top__hint">Мышь — поворот · Колесо — масштаб</div>
+  </header>
+
+  <section class="stage">
+    <div id="scene"></div>
+    <div class="labels" id="labels"></div>
+    <div class="hud"><div class="chip" id="chip1" style="display:none"></div></div>
+    <div class="legend" id="legend"></div>
+    <div class="note" id="note"></div>
+  </section>
+
+  <aside class="panel">
+
+    <div class="sec is-on" id="sec0">
+      <h3 class="sec__t">Сравнение трёх состояний</h3>
+      <div class="formula">Свойства = расстояние между молекулами + сила притяжения<span>одно и то же вещество, разные условия</span></div>
+      <div class="btns3" id="cmpBtns">
+        <button class="sBtn sBtn--s is-on" data-cmp="solid">Твёрдое</button>
+        <button class="sBtn sBtn--l" data-cmp="liquid">Жидкое</button>
+        <button class="sBtn sBtn--g" data-cmp="gas">Газ</button>
+      </div>
+      <div style="height:10px"></div>
+      <div class="row"><label for="sEps">Сила притяжения ε</label><output id="oEps">1,0</output></div>
+      <input type="range" id="sEps" min="0.2" max="4" step="0.1" value="1">
+      <div class="row"><label for="sT">Температура</label><output id="oT">1,0</output></div>
+      <input type="range" id="sT" min="0.05" max="3" step="0.05" value="1">
+      <div class="kpi">
+        <div><span>СР. РАССТОЯНИЕ</span><b id="kD">—</b><span class="u">σ</span></div>
+        <div><span>СР. ПРИТЯЖЕНИЕ</span><b id="kF">—</b><span class="u">F/ε</span></div>
+        <div><span>СР. СКОРОСТЬ</span><b id="kV">—</b><span class="u">ед.*</span></div>
+        <div><span>ПЛОТНОСТЬ</span><b id="kR">—</b><span class="u">%/σ³</span></div>
+      </div>
+      <div class="bar bar--s"><i id="bD"></i></div>
+      <div class="hint">* Скорости и силы — в условных единицах модели (σ = диаметр молекулы, kB = m = 1).</div>
+    </div>
+
+    <div class="sec" id="sec1">
+      <h3 class="sec__t">Расстояние и притяжение</h3>
+      <div class="formula">F(r) = 24ε/r · (2(σ/r)¹² − (σ/r)⁶)<span>отталкивание при r &lt; σ, притяжение при r &gt; σ</span></div>
+      <canvas id="cvPlot" width="620" height="260"></canvas>
+      <div class="row"><label for="sR">Расстояние r</label><output id="oR">1,0</output></div>
+      <input type="range" id="sR" min="0.6" max="3.2" step="0.05" value="1">
+      <div class="kpi" style="margin-top:6px">
+        <div><span>СИЛА</span><b id="kFR">—</b></div>
+        <div><span>ХАРАКТЕР</span><b id="kKind">—</b></div>
+      </div>
+      <div class="statLine" style="margin-top:10px">Отмеченные точки — средние расстояния в трёх состояниях.</div>
+    </div>
+
+    <div class="sec" id="sec2">
+      <h3 class="sec__t">Опыт: серебряный шар с водой</h3>
+      <div class="formula">Вторая половина XVII века, Флоренция<span>флорентийские учёные проверяли, сжимается ли вода</span></div>
+      <div class="statLine" style="line-height:1.55;margin-bottom:12px">
+        <b>Рассуждение учёных:</b> если вода сжимается, то при ударах на шаре должны появиться <b style="color:#ffb347">вмятины</b>. Если вмятин не будет — значит вода несжимаема.
+      </div>
+      <button class="btn btn--main" id="bHammer">🔨 Ударить молотком</button>
+      <div class="btns" style="margin-top:8px">
+        <button class="btn" id="bSeal">Новый шар</button>
+        <button class="btn" id="bSlow">Медленно: выкл</button>
+      </div>
+      <div class="kpi" style="margin-top:12px">
+        <div><span>УДАРОВ</span><b id="kHits">0</b></div>
+        <div><span>ВМЯТИНА НА ШАРЕ</span><b id="kDent">нет</b></div>
+        <div style="grid-column:1/-1"><span>КАПЕЛЬ НАРУЖУ</span><b id="kDrops2">0</b></div>
+      </div>
+      <div class="statLine" style="line-height:1.55">
+        <b style="color:#ffb347">Главный вывод опыта:</b> вода выступила <b>через серебряные стенки</b> наружу — значит, между частицами серебра есть <b>промежутки</b>. Внизу в сцене — стена серебра в разрезе: вода проходит между частицами.
+      </div>
+    </div>
+
+    <div class="sec" id="sec3">
+      <h3 class="sec__t">Твёрдое тело и газ</h3>
+      <div class="formula">Прут согнуть трудно, шарик сжать легко<span>сильное притяжение против слабого</span></div>
+      <div class="row"><label for="sForce">Приложенное усилие</label><output id="oForce">0 %</output></div>
+      <input type="range" id="sForce" min="0" max="100" step="1" value="0">
+      <div class="kpi">
+        <div><span>ПРОГИБ ПРУТА (ОТ ДЛИНЫ)</span><b id="kRod">0,0</b><span class="u">%</span></div>
+        <div><span>ОБЪЁМ ШАРИКА УМЕНЬШИЛСЯ</span><b id="kBall">0,0</b><span class="u">%</span></div>
+      </div>
+      <div class="bar bar--s"><i id="bRod"></i></div>
+      <div class="bar bar--g"><i id="bBall"></i></div>
+      <div class="statLine" style="line-height:1.55">
+        <b>Прут (твёрдое тело):</b> чтобы согнуть его, нужно сдвинуть целые слои молекул друг относительно друга. Между молекулами притяжение <b style="color:#33ccff">очень сильное</b> — поэтому нужно большое усилие, а прогиб растёт медленно.
+      </div>
+      <div class="statLine" style="line-height:1.55;margin-top:10px">
+        <b>Шарик с воздухом (газ):</b> молекулы воздуха находятся далеко друг от друга и почти не притягиваются. Поэтому их легко сблизить — объём падает быстро. Обрати внимание: <b style="color:#ff5fa2">сжимается промежуток между молекулами, а сами молекулы остаются того же размера</b>. Сжать воздух до плотности жидкости так просто не получится.
+      </div>
+    </div>
+
+    <div class="sec" id="sec4">
+      <h3 class="sec__t">Тепловое расширение</h3>
+      <div class="formula">T ↑ → молекулы движутся быстрее → расстояние растёт → V ↑<span>при постоянном давлении</span></div>
+      <div class="row"><label for="sHeat">Нагрев</label><output id="oHeat">20 °C</output></div>
+      <input type="range" id="sHeat" min="0" max="100" step="1" value="20">
+      <div class="btns3" id="phaseBtns" style="margin-bottom:12px">
+        <button class="sBtn sBtn--s" data-phase="solid">Твёрдое</button>
+        <button class="sBtn sBtn--l" data-phase="liquid">Жидкое</button>
+        <button class="sBtn sBtn--g" data-phase="gas">Газ</button>
+      </div>
+      <div class="kpi">
+        <div><span>ОБЪЁМ V/V₀</span><b id="kVV">1,000</b></div>
+        <div><span>СР. РАССТОЯНИЕ</span><b id="kD3">—</b><span class="u">σ</span></div>
+        <div><span>СР. СКОРОСТЬ</span><b id="kV3">—</b><span class="u">ед.*</span></div>
+        <div><span>СОСТОЯНИЕ</span><b id="kPh">Твёрдое</b></div>
+      </div>
+      <div class="hint">Нагрев при постоянном давлении: объём растёт пропорционально V/T. Один и тот же объём газа при большей температуре нужно сильнее сжать, чтобы удержать давление.</div>
+    </div>
+
+    <div class="sec" id="sec5">
+      <h3 class="sec__t">Проверь себя</h3>
+      <div class="problem">
+        <div class="problem__q"><b>1.</b> От чего зависят свойства вещества?</div>
+        <button class="opt" data-ok="1">От расстояния между молекулами и силы их притяжения</button>
+        <button class="opt" data-ok="0">Только от цвета вещества</button>
+        <button class="opt" data-ok="0">Только от его названия</button>
+        <div class="expl" id="e1">Верно: свойства твёрдых тел, жидкостей и газов объясняются именно расстоянием между частицами и силой их взаимного притяжения.</div>
+      </div>
+      <div class="problem">
+        <div class="problem__q"><b>2.</b> Где притяжение между молекулами самое сильное?</div>
+        <button class="opt" data-ok="0">В газах</button>
+        <button class="opt" data-ok="1">В твёрдых телах</button>
+        <button class="opt" data-ok="0">В жидкостях</button>
+        <div class="expl" id="e2">Верно: в твёрдом теле молекулы расположены ближе всего, поэтому притяжение между ними самое сильное.</div>
+      </div>
+      <div class="problem">
+        <div class="problem__q"><b>3.</b> Как движутся молекулы жидкости?</div>
+        <button class="opt" data-ok="0">Беспорядочно по всему объёму</button>
+        <button class="opt" data-ok="0">Стоят неподвижно</button>
+        <button class="opt" data-ok="1">Колеблются и время от времени перескакивают</button>
+        <div class="expl" id="e3">Верно: перескакивания молекул позволяют жидкости менять форму, сохраняя объём.</div>
+      </div>
+      <div class="problem">
+        <div class="problem__q"><b>4.</b> Почему при нагревании тело расширяется?</div>
+        <button class="opt" data-ok="0">Молекулы исчезают</button>
+        <button class="opt" data-ok="1">Молекулы движутся быстрее, расстояние между ними растёт</button>
+        <button class="opt" data-ok="0">Притяжение между молекулами исчезает</button>
+        <div class="expl" id="e4">Верно: быстрее движущиеся молекулы в среднем дальше друг от друга, поэтому объём растёт.</div>
+      </div>
+      <div class="problem">
+        <div class="problem__q"><b>5.</b> Почему жидкость трудно сжать?</div>
+        <button class="opt" data-ok="1">Молекулы уже находятся близко друг к другу</button>
+        <button class="opt" data-ok="0">Молекулы в ней очень крупные</button>
+        <button class="opt" data-ok="0">Жидкость всегда холодная</button>
+        <div class="expl" id="e5">Верно: сближать молекулы, уже почти соприкасающиеся, требует огромного усилия — в этом опыте с серебряным шаром вода всё же просочилась наружу.</div>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<script src="../assets/vendor/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+if (!window.THREE) {
+  document.body.insertAdjacentHTML('beforeend',
+    '<div style="position:fixed;inset:0;display:grid;place-items:center;background:#08080b">' +
+    '<div style="text-align:center;color:#8b90a0;padding:30px">Не удалось загрузить библиотеку 3D: three.min.js не найден.</div></div>');
+  return;
+}
+const THREE = window.THREE;
+
+const n = (v, d) => {
+  if (v == null || !isFinite(v)) return '—';
+  return v.toFixed(d).replace('.', ',').replace(/,0+$/, '').replace(/(\d),$/, '$1');
+};
+
+/* ============================================================
+   1. Сцена
+   ============================================================ */
+const host = document.getElementById('scene');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x08080b);
+
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(host.clientWidth, host.clientHeight);
+host.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+const sun = new THREE.DirectionalLight(0xffffff, 1.1);
+sun.position.set(30, 50, 40); scene.add(sun);
+const rim = new THREE.DirectionalLight(0x66ccff, 0.45);
+rim.position.set(-30, 20, -30); scene.add(rim);
+
+const cam = { yaw: -0.5, pitch: 0.28, dist: 34, tx: 0, ty: 0, tz: 0 };
+function applyCamera(){
+  camera.position.set(
+    cam.tx + cam.dist*Math.cos(cam.pitch)*Math.sin(cam.yaw),
+    cam.ty + cam.dist*Math.sin(cam.pitch),
+    cam.tz + cam.dist*Math.cos(cam.pitch)*Math.cos(cam.yaw)
+  );
+  camera.lookAt(cam.tx, cam.ty, cam.tz);
+}
+let drag = null;
+renderer.domElement.addEventListener('pointerdown', e => {
+  drag = { x: e.clientX, y: e.clientY, yaw: cam.yaw, pitch: cam.pitch };
+  renderer.domElement.setPointerCapture(e.pointerId);
+});
+renderer.domElement.addEventListener('pointermove', e => {
+  if (!drag) return;
+  cam.yaw = drag.yaw - (e.clientX - drag.x) * 0.005;
+  cam.pitch = Math.max(-0.05, Math.min(1.45, drag.pitch + (e.clientY - drag.y) * 0.004));
+});
+const endDrag = () => { drag = null; };
+renderer.domElement.addEventListener('pointerup', endDrag);
+renderer.domElement.addEventListener('pointercancel', endDrag);
+renderer.domElement.addEventListener('wheel', e => {
+  e.preventDefault();
+  cam.dist = Math.max(8, Math.min(120, cam.dist * Math.pow(1.0015, e.deltaY)));
+}, { passive: false });
+
+/* ============================================================
+   2. Модель молекул
+
+   СИЛА притяжения считается честно — по формуле Леннарда — Джонса:
+        F(r) = 24ε/r · ( 2(σ/r)¹² − (σ/r)⁶ )
+   При r < σ преобладает отталкивание, при r > σ — притяжение.
+
+   ДВИЖЕНИЕ молекул показано устойчивой кинематической моделью,
+   которая повторяет то, что параграф говорит о строении состояний:
+     твёрдое — колебания около своих мест, перескоков нет;
+     жидкое — колебания и редкие перескоки на соседнее место;
+     газ     — свободное движение по всему объёму.
+   Так картина остаётся читаемой и не «взрывается» на большом шаге времени.
+   ============================================================ */
+const SIG = 1.0, DT = 0.02;
+
+function ljF(r, eps){
+  if (r < 0.72*SIG) r = 0.72*SIG;            // защита от «слипания»
+  const s = SIG / r, s2 = s*s, s6 = s2*s2*s2;
+  return 24*eps*(2*s6*s6 - s6) / r;            // >0 — отталкивание, <0 — притяжение
+}
+
+function createSystem(cnt, box, eps, T, state){
+  const S = {
+    n: cnt, box: box, eps: eps, T: T, state: state || 'liquid',
+    pos: new Float32Array(cnt*3),
+    vel: new Float32Array(cnt*3),
+    home: new Float32Array(cnt*3),   // равновесное место (для твёрдого и жидкого)
+    phase: new Float32Array(cnt*3),  // фаза колебаний
+    drift: new Float32Array(cnt*3),  // блуждание жидкости внутри ячейки
+    nx: 0, ny: 0, nz: 0
+  };
+  seed(S);
+  return S;
+}
+
+/* Раскладываем молекулы по решётке внутри бокса.
+   Число слоёв берём кубическим корнем от числа частиц, тогда шаг решётки
+   равен стороне бокса, делённой на это число, и частицы не накладываются. */
+function seed(S){
+  const bx = S.box.x, by = S.box.y, bz = S.box.z;
+  const cols = Math.max(1, Math.round(Math.cbrt(S.n)));
+  S.nx = cols; S.ny = cols; S.nz = cols;
+  const sx = bx/cols, sy = by/cols, sz = bz/cols;
+  let i = 0;
+  for (let x = 0; x < cols && i < S.n; x++)
+    for (let y = 0; y < cols && i < S.n; y++)
+      for (let z = 0; z < cols && i < S.n; z++){
+        const px = (x + 0.5)*sx, py = (y + 0.5)*sy, pz = (z + 0.5)*sz;
+        S.pos[i*3] = px; S.pos[i*3+1] = py; S.pos[i*3+2] = pz;
+        S.home[i*3] = px; S.home[i*3+1] = py; S.home[i*3+2] = pz;
+        for (let c = 0; c < 3; c++) S.phase[i*3+c] = Math.random()*Math.PI*2;
+        i++;
+      }
+  for (; i < S.n; i++){                          // остаток — случайно
+    const px = Math.random()*bx, py = Math.random()*by, pz = Math.random()*bz;
+    S.pos[i*3] = px; S.pos[i*3+1] = py; S.pos[i*3+2] = pz;
+    S.home[i*3] = px; S.home[i*3+1] = py; S.home[i*3+2] = pz;
+    for (let c = 0; c < 3; c++) S.phase[i*3+c] = Math.random()*Math.PI*2;
+  }
+  for (let k = 0; k < S.n*3; k++) S.vel[k] = Math.random() - 0.5;
+  setT(S, S.T);
+}
+
+/* Перенос системы так, чтобы её центр оказался в точке (cx, cy, cz).
+   Нужно для шара: сам шар центрирован в нуле, а решётка заполняет куб
+   с началом координат в нуле — без сдвига вода собралась бы в углу. */
+function recenter(S, cx, cy, cz){
+  const sx = S.box.x/2, sy = S.box.y/2, sz = S.box.z/2;
+  for (let k = 0; k < S.n*3; k += 3){
+    S.home[k]   += cx - sx; S.home[k+1] += cy - sy; S.home[k+2] += cz - sz;
+    S.pos[k]    = S.home[k]; S.pos[k+1]   = S.home[k+1]; S.pos[k+2] = S.home[k+2];
+  }
+  // Границы бокса переезжают вместе с частицами. Иначе газ продолжит
+  // отражаться от стенок в [0, box] и сбится в угол, как в первый раз.
+  S.ctr = true;
+}
+
+/* Раскладываем молекулы равномерно ПО ОБЪЁМУ шара.
+   Обычная решётка не годится: её углы выдавило бы на поверхность,
+   и газ получился бы в виде оболочки вместо равномерного газа. */
+function seedInSphere(S, R){
+  for (let i = 0; i < S.n; i++){
+    const ix = i*3;
+    const th = 2*Math.PI*Math.random(), ph = Math.acos(2*Math.random() - 1);
+    const r = R*Math.cbrt(Math.random());        // кубический корень даёт равномерность по объёму
+    S.home[ix]   = r*Math.sin(ph)*Math.cos(th);
+    S.home[ix+1] = r*Math.cos(ph);
+    S.home[ix+2] = r*Math.sin(ph)*Math.sin(th);
+    S.pos[ix]    = S.home[ix]; S.pos[ix+1] = S.home[ix+1]; S.pos[ix+2] = S.home[ix+2];
+    for (let c = 0; c < 3; c++) S.phase[ix+c] = Math.random()*Math.PI*2;
+  }
+  for (let k = 0; k < S.n*3; k++) S.vel[k] = Math.random() - 0.5;
+}
+
+/* Смещение молекулы от равновесного места (только для твёрдого и жидкого).
+   Твёрдое — малые колебания на месте.
+   Жидкое — колебания плюс ограниченное блуждание (drift): молекула
+   «перетекает» в пределах одной ячейки, но решётка не разрушается. */
+function oscOffset(S, i, T){
+  if (S.state === 'solid'){
+    const A = Math.min(0.16, 0.04 + T*0.06);
+    return [
+      A*Math.sin(S.phase[i*3]   + T*7),
+      A*Math.sin(S.phase[i*3+1] + T*6.3),
+      A*Math.sin(S.phase[i*3+2] + T*5.7)
+    ];
+  }
+  if (S.state === 'liquid'){
+    const A = Math.min(0.30, 0.07 + T*0.18);
+    const d = S.drift, ix = i*3;
+    return [
+      A*Math.sin(S.phase[ix]   + T*7) + d[ix],
+      A*Math.sin(S.phase[ix+1] + T*6.3) + d[ix+1],
+      A*Math.sin(S.phase[ix+2] + T*5.7) + d[ix+2]
+    ];
+  }
+  return [0, 0, 0];
+}
+
+/* Ограниченное блуждание молекулы жидкости внутри своей ячейки */
+function driftLiquid(S, dt){
+  const d = S.drift, N = S.n;
+  const step = S.box.x/S.nx;
+  const lim = step*0.42;                       // не выходим за пределы ячейки
+  const push = dt*(1.2 + S.T*5.0);
+  for (let i = 0; i < N; i++){
+    const ix = i*3;
+    for (let c = 0; c < 3; c++){
+      d[ix+c] += (Math.random()-0.5)*push;
+      // слабое возвращение к центру ячейки: не даём «убежать» далеко
+      d[ix+c] -= d[ix+c]*dt*0.9;
+      if (d[ix+c] >  lim) d[ix+c] =  lim;
+      if (d[ix+c] < -lim) d[ix+c] = -lim;
+    }
+  }
+}
+
+function step(S, dt){
+  const N = S.n, p = S.pos, v = S.vel, h = S.home;
+  const spd = 0.6 + S.T*2.6;                     // характерная скорость в ед./ед.времени
+
+  if (S.state === 'liquid') driftLiquid(S, dt);
+
+  for (let i = 0; i < N; i++){
+    const ix = i*3;
+    if (S.state === 'gas'){
+      // свободное движение + отражение от стенок
+      // (границы либо [0, box], либо симметрично вокруг нуля — см. recenter)
+      const lo = S.ctr ? -S.box.x/2 : 0, hi = S.ctr ? S.box.x/2 : S.box.x;
+      const loY = S.ctr ? -S.box.y/2 : 0, hiY = S.ctr ? S.box.y/2 : S.box.y;
+      const loZ = S.ctr ? -S.box.z/2 : 0, hiZ = S.ctr ? S.box.z/2 : S.box.z;
+      v[ix]   += (Math.random()-0.5)*dt*spd*4;
+      v[ix+1] += (Math.random()-0.5)*dt*spd*4;
+      v[ix+2] += (Math.random()-0.5)*dt*spd*4;
+      p[ix]   += v[ix]*dt; p[ix+1] += v[ix+1]*dt; p[ix+2] += v[ix+2]*dt;
+      if (p[ix] < lo){ p[ix] = 2*lo - p[ix]; v[ix] = -v[ix]; }
+      else if (p[ix] > hi){ p[ix] = 2*hi - p[ix]; v[ix] = -v[ix]; }
+      if (p[ix+1] < loY){ p[ix+1] = 2*loY - p[ix+1]; v[ix+1] = -v[ix+1]; }
+      else if (p[ix+1] > hiY){ p[ix+1] = 2*hiY - p[ix+1]; v[ix+1] = -v[ix+1]; }
+      if (p[ix+2] < loZ){ p[ix+2] = 2*loZ - p[ix+2]; v[ix+2] = -v[ix+2]; }
+      else if (p[ix+2] > hiZ){ p[ix+2] = 2*hiZ - p[ix+2]; v[ix+2] = -v[ix+2]; }
+    } else {
+      // колебание около своего места (в жидкости — с блужданием)
+      const o = oscOffset(S, i, S.T);
+      p[ix] = h[ix] + o[0]; p[ix+1] = h[ix+1] + o[1]; p[ix+2] = h[ix+2] + o[2];
+      // скорость для показа = производная смещения (численно)
+      const o2 = oscOffset(S, i, S.T + dt);
+      v[ix] = (o2[0]-o[0])/dt; v[ix+1] = (o2[1]-o[1])/dt; v[ix+2] = (o2[2]-o[2])/dt;
+    }
+  }
+}
+
+function setT(S, T){
+  S.T = T;
+  if (S.state === 'gas'){
+    // скорость газа задаём прямо: v ≈ √(3kT/m)
+    const want = Math.sqrt(3*T);
+    let s = 0;
+    for (let k = 0; k < S.n*3; k++) s += S.vel[k]*S.vel[k];
+    s = Math.sqrt(s/(S.n*3));
+    if (s > 1e-9){
+      const sc = want/s;
+      for (let k = 0; k < S.n*3; k++) S.vel[k] *= sc;
+    }
+  }
+}
+
+function meanSpeed(S){
+  let s = 0;
+  for (let i = 0; i < S.n; i++){
+    const ix = i*3;
+    s += Math.hypot(S.vel[ix], S.vel[ix+1], S.vel[ix+2]);
+  }
+  return s / S.n;
+}
+
+function nnDistance(S){
+  let sum = 0, cnt = 0;
+  for (let i = 0; i < S.n; i++){
+    const ix = i*3;
+    let best = Infinity;
+    for (let j = 0; j < S.n; j++){
+      if (j === i) continue;
+      const jx = j*3;
+      let dx = S.pos[jx] - S.pos[ix];
+      const hx = S.box.x;
+      if (dx > hx*0.5) dx -= hx; else if (dx < -hx*0.5) dx += hx;
+      const dy = S.pos[jx+1] - S.pos[ix+1];
+      const dz = S.pos[jx+2] - S.pos[ix+2];
+      const r = Math.sqrt(dx*dx + dy*dy + dz*dz);
+      if (r < best) best = r;
+    }
+    if (isFinite(best)){ sum += best; cnt++; }
+  }
+  return cnt ? sum/cnt : 0;
+}
+
+function density(S){
+  return S.n / (S.box.x*S.box.y*S.box.z);
+}
+
+/* Средняя сила притяжения к ближайшему соседу с учётом ε */
+function meanAttraction(S){
+  const eps = S.eps || 1;
+  let sum = 0, cnt = 0;
+  for (let i = 0; i < S.n; i++){
+    const ix = i*3;
+    let best = Infinity;
+    for (let j = 0; j < S.n; j++){
+      if (j === i) continue;
+      const jx = j*3;
+      let dx = S.pos[jx] - S.pos[ix];
+      const hx = S.box.x;
+      if (dx > hx*0.5) dx -= hx; else if (dx < -hx*0.5) dx += hx;
+      const dy = S.pos[jx+1] - S.pos[ix+1];
+      const dz = S.pos[jx+2] - S.pos[ix+2];
+      const r = Math.sqrt(dx*dx + dy*dy + dz*dz);
+      if (r < best) best = r;
+    }
+    if (isFinite(best) && best > 1e-6){
+      const f = ljF(best, eps);
+      if (f < 0){ sum += -f; cnt++; }
+    }
+  }
+  return cnt ? sum/cnt : 0;
+}
+
+/* Задать расстояние между молекулами: пересобираем решётку с новым шагом.
+   Так расстояние точно равно заданному и частицы не накладываются. */
+function retarget(S, want){
+  const cols = Math.max(1, S.nx);
+  // шаг не может превысить сторону бокса, иначе молекулы выйдут за границы
+  const stepWant = Math.max(0.25, Math.min(want, S.box.x/(cols - 0.001)));
+  let i = 0;
+  for (let x = 0; x < cols; x++)
+    for (let y = 0; y < cols; y++)
+      for (let z = 0; z < cols; z++){
+        if (i >= S.n) break;
+        const ix = i*3;
+        S.home[ix]   = (x + 0.5)*stepWant;
+        S.home[ix+1] = (y + 0.5)*stepWant;
+        S.home[ix+2] = (z + 0.5)*stepWant;
+        S.pos[ix]    = S.home[ix];
+        S.pos[ix+1]  = S.home[ix+1];
+        S.pos[ix+2]  = S.home[ix+2];
+        i++;
+      }
+  // «хвост» (если частиц больше, чем узлов решётки) — случайно по боксу
+  for (; i < S.n; i++){
+    const ix = i*3;
+    S.home[ix] = Math.random()*S.box.x; S.home[ix+1] = Math.random()*S.box.y; S.home[ix+2] = Math.random()*S.box.z;
+    S.pos[ix] = S.home[ix]; S.pos[ix+1] = S.home[ix+1]; S.pos[ix+2] = S.home[ix+2];
+  }
+}
+
+/* ============================================================
+   3. Отрисовка молекул
+   ============================================================ */
+const dummy = new THREE.Object3D();
+function makeInstances(count, color, radius){
+  const geo = new THREE.SphereGeometry(radius, 14, 10);
+  const mat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.32, metalness: 0.06 });
+  const mesh = new THREE.InstancedMesh(geo, mat, count);
+  mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  mesh.frustumCulled = false;
+  mesh.count = 0;
+  return mesh;
+}
+function syncMesh(mesh, pos, cnt, offset){
+  offset = offset || { x: 0, y: 0, z: 0 };
+  for (let i = 0; i < cnt; i++){
+    dummy.position.set(pos[i*3] + offset.x, pos[i*3+1] + offset.y, pos[i*3+2] + offset.z);
+    dummy.scale.setScalar(1);
+    dummy.updateMatrix();
+    mesh.setMatrixAt(i, dummy.matrix);
+  }
+  mesh.count = cnt;
+  mesh.instanceMatrix.needsUpdate = true;
+}
+function boxLines(w, h, d, color, opacity){
+  const g = new THREE.BoxGeometry(w, h, d);
+  const e = new THREE.EdgesGeometry(g);
+  const m = new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: opacity || 0.28 });
+  return new THREE.LineSegments(e, m);
+}
+
+/* ============================================================
+   4. Режимы
+   ============================================================ */
+const PRESET = {
+  solid:  { spacing: 1.375, eps: 3.0, T: 0.12, color: 0x33ccff, name: 'Твёрдое' },
+  liquid: { spacing: 1.833, eps: 1.6, T: 0.85, color: 0xffb347, name: 'Жидкое' },
+  gas:    { spacing: 2.200, eps: 0.5, T: 1.60, color: 0xff5fa2, name: 'Газ' }
+};
+
+const MODES = ['cmp', 'curve', 'ball', 'rod', 'heat', 'quiz'];
+let mode = 0;
+const groups = {};
+MODES.forEach(m => { groups[m] = new THREE.Group(); scene.add(groups[m]); groups[m].visible = false; });
+
+/* ---- Режим 0: три состояния рядом ---- */
+const OFF = { solid: -13, liquid: 0, gas: 13 };
+/* Состояния различаются ЧИСЛОМ частиц при одинаковом боксе.
+   Числа кубические: 8³, 6³ и 5³ — тогда шаг решётки равен 11/8, 11/6 и 11/5,
+   и расстояния между молекулами заметно различаются. */
+const BX = 11, BY = 11, BZ = 11;
+const CNT = { solid: 512, liquid: 216, gas: 125 };
+const cmpSys = {}, cmpMesh = {}, cmpBox = {};
+['solid', 'liquid', 'gas'].forEach(k => {
+  const p = PRESET[k];
+  const box = { x: BX, y: BY, z: BZ };
+  const S = createSystem(CNT[k], box, p.eps, p.T, k);
+  cmpSys[k] = S;
+  cmpMesh[k] = makeInstances(S.n, p.color, 0.44);
+  // смещение НЕ задаём здесь: мировые координаты подставляет syncMesh
+  cmpBox[k] = boxLines(BX, BY, BZ, p.color, 0.3);
+  cmpBox[k].position.set(OFF[k], 0, 0);
+  groups.cmp.add(cmpMesh[k], cmpBox[k]);
+});
+
+/* Линии между ближайшими соседями — показывают расстояние между молекулами.
+   Видны только в режиме «Расстояние и притяжение». */
+const BOND_N = CNT.solid * 2;
+const bondPos = new Float32Array(BOND_N * 3);
+const bondGeo = new THREE.BufferGeometry();
+bondGeo.setAttribute('position', new THREE.BufferAttribute(bondPos, 3));
+const bonds = new THREE.LineSegments(
+  bondGeo,
+  new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.45 })
+);
+bonds.visible = false;
+bonds.frustumCulled = false;
+groups.cmp.add(bonds);
+
+function updateBonds(){
+  const S = cmpSys.solid;
+  const off = { x: OFF.solid - BX/2, y: -BY/2, z: -BZ/2 };
+  let w = 0;
+  const step = BX / S.nx;
+  for (let i = 0; i < S.n; i++){
+    const ix = i*3;
+    let best = Infinity, bj = -1;
+    for (let j = 0; j < S.n; j++){
+      if (j === i) continue;
+      const jx = j*3;
+      const dx = S.pos[jx] - S.pos[ix], dy = S.pos[jx+1] - S.pos[ix+1], dz = S.pos[jx+2] - S.pos[ix+2];
+      const r2 = dx*dx + dy*dy + dz*dz;
+      if (r2 < best){ best = r2; bj = j; }
+    }
+    if (bj < 0 || w + 6 > bondPos.length) continue;
+    const jx = bj*3;
+    bondPos[w++] = S.pos[ix]   + off.x;
+    bondPos[w++] = S.pos[ix+1] + off.y;
+    bondPos[w++] = S.pos[ix+2] + off.z;
+    bondPos[w++] = S.pos[jx]   + off.x;
+    bondPos[w++] = S.pos[jx+1] + off.y;
+    bondPos[w++] = S.pos[jx+2] + off.z;
+  }
+  // хвост обнуляем, чтобы не рисовались старые отрезки
+  while (w < bondPos.length) bondPos[w++] = 0;
+  bondGeo.attributes.position.needsUpdate = true;
+}
+let cmpFocus = 'solid';
+
+/* ---- Режим 1: график силы ---- */
+const cv = document.getElementById('cvPlot');
+const cx = cv.getContext('2d');
+function drawCurve(){
+  const W = cv.width, H = cv.height;
+  cx.clearRect(0, 0, W, H);
+  cx.fillStyle = 'rgba(0,0,0,.25)'; cx.fillRect(0, 0, W, H);
+  const pad = 34, rMin = 0.6, rMax = 3.2;
+  const fMin = -3, fMax = 8;
+  const X = r => pad + (r - rMin)/(rMax - rMin)*(W - pad - 12);
+  const Y = f => H - pad - (f - fMin)/(fMax - fMin)*(H - pad - 12);
+  // оси
+  cx.strokeStyle = 'rgba(255,255,255,.18)'; cx.lineWidth = 1;
+  cx.beginPath(); cx.moveTo(pad, Y(0)); cx.lineTo(W - 12, Y(0)); cx.stroke();
+  cx.beginPath(); cx.moveTo(X(1), pad); cx.lineTo(X(1), H - pad); cx.stroke();
+  cx.fillStyle = '#8b90a0'; cx.font = '11px Segoe UI, sans-serif';
+  cx.fillText('r, σ', W - 40, H - 12);
+  cx.fillText('F', 8, Y(0) - 6);
+  // зона отталкивания / притяжения
+  cx.fillStyle = 'rgba(255,107,107,.10)';
+  cx.fillRect(pad, pad, X(1) - pad, Y(0) - pad);
+  cx.fillStyle = 'rgba(51,204,255,.10)';
+  cx.fillRect(X(1), Y(0), W - 12 - X(1), H - pad - Y(0));
+  // кривая
+  cx.strokeStyle = '#33ccff'; cx.lineWidth = 2;
+  cx.beginPath();
+  for (let i = 0; i <= 240; i++){
+    const r = rMin + (rMax - rMin)*i/240;
+    const f = Math.max(fMin, Math.min(fMax, ljF(r, 1.0)));
+    const px = X(r), py = Y(f);
+    if (i === 0) cx.moveTo(px, py); else cx.lineTo(px, py);
+  }
+  cx.stroke();
+  // средние расстояния трёх состояний
+  const marks = [['solid', '#33ccff'], ['liquid', '#ffb347'], ['gas', '#ff5fa2']];
+  marks.forEach(([k, col]) => {
+    const d = nnDistance(cmpSys[k]);
+    if (!d) return;
+    const r = Math.max(rMin, Math.min(rMax, d));
+    const f = Math.max(fMin, Math.min(fMax, ljF(r, 1.0)));
+    cx.fillStyle = col;
+    cx.beginPath(); cx.arc(X(r), Y(f), 6, 0, Math.PI*2); cx.fill();
+    cx.fillStyle = col; cx.font = '10px Segoe UI, sans-serif';
+    cx.fillText(k === 'solid' ? 'тв.' : k === 'liquid' ? 'ж.' : 'газ', X(r) + 8, Y(f) - 8);
+  });
+  // текущая точка
+  const rNow = parseFloat(document.getElementById('sR').value);
+  const fNow = Math.max(fMin, Math.min(fMax, ljF(rNow, 1.0)));
+  cx.strokeStyle = '#fff'; cx.lineWidth = 1.5;
+  cx.beginPath(); cx.arc(X(rNow), Y(fNow), 7, 0, Math.PI*2); cx.stroke();
+  cx.fillStyle = '#fff';
+  cx.beginPath(); cx.arc(X(rNow), Y(fNow), 3, 0, Math.PI*2); cx.fill();
+}
+
+/* ---- Режим 2: серебряный шар ---- */
+const ballGroup = new THREE.Group();
+const BALL_R = 5.2;
+
+/* Серебряный шар, наполненный водой. Опыт флорентийских учёных
+   (вторая половина XVII в.): бьём молотком и смотрим, что будет. */
+// Куда бьём. Направление выбрано так, чтобы удар приходился на ту сторону
+// шара, которую видит ученик: камера стоит со стороны (−x, +z).
+// Смещение вверх — чтобы молоток шёл сверху, как в настоящем опыте.
+const HIT_DIR = new THREE.Vector3(-0.30, 0.62, 0.72).normalize();
+
+const ballGeo = new THREE.SphereGeometry(BALL_R, 44, 30);
+const ballRest = ballGeo.attributes.position.array.slice();   // исходная (сферическая) форма
+const ballShell = new THREE.Mesh(
+  ballGeo,
+  new THREE.MeshStandardMaterial({ color: 0xc9ced8, roughness: 0.20, metalness: 0.9,
+    transparent: true, opacity: 0.30, side: THREE.DoubleSide })
+);
+ballGroup.add(ballShell);
+// Каркас строим на ТОЙ ЖЕ геометрии, что и оболочку, — иначе вмятина
+// не была бы видна: контур остался бы идеально круглым.
+const ballEdge = new THREE.Mesh(
+  ballGeo,
+  new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.10 })
+);
+ballGroup.add(ballEdge);
+
+/* Пробиваем вмятину: вершины у места удара смещаем внутрь шара */
+function setDent(strength){
+  const arr = ballGeo.attributes.position.array;
+  const _a = new THREE.Vector3(), _b = new THREE.Vector3();
+  for (let i = 0; i < arr.length; i += 3){
+    _a.set(ballRest[i], ballRest[i+1], ballRest[i+2]).normalize();
+    const d = _a.dot(HIT_DIR);
+    if (d > 0.30){
+      const t = (d - 0.30)/0.70;                 // 0 у края зоны, 1 в точке удара
+      _b.set(ballRest[i], ballRest[i+1], ballRest[i+2]);
+      _b.addScaledVector(HIT_DIR, -Math.pow(t, 2.0)*strength*BALL_R*0.52);
+      arr[i] = _b.x; arr[i+1] = _b.y; arr[i+2] = _b.z;
+    } else {
+      arr[i] = ballRest[i]; arr[i+1] = ballRest[i+1]; arr[i+2] = ballRest[i+2];
+    }
+  }
+  ballGeo.attributes.position.needsUpdate = true;
+  ballGeo.computeVertexNormals();
+}
+
+const BALL_W = BALL_R*1.5;
+const ballSys = createSystem(216, { x: BALL_W, y: BALL_W, z: BALL_W }, 2.6, 0.55, 'liquid');
+recenter(ballSys, 0, 0, 0);            // шар центрирован в нуле — центрируем и решётку
+const ballMesh = makeInstances(ballSys.n, 0x4fa8ff, 0.3);
+ballGroup.add(ballMesh);
+// держим молекулы внутри шара
+function confineBall(S, R){
+  for (let i = 0; i < S.n; i++){
+    const ix = i*3;
+    const x = S.pos[ix], y = S.pos[ix+1], z = S.pos[ix+2];
+    const r = Math.sqrt(x*x + y*y + z*z);
+    if (r > R){
+      const k = R/r;
+      S.pos[ix]   = x*k;
+      S.pos[ix+1] = y*k;
+      S.pos[ix+2] = z*k;
+      S.vel[ix] *= 0.7; S.vel[ix+1] *= 0.7; S.vel[ix+2] *= 0.7;
+    }
+  }
+}
+
+/* Капли: вода выступает наружу сквозь стенки шара — у места удара */
+const drops = [];
+const dropMeshSrc = new THREE.SphereGeometry(0.38, 12, 9);
+const dropMat = new THREE.MeshStandardMaterial({ color: 0x6fc0ff, roughness: 0.08, metalness: 0.1 });
+const _tmpV = new THREE.Vector3();
+function addDrop(){
+  const m = new THREE.Mesh(dropMeshSrc, dropMat);
+  // вылетают из вмятины, то есть со стороны удара
+  _tmpV.copy(HIT_DIR).multiplyScalar(BALL_R*0.92);
+  m.position.copy(_tmpV);
+  // разлетаются в стороны, чтобы не слипаться в одну кучу
+  const spread = new THREE.Vector3((Math.random()-0.5)*2.6, (Math.random()-0.4)*1.6, (Math.random()-0.5)*2.6);
+  m.userData.v = HIT_DIR.clone().multiplyScalar(1.5).add(spread);
+  ballGroup.add(m);
+  drops.push(m);
+}
+
+/* «Стена серебра в разрезе»: частицы серебра и промежутки между ними,
+   сквозь которые проходит вода. Это и есть главный вывод опыта. */
+const wallGroup = new THREE.Group();
+const SIL_N = 13, SIL_R = 0.55, SIL_STEP = 1.78;   // шаг заметно больше диаметра — виден зазор
+const SIL_ROWS = 3;
+for (let row = 0; row < SIL_ROWS; row++){
+  for (let i = 0; i < SIL_N; i++){
+    const g = new THREE.Mesh(
+      new THREE.SphereGeometry(SIL_R, 14, 11),
+      new THREE.MeshStandardMaterial({ color: 0xc6ccd8, roughness: 0.30, metalness: 0.9 })
+    );
+    g.position.set((i - (SIL_N-1)/2)*SIL_STEP, (row - (SIL_ROWS-1)/2)*SIL_STEP, 0);
+    wallGroup.add(g);
+  }
+}
+// молекулы воды, проходящие сквозь зазоры стенки
+const wallWater = [];
+const wallWaterGroup = new THREE.Group();
+for (let i = 0; i < 12; i++){
+  const m = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 8),
+    new THREE.MeshStandardMaterial({ color: 0x6fc0ff, roughness: 0.08, emissive: 0x0a3a66 }));
+  m.userData = { u: Math.random(), row: Math.floor(Math.random()*SIL_ROWS) - (SIL_ROWS-1)/2,
+                 slot: Math.floor(Math.random()*2), sp: 0.7 + Math.random()*0.9 };
+  wallWaterGroup.add(m);
+  wallWater.push(m);
+}
+wallGroup.add(wallWaterGroup);
+wallGroup.position.set(0, -8.2, 0);
+// стенку поворачиваем к камере (yaw шага = −0.6), чтобы промежутки были видны
+wallGroup.rotation.y = -0.6;
+// серебряная стенка в разрезе видна сразу: промежутки между частицами —
+// главный вывод опыта. Вода начнёт проходить между ними только после удара.
+wallGroup.visible = true;
+groups.ball.add(ballGroup, wallGroup);
+
+// молоток
+const hammer = new THREE.Group();
+const hammerHead = new THREE.Mesh(
+  new THREE.BoxGeometry(1.5, 1.5, 3.2),
+  new THREE.MeshStandardMaterial({ color: 0x6b7280, roughness: 0.5, metalness: 0.7 })
+);
+const hammerHandle = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.26, 0.26, 5.5, 12),
+  new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.85 })
+);
+hammerHandle.position.y = 3.6;
+hammer.add(hammerHead, hammerHandle);
+ballGroup.add(hammer);
+/* Точки удара. Молоток идёт вдоль HIT_DIR: от замаха — в удар — и обратно. */
+const HIT_REST = HIT_DIR.clone().multiplyScalar(BALL_R + 5.6);
+const HIT_UP   = HIT_DIR.clone().multiplyScalar(BALL_R + 6.4).add(new THREE.Vector3(-1.4, 2.2, 0));
+const HIT_PRE  = HIT_DIR.clone().multiplyScalar(BALL_R + 1.7);
+const HIT_IN   = HIT_DIR.clone().multiplyScalar(BALL_R - 1.1);
+hammer.position.copy(HIT_REST);
+/* Ручка молотка смотрит от шара */
+hammer.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), HIT_DIR.clone().multiplyScalar(-1));
+ballGroup.add(hammer);
+const HAM_HOME = hammer.position.clone();
+let hammerAnim = -1;
+let ballDrops = 0, ballSlow = false, ballHits = 0, dentLevel = 0;
+
+/* ---- Режим 3: прут и шарик ----
+   Опыт из учебника: металлический прут согнуть трудно, а воздушный
+   шарик сжать легко. Причина — в силе притяжения между частицами:
+   в металле она огромна, в воздухе — ничтожна. */
+const rodGroup = new THREE.Group();
+// прут — твёрдое состояние. Гнём по «узлам», а каждый узел — это сечение
+// 3×3 молекул: так прут выглядит сплошным телом, а не цепочкой бусин.
+const ROD_N = 26;                         // узлов вдоль прута
+const ROD_M = 3;                          // молекул в сечении
+const ROD_CNT = ROD_N*ROD_M*ROD_M;
+const ROD_X0 = -9;                        // прут слева от шарика, чтобы не пересекаться
+const ROD_SP = 1.15;
+const ROD_LEN = (ROD_N - 1)*ROD_SP;                 // длина прута
+const ROD_MAX_SAG = ROD_LEN*0.075;                  // стрела прогиба при полном усилии (7,5 % длины)
+const rodNodeY = new Float32Array(ROD_N);
+const rodNodeV = new Float32Array(ROD_N);
+const rodDraw = new Float32Array(ROD_CNT*3);
+const rodMesh = makeInstances(ROD_CNT, 0x33ccff, 0.42);
+rodGroup.add(rodMesh);
+// шарик — газ внутри резиновой оболочки
+const BAL_R = 4;
+const BAL_X0 = 15, BAL_Y0 = -1.0;
+const balloon = new THREE.Group();
+balloon.position.set(BAL_X0, BAL_Y0, 0);
+/* Оболочка и рёбра — именно они сжимаются, поэтому масштабируются.
+   Молекулы воздуха масштабировать нельзя: сжимается промежуток между ними,
+   а сами молекулы остаются того же размера. */
+const skin = new THREE.Group();
+const bMeshSkin = new THREE.Mesh(
+  new THREE.SphereGeometry(BAL_R, 32, 24),
+  new THREE.MeshStandardMaterial({ color: 0xff5fa2, roughness: 0.3, metalness: 0.05,
+    transparent: true, opacity: 0.22, side: THREE.DoubleSide })
+);
+const balEdge = new THREE.LineSegments(
+  new THREE.EdgesGeometry(new THREE.SphereGeometry(BAL_R, 20, 14)),
+  new THREE.LineBasicMaterial({ color: 0xff5fa2, transparent: true, opacity: 0.45 })
+);
+skin.add(bMeshSkin, balEdge);
+balloon.add(skin);
+/* Воздух: молекулы внутри шара, равномерно и не на самой оболочке. */
+const balSys = createSystem(70, { x: BAL_R*2, y: BAL_R*2, z: BAL_R*2 }, 0.45, 1.5, 'gas');
+recenter(balSys, 0, 0, 0);
+/* Держим молекулы внутри шара. Именно отражаем, а не прижимаем:
+   иначе молекулы постепенно слипались бы на оболочке, и газ
+   выглядел бы полой оболочкой вместо равномерного газа. */
+function confineBall2(S, R){
+  for (let i = 0; i < S.n; i++){
+    const ix = i*3;
+    const x = S.pos[ix], y = S.pos[ix+1], z = S.pos[ix+2];
+    const r = Math.sqrt(x*x + y*y + z*z);
+    if (r > R){
+      const k = R/r, nx = x/r, ny = y/r, nz = z/r;
+      S.pos[ix] = x*k; S.pos[ix+1] = y*k; S.pos[ix+2] = z*k;
+      const dot = S.vel[ix]*nx + S.vel[ix+1]*ny + S.vel[ix+2]*nz;
+      S.vel[ix]   -= 2*dot*nx; S.vel[ix+1] -= 2*dot*ny; S.vel[ix+2] -= 2*dot*nz;
+    }
+  }
+}
+seedInSphere(balSys, BAL_R*0.84);
+const balMesh = makeInstances(balSys.n, 0xff5fa2, 0.32);
+balloon.add(balMesh);
+const balDraw = new Float32Array(balSys.n*3);   // координаты для отрисовки (со сжатием)
+groups.rod.add(rodGroup, balloon);
+let forcePct = 0, rodDefl = 0, ballComp = 0;
+
+/* ---- Режим 4: тепловое расширение ---- */
+const heatSys = createSystem(512, { x: 12, y: 12, z: 12 }, 2.2, 0.25, 'solid');
+const heatMesh = makeInstances(heatSys.n, 0xffb347, 0.42);
+const heatBox = boxLines(12, 12, 12, 0xffb347, 0.3);
+const heatGroup = new THREE.Group();
+heatGroup.add(heatMesh, heatBox);
+groups.heat.add(heatGroup);
+let heatPct = 20, heatPhase = 'solid';
+const T0 = 273;
+
+/* ============================================================
+   5. Подписи
+   ============================================================ */
+const labelsHost = document.getElementById('labels');
+const LAB = {};
+['a','b','c','d'].forEach(k => {
+  const el = document.createElement('div');
+  el.className = 'lab lab--a';
+  el.style.display = 'none';
+  labelsHost.appendChild(el);
+  LAB[k] = { el, pos: new THREE.Vector3(), on: false, cls: 'lab--a' };
+});
+const _v = new THREE.Vector3();
+function placeLabel(key, x, y, z, text, cls){
+  const L = LAB[key];
+  if (!L) return;
+  _v.set(x, y, z).project(camera);
+  if (text === null || text === ''){ L.el.style.display = 'none'; L.on = false; return; }
+  L.el.style.display = '';
+  L.el.className = 'lab ' + (cls || 'lab--a');
+  L.el.textContent = text;
+  L.el.style.left = ((_v.x*0.5 + 0.5)*host.clientWidth) + 'px';
+  L.el.style.top  = ((-_v.y*0.5 + 0.5)*host.clientHeight) + 'px';
+}
+
+const noteEl = document.getElementById('note');
+let noteT = 0;
+function note(txt, ms){
+  if (!txt){ noteEl.classList.remove('is-on'); return; }
+  noteEl.innerHTML = txt;
+  noteEl.classList.add('is-on');
+  noteT = ms || 4200;
+}
+
+const legendEl = document.getElementById('legend');
+const chipEl = document.getElementById('chip1');
+const LEGENDS = {
+  cmp:   '<div><i style="background:#33ccff"></i>Твёрдое</div><div><i style="background:#ffb347"></i>Жидкое</div><div><i style="background:#ff5fa2"></i>Газ</div>',
+  curve: '<div><i style="background:#33ccff"></i>Область отталкивания</div><div><i style="background:#33ccff;opacity:.5"></i>Область притяжения</div>',
+  ball:  '<div><i style="background:#4fa8ff"></i>Молекулы воды</div><div><i style="background:#c9ced8"></i>Серебряный шар</div>',
+  rod:   '<div><i style="background:#33ccff"></i>Прут (твёрдое)</div><div><i style="background:#ff5fa2"></i>Шарик (газ)</div>',
+  heat:  '<div><i style="background:#ffb347"></i>Молекулы вещества</div>',
+  quiz:  ''
+};
+
+/* ============================================================
+   6. Навигация
+   ============================================================ */
+const CAMS = {
+  cmp:   { yaw: -0.5, pitch: 0.24, dist: 44, tx: 0, ty: 0, tz: 0 },
+  curve: { yaw: -0.5, pitch: 0.2, dist: 26, tx: 0, ty: 0, tz: 0 },
+  ball:  { yaw: -0.6, pitch: 0.12, dist: 31, tx: 0, ty: -2.4, tz: 0 },
+  rod:   { yaw: -0.26, pitch: 0.16, dist: 40, tx: -4, ty: -0.6, tz: 0 },
+  heat:  { yaw: -0.5, pitch: 0.2, dist: 26, tx: 0, ty: 0, tz: 0 },
+  quiz:  { yaw: -0.5, pitch: 0.2, dist: 26, tx: 0, ty: 0, tz: 0 }
+};
+function setMode(i){
+  mode = i;
+  MODES.forEach((m, k) => { groups[m].visible = (k === i); });
+  // на шаге «Расстояние и притяжение» показываем те же молекулы, что и на шаге 1,
+  // но с линиями между ближайшими соседями
+  const onCurve = (MODES[i] === 'curve');
+  if (onCurve) groups.cmp.visible = true;
+  bonds.visible = onCurve;
+  for (let s = 0; s < 6; s++){
+    document.getElementById('sec' + s).classList.toggle('is-on', s === i);
+    document.querySelectorAll('.step')[s].classList.toggle('is-on', s === i);
+  }
+  legendEl.innerHTML = LEGENDS[MODES[i]];
+  Object.assign(cam, CAMS[MODES[i]]);
+  const m = MODES[i];
+  if (m === 'cmp')   note('Одно вещество — три состояния. Меняй <b>ε</b> (притяжение) и <b>T</b>: смотри, как меняется расстояние между молекулами.');
+  if (m === 'curve') note('Силы Леннарда — Джонса: <b>близко — отталкивание</b>, <b>чуть дальше — притяжение</b>. Отсюда и форма твёрдого тела, и текучесть жидкости.');
+  if (m === 'ball')  note('<b>Опыт флорентийских учёных (XVII в.).</b> Бьём молотком: на шаре появится <b>вмятина</b>, и вода выступит <b>через стенки</b> наружу — ведь между частицами серебра есть промежутки.');
+  if (m === 'rod')   note('Одинаковое усилие: прут еле гнётся, а шарик сжимается сильно. Разница — в силе притяжения между молекулами.');
+  if (m === 'heat')  note('При постоянном давлении <b>T ↑ ⇒ V ↑</b>: молекулы движутся быстрее, среднее расстояние между ними растёт.');
+  if (m === 'quiz')  note('Проверь, усвоил ли ты главное правило параграфа: <b>свойства = расстояние между молекулами + сила притяжения</b>.');
+  updatePanel();
+}
+document.getElementById('steps').addEventListener('click', e => {
+  const b = e.target.closest('.step');
+  if (b) setMode(parseInt(b.dataset.step, 10));
+});
+
+/* ============================================================
+   7. Управление панели
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const PRESET_KEYS = ['solid', 'liquid', 'gas'];
+
+$('cmpBtns').addEventListener('click', e => {
+  const b = e.target.closest('.sBtn');
+  if (!b) return;
+  cmpFocus = b.dataset.cmp;
+  [...$('cmpBtns').children].forEach(x => x.classList.toggle('is-on', x === b));
+});
+$('sEps').addEventListener('input', () => { $('oEps').textContent = n(parseFloat($('sEps').value), 1); });
+$('sT').addEventListener('input',   () => { $('oT').textContent  = n(parseFloat($('sT').value), 2); });
+$('sR').addEventListener('input', () => {
+  $('oR').textContent = n(parseFloat($('sR').value), 2);
+  const r = parseFloat($('sR').value);
+  const f = ljF(r, 1.0);
+  $('kFR').textContent = n(f, 2);
+  $('kKind').textContent = f > 0 ? 'Отталкивание' : (f < 0 ? 'Притяжение' : 'Равновесие');
+  $('kKind').style.color = f > 0 ? '#ff6b6b' : (f < 0 ? '#33ccff' : '#8b90a0');
+  drawCurve();
+});
+$('bHammer').addEventListener('click', doHammer);
+$('bSeal').addEventListener('click', resetBall);
+$('bSlow').addEventListener('click', e => {
+  ballSlow = !ballSlow;
+  e.target.textContent = ballSlow ? 'Медленно: вкл' : 'Медленно: выкл';
+});
+$('sForce').addEventListener('input', () => { forcePct = parseInt($('sForce').value, 10); $('oForce').textContent = forcePct + ' %'; });
+$('sHeat').addEventListener('input', () => { heatPct = parseInt($('sHeat').value, 10); $('oHeat').textContent = heatPct + ' °C'; });
+$('phaseBtns').addEventListener('click', e => {
+  const b = e.target.closest('.sBtn');
+  if (!b) return;
+  heatPhase = b.dataset.phase;
+  [...$('phaseBtns').children].forEach(x => x.classList.toggle('is-on', x === b));
+  applyHeatPhase();
+});
+
+// тест
+document.querySelectorAll('.opt').forEach(b => {
+  b.addEventListener('click', () => {
+    const prob = b.parentElement;
+    prob.querySelectorAll('.opt').forEach(x => { x.disabled = true; });
+    const ok = b.dataset.ok === '1';
+    b.classList.add(ok ? 'is-right' : 'is-wrong');
+    if (!ok){
+      prob.querySelectorAll('.opt').forEach(x => { if (x.dataset.ok === '1') x.classList.add('is-right'); });
+    }
+    const e = prob.querySelector('.expl');
+    if (e) e.classList.add('is-on');
+  });
+});
+
+function applyHeatPhase(){
+  const p = PRESET[heatPhase];
+  // задаём поведение состояния: характер движения, силу притяжения и температуру
+  heatSys.state = heatPhase;
+  heatSys.eps = p.eps;
+  setT(heatSys, Math.max(0.10, p.T * (1 + heatPct/90)));
+}
+
+function doHammer(){
+  if (hammerAnim >= 0) return;
+  hammerAnim = 0;
+  ballHits++;
+  note(ballHits === 1
+    ? 'Удар! Смотри на шар: на нём <b>появилась вмятина</b> — значит вода всё-таки сжимается. И она выходит <b>через стенки</b>.'
+    : 'Вмятина растёт, вода продолжает выступать через серебряные стенки.', 5200);
+}
+function resetBall(){
+  hammerAnim = -1;
+  for (const d of drops){ ballGroup.remove(d); }
+  drops.length = 0;
+  ballHits = 0; dentLevel = 0;
+  setDent(0);
+  hammer.position.copy(HAM_HOME);
+  hammer.rotation.z = -1.1;
+  wallGroup.visible = true;
+}
+
+function updatePanel(){
+  // панель по режиму — актуализируем значения
+  if (MODES[mode] === 'curve') drawCurve();
+}
+
+/* ============================================================
+   8. Цикл
+   ============================================================ */
+let last = performance.now(), acc = 0, frames = 0, fpsT = 0, fps = 0;
+
+function physics(dtReal){
+  const m = MODES[mode];
+  const sub = ballSlow ? 1 : 2;
+
+  if (m === 'cmp'){
+    const eps = parseFloat($('sEps').value);
+    const T = parseFloat($('sT').value);
+    for (const k of PRESET_KEYS){
+      const S = cmpSys[k];
+      S.eps = eps * PRESET[k].eps;
+      for (let s = 0; s < sub; s++){ setT(S, T*PRESET[k].T*2.4); step(S, DT); }
+    }
+    // подсветка выбранного состояния
+    PRESET_KEYS.forEach(k => { cmpBox[k].material.opacity = (k === cmpFocus ? 0.75 : 0.2); });
+    const S = cmpSys[cmpFocus];
+    const d = nnDistance(S);
+    $('kD').textContent = n(d, 2);
+    $('kF').textContent = n(meanAttraction(S), 2);
+    $('kV').textContent = n(meanSpeed(S), 2);
+    const rho = density(S);
+    $('kR').textContent = n(rho*1000, 1);
+    $('bD').style.width = Math.min(100, d/3.2*100) + '%';
+    chipEl.style.display = '';
+    chipEl.innerHTML = PRESET[cmpFocus].name + ' · <b>ср. расстояние</b> ' + n(d,2) + 'σ';
+  }
+
+  if (m === 'curve'){
+    // Ползунок ЗАДАЁТ расстояние между молекулами: решётка перестраивается под него.
+    const rWant = parseFloat($('sR').value);
+    for (const k of PRESET_KEYS){
+      const S = cmpSys[k];
+      // газ свободно летает по объёму — его решётку не перестраиваем
+      if (k !== 'gas'){
+        // плавно ведём текущий шаг решётки к заданному
+        S.curStep = (S.curStep == null) ? S.box.x/S.nx : S.curStep;
+        S.curStep += (rWant - S.curStep)*0.12;
+        if (Math.abs(S.curStep - rWant) > 0.005) retarget(S, S.curStep);
+      }
+      step(S, DT);
+    }
+    const f = ljF(rWant, 1.0);
+    const rep = f > 0;
+    bonds.material.color.set(rep ? 0xff6b6b : 0x66ccff);   // красный — отталкивание, синий — притяжение
+    chipEl.style.display = '';
+    const dS = cmpSys.solid.curStep || nnDistance(cmpSys.solid);
+    chipEl.innerHTML = 'Расстояние между молекулами <b>' + n(dS,2) + 'σ</b> · ' +
+      (rep ? '<b style="color:#ff6b6b">отталкивание</b>' : '<b style="color:#66ccff">притяжение</b>') +
+      ' · F = ' + n(f,2) +
+      (rep ? ' — молекулы раздвигаются' : ' — молекулы стягиваются');
+  }
+
+  if (m === 'ball'){
+    for (let s = 0; s < sub; s++){ step(ballSys, DT); confineBall(ballSys, BALL_R - 0.55); }
+
+    // вода проходит между частицами серебря — стена в разрезе
+    for (const w of wallWater){
+      w.userData.u += dtReal*w.userData.sp*0.35;
+      if (w.userData.u > 1) w.userData.u -= 1;
+      const u = w.userData.u;
+      // промежуток между двумя частицами ряда — держимся его
+      const x = (w.userData.slot === 0 ? -1 : 1)*(SIL_STEP*0.5);
+      const y = (w.userData.row + (w.userData.slot === 0 ? 0.5 : -0.5))*SIL_STEP;
+      // и движемся сквозь стенку: с одной стороны на другую
+      w.position.set(x, y, (u - 0.5)*(SIL_R*2 + 3.2));
+      w.visible = ballHits > 0;
+    }
+
+    // анимация молота: замах → удар → отскок
+    if (hammerAnim >= 0){
+      hammerAnim += dtReal * (ballSlow ? 0.7 : 1.7);
+      const t = hammerAnim;
+      if (t < 0.5){                          // 1. замах
+        hammer.position.lerpVectors(HAM_HOME, HIT_UP, Math.sin(t/0.5*Math.PI));
+      } else if (t < 1.0){                   // 2. удар
+        if (!hammer._hit){
+          hammer._hit = true;
+          // вмятина: чем больше ударов, тем глубже
+          dentLevel = Math.min(1.25, 0.62 + ballHits*0.26);
+          setDent(dentLevel);
+          // вода выдавливается через стенки наружу
+          for (let i = 0; i < 4; i++) addDrop();
+          ballDrops += 4;
+          // толчок молекулам воды от удара
+          for (let i = 0; i < ballSys.n*3; i++) ballSys.vel[i] += (Math.random()-0.5)*1.3;
+        }
+        const e = (t - 0.5)/0.5;
+        hammer.position.lerpVectors(HIT_UP, HIT_IN, e*e);
+      } else if (t < 1.5){                   // 3. отскок
+        hammer.position.lerpVectors(HIT_IN, HIT_PRE, (t-1.0)/0.5);
+      } else if (t < 2.4){                   // 4. возврат
+        const e = (t - 1.5)/0.9;
+        hammer.position.lerpVectors(HIT_PRE, HAM_HOME, e*e);
+      } else {
+        hammerAnim = -1; hammer._hit = false;
+        hammer.position.copy(HAM_HOME);
+      }
+    }
+    // капли стекают по шару и растекаются по «столу»
+    for (const d of drops){
+      d.userData.v.y -= 9*dtReal;
+      d.position.addScaledVector(d.userData.v, dtReal);
+      if (d.position.y < -10.2){             // упали на стол
+        d.position.y = -10.2;
+        d.userData.v.y = 0;
+        d.userData.v.x *= 0.90;              // по столу растекаются и тормозят
+        d.userData.v.z *= 0.90;
+      }
+    }
+    $('kHits').textContent = ballHits;
+    $('kDent').textContent = dentLevel > 0 ? 'есть' : 'нет';
+    $('kDent').style.color = dentLevel > 0 ? '#ffb347' : '#8b90a0';
+    $('kDrops2').textContent = ballDrops;
+    $('kDrops2').style.color = ballDrops > 0 ? '#6fc0ff' : '#8b90a0';
+    chipEl.style.display = '';
+    chipEl.innerHTML = ballHits === 0
+      ? 'Шар цел. <b>Ударь молотком</b> и смотри, что будет.'
+      : 'Вмятина на шаре: <b style="color:#ffb347">есть</b> · вода выступила через стенки: <b>' + ballDrops + '</b> капель · внизу — серебро в разрезе';
+  }
+
+  if (m === 'rod'){
+    /* Прут. Чтобы согнуть его, нужно сдвинуть целые слои молекул
+       относительно друг друга, преодолев их сильное притяжение.
+       Поэтому прогиб растёт медленно — даже полное усилие даёт
+       лишь небольшой прогиб. */
+    const f = forcePct/100;
+    const defl = f * ROD_MAX_SAG;          // стрела прогиба на свободном конце
+    rodDefl = defl;
+    /* Прогиб распределён по узлам как у консольной балки: чем дальше
+       от закреплённого конца, тем сильнее смещение. Даже при полном
+       усилии прогиб мал по сравнению с длиной прута — таково свойство
+       твёрдого тела с сильным притяжением между частицами. */
+    for (let i = 0; i < ROD_N; i++){
+      const w = i/(ROD_N-1);
+      const y = -defl * w*w;
+      rodNodeV[i] += (y - rodNodeY[i]) * 0.35;
+      rodNodeV[i] *= 0.6;
+      rodNodeY[i] += rodNodeV[i] * dtReal * 6;
+    }
+    let k = 0;
+    for (let i = 0; i < ROD_N; i++){
+      const x = ROD_X0 + (i - (ROD_N-1)/2)*ROD_SP;
+      for (let a = 0; a < ROD_M; a++)
+        for (let b = 0; b < ROD_M; b++){
+          rodDraw[k*3]   = x;
+          rodDraw[k*3+1] = rodNodeY[i] + (a - 1)*ROD_SP*0.8;
+          rodDraw[k*3+2] = (b - 1)*ROD_SP*0.8;
+          k++;
+        }
+    }
+    syncMesh(rodMesh, rodDraw, ROD_CNT, { x: 0, y: 0, z: 0 });
+
+    /* Шарик с воздухом. Молекулы воздуха далеко друг от друга и
+       почти не притягиваются, поэтому их легко сблизить: объём
+       уменьшается заметно. Сжимается промежуток между молекулами,
+       а сами молекулы остаются прежнего размера. */
+    const targetComp = f * 0.55;               // уменьшение объёма
+    ballComp += (targetComp - ballComp) * 0.08;
+    const volRatio = Math.cbrt(1 - ballComp);   // во сколько раз шар уменьшился по размеру
+    for (let s = 0; s < sub; s++){ step(balSys, DT); confineBall2(balSys, BAL_R*0.88); }
+    /* Сжатие применяем только при отрисовке. Сами координаты молекул
+       не трогаем: иначе сжатие накапливалось бы кадр за кадром.
+       Молекулы сближаются, но не уменьшаются — сжимается промежуток. */
+    for (let i = 0; i < balSys.n; i++){
+      const ix = i*3;
+      balDraw[ix]   = balSys.pos[ix]   * volRatio;
+      balDraw[ix+1] = balSys.pos[ix+1] * volRatio;
+      balDraw[ix+2] = balSys.pos[ix+2] * volRatio;
+    }
+    skin.scale.setScalar(volRatio);             // сжимается только оболочка
+    syncMesh(balMesh, balDraw, balSys.n, { x: 0, y: 0, z: 0 });
+    const sagPct = defl/ROD_LEN*100;         // прогиб в процентах от длины прута
+    $('kRod').textContent = n(sagPct, 1);
+    $('kBall').textContent = n(ballComp*100, 1);
+    $('bRod').style.width = Math.min(100, sagPct/7.5*100) + '%';
+    $('bBall').style.width = Math.min(100, ballComp/0.55*100) + '%';
+    chipEl.style.display = '';
+    chipEl.innerHTML = 'Усилие <b>' + forcePct + '%</b> → прут прогнулся на <b>' + n(sagPct,1) +
+      '%</b> длины, объём шарика уменьшился на <b>' + n(ballComp*100,1) + '%</b>';
+  }
+
+  if (m === 'heat'){
+    const tAbs = T0 + heatPct;
+    const ratio = tAbs / T0;                   // V ∝ T при постоянном p
+    const box = { x: 12*Math.cbrt(ratio), y: 12*Math.cbrt(ratio), z: 12*Math.cbrt(ratio) };
+    // узлы решётки раздвигаются пропорционально расширению бокса
+    const k = box.x / heatSys.box.x;
+    if (k !== 1 && isFinite(k) && k > 0){
+      for (let i = 0; i < heatSys.n; i++){
+        heatSys.home[i*3]   *= k;
+        heatSys.home[i*3+1] *= k;
+        heatSys.home[i*3+2] *= k;
+        if (heatSys.state !== 'gas'){
+          heatSys.pos[i*3]   *= k;
+          heatSys.pos[i*3+1] *= k;
+          heatSys.pos[i*3+2] *= k;
+        }
+      }
+    }
+    heatSys.box = box;
+    setT(heatSys, 0.15 + heatPct/100*2.0);
+    for (let s = 0; s < sub; s++) step(heatSys, DT);
+    const d = nnDistance(heatSys);
+    $('kVV').textContent = n(ratio, 3);
+    $('kD3').textContent = n(d, 2);
+    $('kV3').textContent = n(meanSpeed(heatSys), 2);
+    $('kPh').textContent = PRESET[heatPhase].name;
+    chipEl.style.display = '';
+    chipEl.innerHTML = 'T = <b>' + tAbs + ' K</b> · V/V₀ = <b>' + n(ratio,2) +
+      '</b> · ср. расстояние <b>' + n(d,2) + 'σ</b>';
+  }
+
+  if (m === 'quiz'){
+    for (const k of PRESET_KEYS){
+      for (let s = 0; s < 1; s++) step(cmpSys[k], DT);
+    }
+    chipEl.style.display = 'none';
+  }
+}
+
+function render(){
+  const m = MODES[mode];
+  // прячем все подписи: каждая ветка ниже включает только нужные
+  for (const k in LAB) placeLabel(k, 0, 0, 0, '');
+  // синхронизация моделей с экранными координатами
+  if (m === 'cmp' || m === 'curve'){
+    const onCurve = (m === 'curve');
+    PRESET_KEYS.forEach(k => {
+      syncMesh(cmpMesh[k], cmpSys[k].pos, cmpSys[k].n, { x: OFF[k] - BX/2, y: -BY/2, z: -BZ/2 });
+      // на шаге с ползунком расстояние показываем по шагу решётки — без шума колебаний
+      const d = (onCurve && cmpSys[k].curStep) ? cmpSys[k].curStep : nnDistance(cmpSys[k]);
+      placeLabel(['a','b','c'][PRESET_KEYS.indexOf(k)], OFF[k], BY/2 + 1.4, 0,
+        PRESET[k].name + ' · r = ' + n(d, 2) + 'σ',
+        k === 'solid' ? 'lab--a' : k === 'liquid' ? 'lab--v' : 'lab--h');
+    });
+    if (onCurve) updateBonds();
+  }
+  if (m === 'ball'){
+    syncMesh(ballMesh, ballSys.pos, ballSys.n, { x: 0, y: 0, z: 0 });
+    placeLabel('a', 0, BALL_R + 1.8, 0,
+      dentLevel > 0 ? 'Вмятина на шаре' : 'Шар цел', dentLevel > 0 ? 'lab--v' : 'lab--a');
+    placeLabel('c', 0, -6.2, 0,
+      'Серебро в разрезе: видны промежутки между частицами', 'lab--g');
+  }
+  if (m === 'rod'){
+    placeLabel('a', ROD_X0, 2.4, 0, 'Прут (твёрдое тело)', 'lab--a');
+    placeLabel('b', BAL_X0, BAL_R + 1.4, 0,
+      'Шарик с воздухом — объём уменьшился на ' + n(ballComp*100,0) + '%', 'lab--h');
+  }
+  if (m === 'heat'){
+    syncMesh(heatMesh, heatSys.pos, heatSys.n, { x: -heatSys.box.x/2, y: -heatSys.box.y/2, z: -heatSys.box.z/2 });
+    const bx = heatSys.box;
+    heatBox.scale.set(bx.x/12, bx.y/12, bx.z/12);
+    placeLabel('a', 0, bx.y/2 + 1.2, 0, 'V = ' + bx.x.toFixed(1) + ' ед. — ' + PRESET[heatPhase].name, 'lab--v');
+  }
+  if (m === 'ball') placeLabel('b', BALL_R + 3, 6.4, 0, 'Молоток');
+  if (noteT > 0){
+    noteT -= 1/60;
+    if (noteT <= 0) noteEl.classList.remove('is-on');
+  }
+  renderer.render(scene, camera);
+}
+
+function loop(now){
+  const dtReal = Math.min(0.05, (now - last)/1000);
+  last = now;
+  applyCamera();
+  physics(dtReal);
+  render();
+  requestAnimationFrame(loop);
+}
+
+function onResize(){
+  camera.aspect = host.clientWidth / Math.max(1, host.clientHeight);
+  camera.updateProjectionMatrix();
+  renderer.setSize(host.clientWidth, host.clientHeight);
+}
+window.addEventListener('resize', onResize);
+
+onResize();
+$('sR').dispatchEvent(new Event('input'));
+setMode(0);
+note('Одно вещество — три состояния. Меняй <b>ε</b> (притяжение) и <b>T</b>: смотри, как меняется расстояние между молекулами.', 6500);
+requestAnimationFrame(loop);
+
+})();
+</script>
+</body>
+</html>

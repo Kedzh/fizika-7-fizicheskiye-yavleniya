@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Строение вещества — молекулы, физика 7 класс</title>
+<meta name="description" content="Интерактивный урок по теме «Строение вещества» (физика 7 класс): молекулы, три состояния вещества, броуновское движение, диффузия, притяжение и отталкивание молекул. 3D-модели и анимации.">
+<meta name="keywords" content="строение вещества, молекулы, физика 7 класс, диффузия, броуновское движение, состояния вещества, притяжение молекул, 3D, урок">
+<style>
+:root{
+  --bg:#08080b; --panel:rgba(19,19,25,.86); --panel-2:#14141a;
+  --border:rgba(255,255,255,.1); --border-2:rgba(255,255,255,.2);
+  --text:#eceff4; --dim:#8b90a0;
+  --accent:#33ccff; --v:#ffb347; --h:#ff5fa2; --g:#7ee081; --warn:#ff6b6b;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--bg); color:var(--text); overflow:hidden;
+  font-family:'Segoe UI',Inter,system-ui,-apple-system,sans-serif; font-size:14px;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'JetBrains Mono','SF Mono',Consolas,ui-monospace,monospace}
+button,input,select{font:inherit;color:inherit}
+
+.app{
+  height:100%; display:grid;
+  grid-template-columns:1fr 360px;
+  grid-template-rows:56px 1fr;
+  grid-template-areas:"top top" "stage panel";
+}
+.top{grid-area:top;display:flex;align-items:center;gap:16px;padding:0 18px;border-bottom:1px solid var(--border);background:var(--panel-2);z-index:5}
+.brand{display:flex;flex-direction:column;line-height:1.15;min-width:170px}
+.brand b{font-size:15px;letter-spacing:.2px}
+.brand span{font-size:11px;color:var(--dim)}
+.steps{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.step{
+  border:1px solid var(--border);background:transparent;color:var(--dim);
+  padding:7px 12px;border-radius:10px;cursor:pointer;transition:.16s;
+}
+.step:hover{color:var(--text);border-color:var(--border-2)}
+.step.is-on{color:var(--accent);border-color:rgba(51,204,255,.45);background:rgba(51,204,255,.12)}
+.top__hint{font-size:11px;color:var(--dim);white-space:nowrap}
+
+.stage{grid-area:stage;position:relative;overflow:hidden}
+#scene{position:absolute;inset:0}
+#scene canvas{display:block}
+
+.labels{position:absolute;inset:0;pointer-events:none}
+.lab{
+  position:absolute;transform:translate(-50%,-50%);
+  background:rgba(10,10,14,.82);border:1px solid var(--border);
+  padding:2px 8px;border-radius:8px;font-size:12px;white-space:nowrap;
+  backdrop-filter:blur(6px);
+}
+.lab--a{color:var(--accent);border-color:rgba(51,204,255,.4)}
+.lab--h{color:var(--h);border-color:rgba(255,101,162,.4)}
+.lab--g{color:var(--g);border-color:rgba(126,224,129,.4)}
+
+.hud{position:absolute;left:16px;top:14px;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.chip{
+  background:rgba(10,10,14,.7);border:1px solid var(--border);border-radius:10px;
+  padding:6px 11px;font-size:12px;backdrop-filter:blur(6px);
+}
+.chip b{color:var(--accent);font-weight:600}
+.legend{position:absolute;right:16px;top:14px;display:flex;flex-direction:column;gap:7px;
+  background:rgba(10,10,14,.7);border:1px solid var(--border);border-radius:10px;padding:10px 13px;
+  font-size:12px;backdrop-filter:blur(6px)}
+.legend i{display:inline-block;width:15px;height:15px;border-radius:50%;vertical-align:middle;margin-right:8px}
+
+.panel{grid-area:panel;border-left:1px solid var(--border);background:var(--panel-2);
+  overflow-y:auto;display:flex;flex-direction:column;gap:0}
+.sec{padding:14px 16px;border-bottom:1px solid var(--border);display:none}
+.sec.is-on{display:block}
+.sec__t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.row:last-child{margin-bottom:0}
+.row label{font-size:13px;color:var(--text)}
+.row output{font-size:13px;color:var(--accent);min-width:74px;text-align:right}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;
+  background:rgba(255,255,255,.14);outline:none;margin:6px 0 14px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--accent);cursor:pointer;box-shadow:0 0 0 4px rgba(51,204,255,.18)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:var(--accent);cursor:pointer}
+
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi div{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:9px 11px}
+.kpi span{display:block;font-size:10px;color:var(--dim);letter-spacing:.05em;margin-bottom:3px}
+.kpi b{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.kpi .u{font-size:11px;color:var(--dim);margin-left:3px}
+
+.btn{
+  width:100%;padding:10px;border-radius:11px;cursor:pointer;
+  border:1px solid var(--border);background:rgba(255,255,255,.05);transition:.16s;
+}
+.btn:hover{border-color:var(--border-2);background:rgba(255,255,255,.09)}
+.btn--main{background:rgba(51,204,255,.14);border-color:rgba(51,204,255,.4);color:var(--accent)}
+.btn--go{background:rgba(126,224,129,.14);border-color:rgba(126,224,129,.4);color:var(--g)}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btns3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+.sBtn{padding:9px 4px;border-radius:10px;cursor:pointer;font-size:12.5px;
+  border:1px solid var(--border);background:rgba(255,255,255,.05);transition:.16s;color:var(--text)}
+.sBtn:hover{border-color:var(--border-2)}
+.sBtn.is-on{color:#1a1a1a;border-color:transparent;font-weight:600}
+.sBtn--s{background:rgba(51,204,255,.25)} .sBtn--l{background:rgba(255,179,71,.3)} .sBtn--g{background:rgba(255,95,162,.28)}
+.sBtn--s.is-on{background:#33ccff} .sBtn--l.is-on{background:#ffb347} .sBtn--g.is-on{background:#ff5fa2}
+
+.problem{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:11px;padding:12px}
+.problem__q{font-size:13.5px;line-height:1.55;margin-bottom:12px}
+.opt{display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:8px;border-radius:10px;
+  border:1px solid var(--border);background:rgba(255,255,255,.04);cursor:pointer;transition:.15s;font-size:13px}
+.opt:hover{border-color:var(--border-2);background:rgba(255,255,255,.08)}
+.opt.is-right{border-color:rgba(126,224,129,.7);background:rgba(126,224,129,.14);color:var(--g)}
+.opt.is-wrong{border-color:rgba(255,107,107,.6);background:rgba(255,107,107,.12);color:var(--warn)}
+.expl{font-size:12.5px;line-height:1.5;color:var(--dim);margin-top:8px;display:none}
+.expl.is-on{display:block}
+.expl b{color:var(--g)}
+
+.formula{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:10px;
+  padding:11px 12px;margin-bottom:9px;font-size:14px;text-align:center;line-height:1.7}
+.formula span{color:var(--dim);font-size:11px;display:block;margin-top:2px}
+.formula .H{color:#ff5fa2} .formula .O{color:#ff6b6b} .formula .c{color:var(--accent)}
+
+#cvPlot{width:100%;height:120px;display:block;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:10px;margin-bottom:10px}
+.statLine{font-size:13px;margin-bottom:9px}
+.statLine b{color:var(--accent)}
+
+.note{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);
+  background:rgba(10,10,14,.9);border:1px solid var(--border);border-radius:11px;
+  padding:9px 15px;font-size:12.5px;max-width:82%;text-align:center;backdrop-filter:blur(8px);
+  opacity:0;transition:.25s;pointer-events:none;z-index:3}
+.note.is-on{opacity:1}
+.note b{color:var(--accent)}
+
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:5px}
+::-webkit-scrollbar-track{background:transparent}
+
+.stage,.panel{min-width:0;min-height:0}
+
+@media(max-width:1000px){
+  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 42dvh auto;
+       grid-template-areas:"top" "stage" "panel"}
+  .panel{border-left:0;border-top:1px solid var(--border)}
+  .legend{display:none}
+  .top__hint{display:none}
+  .top{flex-wrap:wrap;padding:9px 14px}
+  .brand{min-width:0}
+  .steps{margin-left:0;width:100%}
+  .step{flex:1;text-align:center;padding:7px 3px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="brand">
+      <b>Строение вещества</b>
+      <span>Физика · 7 класс</span>
+    </div>
+    <div class="steps" id="steps">
+      <button class="step is-on" data-step="0">1 · Молекула</button>
+      <button class="step" data-step="1">2 · Состояния</button>
+      <button class="step" data-step="2">3 · Броуновское</button>
+      <button class="step" data-step="3">4 · Диффузия</button>
+      <button class="step" data-step="4">5 · Взаимодействие</button>
+      <button class="step" data-step="5">6 · Проверка</button>
+    </div>
+    <div class="top__hint">Мышь — поворот · Колесо — масштаб</div>
+  </header>
+
+  <section class="stage">
+    <div id="scene"></div>
+    <div class="labels" id="labels"></div>
+
+    <div class="hud">
+      <div class="chip" id="chip1" style="display:none"></div>
+    </div>
+
+    <div class="legend" id="legend">
+      <div><i style="background:#33ccff"></i>Молекулы вида «красные»</div>
+      <div><i style="background:#ff5fa2"></i>Молекулы вида «синие»</div>
+    </div>
+
+    <div class="note" id="note"></div>
+  </section>
+
+  <aside class="panel">
+
+    <div class="sec is-on" id="sec0">
+      <h3 class="sec__t">Молекула воды</h3>
+      <div class="formula">H<span class="H">₂</span>O<span class="c"></span><span>два атома водорода и один атом кислорода</span></div>
+      <div class="row"><label for="sScale">Масштаб (увеличение)</label><output id="oScale">1,0</output></div>
+      <input type="range" id="sScale" min="0.5" max="2.5" step="0.1" value="1">
+      <div class="btns">
+        <button class="btn btn--main" id="bSpin">❚❚ Стоп вращение</button>
+        <button class="btn" id="bResetM">Сброс вида</button>
+      </div>
+    </div>
+
+    <div class="sec" id="sec1">
+      <h3 class="sec__t">Три состояния вещества</h3>
+      <div class="btns3" id="stateBtns">
+        <button class="sBtn sBtn--s is-on" data-state="solid">Твёрдое</button>
+        <button class="sBtn sBtn--l" data-state="liquid">Жидкое</button>
+        <button class="sBtn sBtn--g" data-state="gas">Газ</button>
+      </div>
+      <div style="height:10px"></div>
+      <div class="row"><label for="sHeat">Нагрев</label><output id="oHeat">0</output></div>
+      <input type="range" id="sHeat" min="0" max="100" step="1" value="0">
+      <div class="kpi">
+        <div><span>СОСТОЯНИЕ</span><b id="kState">Твёрдое</b></div>
+        <div><span>СР. СКОРОСТЬ</span><b id="kSpeed">0,0</b><span class="u">ед.*</span></div>
+        <div><span>МОЛЕКУЛ</span><b id="kCount">125</b></div>
+        <div><span>БЛИЖАЙШИЙ СОСЕД</span><b id="kNeigh">—</b><span class="u">σ</span></div>
+      </div>
+      <div class="expl" id="stHelp"></div>
+      <div class="statLine" style="margin-top:10px;color:#8b90a0;font-size:11.5px">* Скорости и расстояния — в условных единицах модели, не в м/с.</div>
+    </div>
+
+    <div class="sec" id="sec2">
+      <h3 class="sec__t">Броуновское движение</h3>
+      <div class="formula">Зачем частицу толкают молекулы?<span>пылинка в жидкости беспорядочно блуждает</span></div>
+      <div class="kpi">
+        <div><span>СКОРОСТЬ ЧАСТИЦЫ</span><b id="kBrown">0,00</b><span class="u">ед.*</span></div>
+        <div><span>МОЛЕКУЛ В ВОДЕ</span><b id="kMol">60</b></div>
+      </div>
+      <div class="btns" style="margin-top:12px">
+        <button class="btn btn--main" id="bBrown">Перезапуск</button>
+        <button class="btn" id="bBrownT">Траектория: вкл</button>
+      </div>
+      <div class="statLine" style="margin-top:10px;color:#8b90a0;font-size:11.5px">* условные единицы модели, не м/с.</div>
+    </div>
+
+    <div class="sec" id="sec3">
+      <h3 class="sec__t">Диффузия газов</h3>
+      <div class="formula">Перемешивание без перемешивания<span>молекулы сами проникают друг в друга</span></div>
+      <button class="btn btn--main" id="bDiff">Убрать перегородку</button>
+      <div class="row" style="margin-top:8px">
+        <button class="btn" id="bDiffReset">Заново</button>
+        <span style="color:#8b90a0;font-size:11.5px" id="dfHint">Перегородка делит сосуд на две части</span>
+      </div>
+      <div class="kpi">
+        <div><span>ПЕРЕМЕШАНО</span><b id="kMix">0 %</b></div>
+        <div><span>ПРОШЛО ВРЕМЕНИ</span><b id="kTime">0,0 с</b></div>
+      </div>
+    </div>
+
+    <div class="sec" id="sec4">
+      <h3 class="sec__t">Притяжение и отталкивание</h3>
+      <canvas id="cvPlot"></canvas>
+      <div class="row"><label for="sDist">Расстояние между молекулами</label><output id="oDist">2,0</output></div>
+      <input type="range" id="sDist" min="0.7" max="4.5" step="0.002" value="1.684">
+      <div class="row" style="margin-top:8px">
+        <button class="btn" id="bReq">К равновесию (r₀ ≈ 1,68 σ)</button>
+      </div>
+      <div class="statLine">Сила: <b id="kForce">равновесие</b></div>
+      <div class="statLine">F / F(max) = <b id="kFRel">0 %</b></div>
+      <div class="expl" id="interHelp"></div>
+    </div>
+
+    <div class="sec" id="sec5">
+      <h3 class="sec__t">Проверь себя</h3>
+      <div class="problem">
+        <div class="problem__q" id="taskQ"></div>
+        <div id="taskOpts"></div>
+        <div class="expl" id="taskExpl"></div>
+        <button class="btn btn--main" id="bNext" style="margin-top:10px">Другая задача</button>
+      </div>
+      <div class="kpi" style="margin-top:12px">
+        <div><span>ВЕРНО</span><b id="kRight">0</b></div>
+        <div><span>ВСЕГО</span><b id="kTotal">0</b></div>
+      </div>
+    </div>
+
+  </aside>
+
+</div>
+
+<script src="../assets/vendor/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+if (!window.THREE) {
+  document.body.insertAdjacentHTML('beforeend',
+    '<div style="position:fixed;inset:0;display:grid;place-items:center;background:#08080b">' +
+    '<div style="text-align:center;color:#8b90a0;padding:30px">Не удалось загрузить библиотеку 3D: three.min.js не найден.</div></div>');
+  return;
+}
+const THREE = window.THREE;
+
+const n = (v, d) => {
+  if (v == null || !isFinite(v)) return '—';
+  return v.toFixed(d).replace('.', ',').replace(/,0+$/, '').replace(/(\d),$/, '$1');
+};
+
+/* ============================================================
+   1. Сцена
+   ============================================================ */
+
+const host = document.getElementById('scene');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x08080b);
+scene.fog = new THREE.Fog(0x08080b, 60, 200);
+
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(host.clientWidth, host.clientHeight);
+host.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+const sun = new THREE.DirectionalLight(0xffffff, 1.1);
+sun.position.set(30, 50, 40);
+scene.add(sun);
+const rim = new THREE.DirectionalLight(0x66ccff, 0.45);
+rim.position.set(-30, 20, -30);
+scene.add(rim);
+
+const cam = { yaw: -0.6, pitch: 0.3, dist: 30, tx: 0, ty: 4, tz: 0, sy: -0.6, sp: 0.3, sd: 30 };
+function applyCamera(){
+  const t = new THREE.Vector3(cam.tx, cam.ty, cam.tz);
+  camera.position.set(
+    t.x + cam.dist * Math.cos(cam.pitch) * Math.sin(cam.yaw),
+    t.y + cam.dist * Math.sin(cam.pitch),
+    t.z + cam.dist * Math.cos(cam.pitch) * Math.cos(cam.yaw)
+  );
+  camera.lookAt(t);
+}
+let drag = null;
+renderer.domElement.addEventListener('pointerdown', e => {
+  drag = { x: e.clientX, y: e.clientY, yaw: cam.yaw, pitch: cam.pitch };
+  camTween = null;
+  renderer.domElement.setPointerCapture(e.pointerId);
+});
+renderer.domElement.addEventListener('pointermove', e => {
+  if (!drag) return;
+  cam.yaw = drag.yaw - (e.clientX - drag.x) * 0.005;
+  cam.pitch = Math.max(-0.05, Math.min(1.45, drag.pitch + (e.clientY - drag.y) * 0.004));
+  cam.sy = cam.yaw; cam.sp = cam.pitch;
+});
+const endDrag = () => {
+  if (drag){
+    cam.sy = cam.yaw; cam.sp = cam.pitch;
+    drag = null;
+  }
+};
+renderer.domElement.addEventListener('pointerup', endDrag);
+renderer.domElement.addEventListener('pointercancel', endDrag);
+renderer.domElement.addEventListener('wheel', e => {
+  e.preventDefault();
+  camTween = null;
+  cam.dist = Math.max(6, Math.min(180, cam.sd * Math.pow(1.0015, e.deltaY)));
+  cam.sd = cam.dist;
+}, { passive: false });
+
+/* пол: высота и размер задаются отдельно для каждого режима,
+   иначе непрозрачная плоскость проходит сквозь объекты, стоящие в y = 0 */
+const floor = new THREE.Group();
+const floorPlane = new THREE.Mesh(
+  new THREE.PlaneGeometry(80, 80),
+  new THREE.MeshStandardMaterial({ color: 0x0e0e13, roughness: 0.95 })
+);
+floorPlane.rotation.x = -Math.PI / 2;
+const floorGrid = new THREE.GridHelper(80, 32, 0x33ccff, 0x1e1e28);
+floorGrid.material.transparent = true; floorGrid.material.opacity = 0.14;
+floor.add(floorPlane, floorGrid);
+floor.visible = false;
+scene.add(floor);
+
+/* y — высота пола, s — масштаб плиты и сетки */
+const FLOOR = {
+  molec:  null,
+  states: { y: -5.7, s: 0.7 },
+  brown:  null,
+  diff:   null,
+  inter:  { y: -1.05, s: 0.28 }
+};
+function syncFloor(){
+  const f = FLOOR[MODES[mode]] || null;
+  floor.visible = !!f;
+  if (f){ floor.position.y = f.y; floor.scale.setScalar(f.s); }
+}
+
+/* метки */
+const labelsHost = document.getElementById('labels');
+const LABELS = {};
+['a','b','c','d','e'].forEach(k => {
+  const el = document.createElement('div');
+  el.className = 'lab lab--a';
+  labelsHost.appendChild(el);
+  LABELS[k] = { el, pos: new THREE.Vector3(), on: false, cls: 'lab--a' };
+});
+const _p = new THREE.Vector3();
+function placeLabel(key, x, y, z, text, on, cls){
+  const L = LABELS[key];
+  L.on = on !== false;
+  L.pos.set(x, y, z || 0);
+  L.el.textContent = text || '';
+  if (cls){ L.el.className = 'lab ' + cls; L.cls = cls; }
+}
+function projectLabels(w, h){
+  for (const k in LABELS){
+    const L = LABELS[k];
+    if (!L.on || !L.el.textContent){ L.el.style.display = 'none'; continue; }
+    _p.copy(L.pos).project(camera);
+    if (_p.z > 1){ L.el.style.display = 'none'; continue; }
+    L.el.style.display = '';
+    L.el.style.left = ((_p.x * 0.5 + 0.5) * w) + 'px';
+    L.el.style.top = ((-_p.y * 0.5 + 0.5) * h) + 'px';
+  }
+}
+
+/* ============================================================
+   2. Группы сцен
+   ============================================================ */
+
+const groups = {
+  molec:  new THREE.Group(),
+  states: new THREE.Group(),
+  brown:  new THREE.Group(),
+  diff:   new THREE.Group(),
+  inter:  new THREE.Group()
+};
+Object.values(groups).forEach(g => scene.add(g));
+
+/* ---------- 2.1 Молекула воды ---------- */
+const molec = groups.molec;
+const atomGeo = { hp: null, ox: null };
+molec.scale.set(1, 1, 1);
+
+function makeAtom(r, color){
+  const m = new THREE.Mesh(
+    new THREE.SphereGeometry(r, 26, 18),
+    new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.15 })
+  );
+  return m;
+}
+const molSpin = new THREE.Group();
+molec.add(molSpin);
+const aO = makeAtom(0.42, 0xff6b6b);
+const aH1 = makeAtom(0.3, 0xffffff);
+const aH2 = makeAtom(0.3, 0xffffff);
+const BOND = 0.95, ANGLE = 104.5 * Math.PI / 180;
+
+aO.position.set(0, 0, 0);
+aH1.position.set(BOND * Math.sin(ANGLE / 2), BOND * Math.cos(ANGLE / 2), 0);
+aH2.position.set(-BOND * Math.sin(ANGLE / 2), BOND * Math.cos(ANGLE / 2), 0);
+molSpin.add(aO, aH1, aH2);
+
+function stick(from, to, r){
+  const dir = new THREE.Vector3().subVectors(to, from);
+  const len = dir.length();
+  const mat = new THREE.MeshStandardMaterial({ color: 0x8b90a0, roughness: 0.5 });
+  const cyl = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 14), mat);
+  cyl.position.copy(from).add(to).multiplyScalar(0.5);
+  cyl.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+  return cyl;
+}
+molSpin.add(stick(aH1.position, aO.position, 0.09));
+molSpin.add(stick(aH2.position, aO.position, 0.09));
+
+/* галочка «размеров» */
+const sizeGuide = makeLine([
+  new THREE.Vector3(-2.2, -1.35, 0), new THREE.Vector3(2.2, -1.35, 0)
+], 0x33ccff);
+sizeGuide.position.y = -0.55;
+molec.add(sizeGuide);
+
+let spin = true;
+let scaleVal = 1;
+
+function makeLine(pts, color){
+  const g = new THREE.BufferGeometry().setFromPoints(pts);
+  const l = new THREE.Line(g, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.5 }));
+  l.frustumCulled = false;
+  return l;
+}
+
+/* ---------- 2.2 Три состояния ---------- */
+const stGroup = groups.states;
+const B = 5;                 /* половина коробки */
+const SIG = 1.5;             /* диаметр молекулы в модельных единицах */
+const ST_R = SIG / 2;        /* радиус шара: на равновесном расстоянии шары смыкаются */
+const SPACING = SIG;         /* шаг решётки твёрдого тела */
+const A_LJ = 60, B_LJ = 30;
+const REQ = SIG * Math.pow(A_LJ / B_LJ, 1 / 6);
+/* Сила в этой модели меняется на шесть порядков: пик отталкивания у d=0.7 —
+   миллионы, яма притяжения — единицы. Один масштаб не покажет оба, поэтому
+   сравниваем силу с максимальной силой притяжения (≈2.4 при d≈1.83).
+   F строго убывает с расстоянием, поэтому знак силы однозначно задаётся тем,
+   ближе или дальше молекулы до r₀, — порог по силе не нужен и не работал бы:
+   на далёких расстояниях сила мала, но называть это равновесием неверно. */
+function ljForce(d){ return A_LJ * Math.pow(SIG / d, 14) - B_LJ * Math.pow(SIG / d, 8); }
+let F_REF = 0;
+for (let r = REQ; r <= 4.5; r += 0.005) F_REF = Math.max(F_REF, Math.abs(ljForce(r)));
+const D_EQ = 0.005 * SIG;      /* в этой полосе вокруг r₀ силы компенсированы */
+function forceName(d){
+  return Math.abs(d - REQ) < D_EQ ? 'равновесие' : d < REQ ? 'отталкивание' : 'притяжение';
+}
+
+const boxFrame = new THREE.LineSegments(
+  new THREE.EdgesGeometry(new THREE.BoxGeometry(B * 2, B * 2, B * 2)),
+  new THREE.LineBasicMaterial({ color: 0x555a6a, transparent: true, opacity: 0.55 })
+);
+stGroup.add(boxFrame);
+
+const stGeo = new THREE.SphereGeometry(ST_R, 16, 12);
+let stMesh = [];
+const ST_N = 125;
+
+function stMake(){
+  stMesh.forEach(m => stGroup.remove(m));
+  stMesh = [];
+  for (let i = 0; i < ST_N; i++){
+    const m = new THREE.Mesh(stGeo, new THREE.MeshStandardMaterial({ roughness: 0.4, metalness: 0.2 }));
+    stGroup.add(m);
+    stMesh.push(m);
+  }
+}
+stMake();
+
+const st = { mode: 'solid', pos: new Float32Array(ST_N * 3), vel: new Float32Array(ST_N * 3), home: new Float32Array(ST_N * 3) };
+
+/* разбрасывание без пересечений: из N кандидатов берём самый удалённый
+   от уже поставленных — иначе газ стартует с наложенными шарами и «взрывается» */
+function stScatter(lim, tries){
+  const put = [];
+  for (let i = 0; i < ST_N; i++){
+    let bx = 0, by = 0, bz = 0, bd = -1;
+    for (let t = 0; t < tries; t++){
+      const x = (Math.random() - 0.5) * 2 * lim;
+      const y = (Math.random() - 0.5) * 2 * lim;
+      const z = (Math.random() - 0.5) * 2 * lim;
+      let d = Infinity;
+      for (let p = 0; p < put.length; p++){
+        const q = put[p];
+        const dd = (q[0]-x)*(q[0]-x) + (q[1]-y)*(q[1]-y) + (q[2]-z)*(q[2]-z);
+        if (dd < d) d = dd;
+      }
+      if (d > bd){ bd = d; bx = x; by = y; bz = z; }
+    }
+    put.push([bx, by, bz]);
+    st.pos[i*3] = bx; st.pos[i*3+1] = by; st.pos[i*3+2] = bz;
+  }
+}
+
+function stReset(){
+  for (let i = 0; i < ST_N; i++){
+    const ix = i % 5, iy = Math.floor(i / 5) % 5, iz = Math.floor(i / 25);
+    if (st.mode === 'solid'){
+      /* правильная решётка 5×5×5, в центре коробки */
+      const px = (ix - 2) * SPACING, py = (iy - 2) * SPACING, pz = (iz - 2) * SPACING;
+      st.pos[i*3] = px; st.pos[i*3+1] = py; st.pos[i*3+2] = pz;
+      st.home[i*3] = px; st.home[i*3+1] = py; st.home[i*3+2] = pz;
+      st.vel[i*3] = (Math.random() - 0.5) * 0.2;
+      st.vel[i*3+1] = (Math.random() - 0.5) * 0.2;
+      st.vel[i*3+2] = (Math.random() - 0.5) * 0.2;
+    } else if (st.mode === 'liquid'){
+      /* та же решётка, но с разбросом: так выглядит таяние — блок оседает в каплю */
+      st.pos[i*3]     = (ix - 2) * SPACING + (Math.random() - 0.5) * 0.5;
+      st.pos[i*3 + 1] = (iy - 2) * SPACING + (Math.random() - 0.5) * 0.5;
+      st.pos[i*3 + 2] = (iz - 2) * SPACING + (Math.random() - 0.5) * 0.5;
+      st.vel[i*3]     = (Math.random() - 0.5) * 0.5;
+      st.vel[i*3 + 1] = (Math.random() - 0.5) * 0.5;
+      st.vel[i*3 + 2] = (Math.random() - 0.5) * 0.5;
+    } else {
+      st.vel[i*3] = 0; st.vel[i*3+1] = 0; st.vel[i*3+2] = 0;
+    }
+  }
+  if (st.mode === 'gas'){
+    stScatter(B - ST_R - 0.1, 26);
+    for (let i = 0; i < ST_N; i++){
+      const th = Math.random() * 6.28, ph = Math.acos(2 * Math.random() - 1);
+      const v = 1.0 + Math.random() * 1.2;
+      st.vel[i*3]     = v * Math.sin(ph) * Math.cos(th);
+      st.vel[i*3 + 1] = v * Math.cos(ph);
+      st.vel[i*3 + 2] = v * Math.sin(ph) * Math.sin(th);
+    }
+  }
+}
+
+function stStep(dt){
+  const heat = st.heat;
+  const SUB = 2, h = dt / SUB;
+  for (let s = 0; s < SUB; s++){
+    if (st.mode === 'solid'){
+      /* жёсткость решётки постоянна: нагрев увеличивает только амплитуду
+         тепловых колебаний (иначе k < 0 и решётка «взрывается») */
+      const k = 160;
+      const j = 2 + heat * 1.6;
+      for (let i = 0; i < ST_N; i++){
+        const x = st.pos[i*3], y = st.pos[i*3+1], z = st.pos[i*3+2];
+        const fx = (st.home[i*3] - x) * k;
+        const fy = (st.home[i*3+1] - y) * k;
+        const fz = (st.home[i*3+2] - z) * k;
+        st.vel[i*3]     += (fx + (Math.random() - 0.5) * j) * h;
+        st.vel[i*3 + 1] += (fy + (Math.random() - 0.5) * j) * h;
+        st.vel[i*3 + 2] += (fz + (Math.random() - 0.5) * j) * h;
+        st.vel[i*3] *= 0.92; st.vel[i*3 + 1] *= 0.92; st.vel[i*3 + 2] *= 0.92;
+        st.pos[i*3]     += st.vel[i*3] * h;
+        st.pos[i*3 + 1] += st.vel[i*3 + 1] * h;
+        st.pos[i*3 + 2] += st.vel[i*3 + 2] * h;
+      }
+      stWalls();          /* страховка: ни один шар не должен покинуть коробку */
+    } else if (st.mode === 'liquid'){
+      const vT = 0.10 + heat * 0.0055;   /* тепловая скорость в модельных единицах */
+      const kick = vT * 0.15;
+      for (let i = 0; i < ST_N; i++){
+        st.vel[i*3 + 1] -= 4.0 * h; /* гравитация */
+      }
+      stPairForces(h, true);
+      for (let i = 0; i < ST_N; i++){
+        st.vel[i*3] *= 0.985; st.vel[i*3 + 1] *= 0.985; st.vel[i*3 + 2] *= 0.985;
+        st.vel[i*3]     += (Math.random() - 0.5) * kick;
+        st.vel[i*3 + 1] += (Math.random() - 0.5) * kick;
+        st.vel[i*3 + 2] += (Math.random() - 0.5) * kick;
+        const v = Math.hypot(st.vel[i*3], st.vel[i*3+1], st.vel[i*3+2]);
+        if (v > 2){ const s = 2 / v; st.vel[i*3] *= s; st.vel[i*3+1] *= s; st.vel[i*3+2] *= s; }
+        st.pos[i*3]     += st.vel[i*3] * h;
+        st.pos[i*3 + 1] += st.vel[i*3 + 1] * h;
+        st.pos[i*3 + 2] += st.vel[i*3 + 2] * h;
+      }
+      stWalls();
+    } else {
+      stPairForces(h, false);
+      for (let i = 0; i < ST_N; i++){
+        const v = Math.hypot(st.vel[i*3], st.vel[i*3+1], st.vel[i*3+2]);
+        if (v > 4.2){
+          const s = 4.2 / v;
+          st.vel[i*3] *= s; st.vel[i*3+1] *= s; st.vel[i*3+2] *= s;
+        }
+        st.pos[i*3] += st.vel[i*3] * h;
+        st.pos[i*3+1] += st.vel[i*3+1] * h;
+        st.pos[i*3+2] += st.vel[i*3+2] * h;
+      }
+      stWalls(true);
+    }
+  }
+}
+
+function stPairForces(h, cohesion){
+  const rCut = cohesion ? 2.6 * SIG : 1.4 * SIG;
+  for (let i = 0; i < ST_N; i++){
+    for (let j = i + 1; j < ST_N; j++){
+      let dx = st.pos[j*3] - st.pos[i*3];
+      let dy = st.pos[j*3+1] - st.pos[i*3+1];
+      let dz = st.pos[j*3+2] - st.pos[i*3+2];
+      let d2 = dx*dx + dy*dy + dz*dz;
+      if (d2 > rCut * rCut || d2 < 1e-6) continue;
+      const d = Math.sqrt(d2);
+      const inv = 1 / d;
+      /* f > 0 — отталкивание, поэтому сила на i направлена ОТ j */
+      const f = A_LJ * Math.pow(SIG / d, 14) - (cohesion ? B_LJ * Math.pow(SIG / d, 8) : 0);
+      const fx = -dx * inv * f;
+      const fy = -dy * inv * f;
+      const fz = -dz * inv * f;
+      st.vel[i*3] += fx * h * 0.5; st.vel[i*3+1] += fy * h * 0.5; st.vel[i*3+2] += fz * h * 0.5;
+      st.vel[j*3] -= fx * h * 0.5; st.vel[j*3+1] -= fy * h * 0.5; st.vel[j*3+2] -= fz * h * 0.5;
+    }
+  }
+}
+
+function stWalls(elastic){
+  /* стены — по краю шара, а не по его центру */
+  const lim = B - ST_R;
+  for (let i = 0; i < ST_N; i++){
+    for (let a = 0; a < 3; a++){
+      let p = st.pos[i*3+a];
+      if (p > lim){
+        if (elastic) { st.pos[i*3+a] = lim * 2 - p; st.vel[i*3+a] = -Math.abs(st.vel[i*3+a]) * 0.85; }
+        else { if (a === 1 && st.vel[i*3+a] > 0) st.vel[i*3+a] *= -0.3; st.pos[i*3+a] = lim * 2 - p; }
+      } else if (p < -lim){
+        if (elastic){ st.pos[i*3+a] = -lim * 2 - p; st.vel[i*3+a] = Math.abs(st.vel[i*3+a]) * 0.85; }
+        else { if (a === 1 && st.vel[i*3+a] < 0) st.vel[i*3+a] *= -0.3; st.pos[i*3+a] = -lim * 2 - p; }
+      }
+    }
+  }
+}
+
+function stSync(){
+  /* цвет кодирует температуру (нагрев), а не мгновенную скорость:
+     скорости во всех трёх состояниях одного порядка */
+  const t = st.heat / 100;
+  for (let i = 0; i < ST_N; i++){
+    stMesh[i].position.set(st.pos[i*3], st.pos[i*3+1], st.pos[i*3+2]);
+    stMesh[i].material.color.setHSL(0.55 - 0.55 * t, 0.85, 0.5 + 0.2 * t);
+  }
+}
+
+/* ---------- 2.3 Броуновское движение ---------- */
+const brGroup = groups.brown;
+const brR = 0.22, BR_N = 60, POLLEN_R = 0.95;
+const brGeo = new THREE.SphereGeometry(brR, 10, 8);
+const brMeshes = [];
+for (let i = 0; i < BR_N; i++){
+  const m = new THREE.Mesh(brGeo, new THREE.MeshStandardMaterial({ color: 0x33ccff, roughness: 0.5 }));
+  brGroup.add(m); brMeshes.push(m);
+}
+const pollen = new THREE.Mesh(
+  new THREE.SphereGeometry(POLLEN_R, 22, 16),
+  new THREE.MeshStandardMaterial({ color: 0x7ee081, roughness: 0.45, metalness: 0.1 })
+);
+brGroup.add(pollen);
+
+const brBox = new THREE.LineSegments(
+  new THREE.EdgesGeometry(new THREE.BoxGeometry(14, 0.2, 14)),
+  new THREE.LineBasicMaterial({ color: 0x555a6a, transparent: true, opacity: 0.35 })
+);
+brBox.position.y = -0.15;
+brGroup.add(brBox);
+
+const brTrailGeo = new THREE.BufferGeometry();
+brTrailGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(600 * 3), 3));
+const brTrail = new THREE.Line(brTrailGeo, new THREE.LineBasicMaterial({ color: 0x7ee081, transparent: true, opacity: 0.6 }));
+brTrail.frustumCulled = false;
+brGroup.add(brTrail);
+
+const br = { pos: [], vel: [], trail: [], trailOn: true, n: BR_N, speed: 0 };
+function brReset(){
+  br.pos = []; br.vel = [];
+  for (let i = 0; i < BR_N; i++){
+    br.pos.push([(Math.random()-0.5)*12, 0, (Math.random()-0.5)*12]);
+    const a = Math.random() * 6.28;
+    const v = 3.2 + Math.random() * 2.2;
+    br.vel.push([v * Math.cos(a), 0, v * Math.sin(a)]);
+  }
+  br.pos[0] = [(Math.random()-0.5)*3, 0, (Math.random()-0.5)*3];
+  br.vel[0] = [0, 0, 0];
+  pollen.position.set(br.pos[0][0], 0, br.pos[0][2]);
+  br.trail = [];
+}
+function brStep(dt){
+  const H = 6;
+  for (let i = 1; i < BR_N; i++){
+    br.pos[i][0] += br.vel[i][0] * dt;
+    br.pos[i][2] += br.vel[i][2] * dt;
+    for (const a of [0, 2]){
+      const lim = H - brR;
+      if (br.pos[i][a] > lim){ br.pos[i][a] = lim * 2 - br.pos[i][a]; br.vel[i][a] *= -0.9; }
+      if (br.pos[i][a] < -lim){ br.pos[i][a] = -lim * 2 - br.pos[i][a]; br.vel[i][a] *= -0.9; }
+    }
+    /* столкновение с пылинкой */
+    let dx = br.pos[i][0] - br.pos[0][0];
+    let dz = br.pos[i][2] - br.pos[0][2];
+    const d2 = dx*dx + dz*dz;
+    const rr = POLLEN_R + brR;
+    if (d2 < rr * rr && d2 > 1e-6){
+      const d = Math.sqrt(d2);
+      dx /= d; dz /= d;
+      const rel = (br.vel[i][0] - br.vel[0][0]) * dx + (br.vel[i][2] - br.vel[0][2]) * dz;
+      if (rel < 0){
+        const push = -rel * 0.55;
+        br.vel[0][0] -= dx * push * 0.35;
+        br.vel[0][2] -= dz * push * 0.35;
+        br.vel[i][0] += dx * push * 1.3;
+        br.vel[i][2] += dz * push * 1.25;
+      }
+      br.pos[i][0] = br.pos[0][0] + dx * (rr * 1.02);
+      br.pos[i][2] = br.pos[0][2] + dz * (rr * 1.02);
+    }
+  }
+  /* вязкость пылинки */
+  br.vel[0][0] *= 0.992;
+  br.vel[0][2] *= 0.992;
+  br.pos[0][0] += br.vel[0][0] * dt;
+  br.pos[0][2] += br.vel[0][2] * dt;
+  const lim = H - POLLEN_R;
+  br.pos[0][0] = Math.max(-lim, Math.min(lim, br.pos[0][0]));
+  br.pos[0][2] = Math.max(-lim, Math.min(lim, br.pos[0][2]));
+  pollen.position.set(br.pos[0][0], 0, br.pos[0][2]);
+
+  if (br.trailOn){
+    br.trail.push([br.pos[0][0], 0.05, br.pos[0][2]]);
+    if (br.trail.length > 500) br.trail.shift();
+  }
+  const posAttr = brTrailGeo.attributes.position;
+  for (let i = 0; i < posAttr.count; i++){
+    const p = br.trail[i] || br.trail[br.trail.length - 1] || [0, 0, 0];
+    posAttr.setXYZ(i, p[0], p[1], p[2]);
+  }
+  posAttr.needsUpdate = true;
+
+  br.speed = Math.hypot(br.vel[0][0], br.vel[0][2]);
+
+  for (let i = 0; i < BR_N; i++) brMeshes[i].position.set(br.pos[i][0], 0, br.pos[i][2]);
+}
+
+/* ---------- 2.4 Диффузия ---------- */
+const dfGroup = groups.diff;
+const DF_N = 70;
+const dfGeo = new THREE.SphereGeometry(0.3, 10, 8);
+const dfRed = [], dfBlue = [];
+for (let i = 0; i < DF_N; i++){
+  const m = new THREE.Mesh(dfGeo, new THREE.MeshStandardMaterial({ color: 0xff554d, roughness: 0.5 }));
+  dfGroup.add(m); dfRed.push(m);
+}
+for (let i = 0; i < DF_N; i++){
+  const m = new THREE.Mesh(dfGeo, new THREE.MeshStandardMaterial({ color: 0x33ccff, roughness: 0.5 }));
+  dfGroup.add(m); dfBlue.push(m);
+}
+const dfBox = new THREE.LineSegments(
+  new THREE.EdgesGeometry(new THREE.BoxGeometry(16, 0.2, 9)),
+  new THREE.LineBasicMaterial({ color: 0x555a6a, transparent: true, opacity: 0.35 })
+);
+dfBox.position.y = -0.12;
+dfGroup.add(dfBox);
+const wall = new THREE.Mesh(
+  new THREE.BoxGeometry(0.12, 0.5, 9),
+  new THREE.MeshStandardMaterial({ color: 0xffb347, transparent: true, opacity: 0.5 })
+);
+wall.position.y = 0;
+dfGroup.add(wall);
+
+const df = { part: false, red: [], blue: [], vr: [], vb: [], time: 0, mixed: 0 };
+function dfReset(){
+  df.part = true;
+  df.red = []; df.blue = []; df.vr = []; df.vb = []; df.time = 0;
+  const DH = 8, DW = 4.4;
+  for (let i = 0; i < DF_N; i++){
+    df.red.push([(Math.random()-0.5)*2 - 3.2, 0, (Math.random()-0.5)*DH]);
+    df.vr.push([(Math.random()-0.5)*2.6, 0, (Math.random()-0.5)*2.6]);
+    df.blue.push([(Math.random()-0.5)*2 + 3.2, 0, (Math.random()-0.5)*DH]);
+    df.vb.push([(Math.random()-0.5)*2.6, 0, (Math.random()-0.5)*2.6]);
+  }
+  dfSync();
+}
+function dfSync(){
+  for (let i = 0; i < DF_N; i++){
+    dfRed[i].position.set(df.red[i][0], 0, df.red[i][2]);
+    dfBlue[i].position.set(df.blue[i][0], 0, df.blue[i][2]);
+  }
+}
+function dfStep(dt){
+  if (df.part) return;
+  df.time += dt;
+  const H = 4.4, W = 8;
+  const step = (arr, va) => {
+    for (let i = 0; i < arr.length; i++){
+      arr[i][0] += va[i][0] * dt;
+      arr[i][2] += va[i][2] * dt;
+      for (const a of [0, 2]){
+        const lim = a === 0 ? W : H;
+        if (arr[i][a] > lim){ arr[i][a] = lim * 2 - arr[i][a]; va[i][a] *= -0.9; }
+        if (arr[i][a] < -lim){ arr[i][a] = -lim * 2 - arr[i][a]; va[i][a] *= -0.9; }
+      }
+    }
+  };
+  step(df.red, df.vr);
+  step(df.blue, df.vb);
+  dfSync();
+  let rR = 0, bR = 0;
+  for (const p of df.red) if (p[0] > 0) rR++;
+  for (const p of df.blue) if (p[0] > 0) bR++;
+  df.mixed = (1 - Math.abs(rR / DF_N - bR / DF_N)) * 100;
+}
+
+/* ---------- 2.5 Притяжение / отталкивание ---------- */
+const itGroup = groups.inter;
+const IT_R = 0.62;
+const itGeo = new THREE.SphereGeometry(IT_R, 22, 16);
+const molA = new THREE.Mesh(itGeo, new THREE.MeshStandardMaterial({ color: 0xffb347, roughness: 0.3 }));
+const molB = new THREE.Mesh(itGeo, new THREE.MeshStandardMaterial({ color: 0x33ccff, roughness: 0.3 }));
+itGroup.add(molA, molB);
+
+const arrL = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(), 1, 0xff6b6b);
+const arrR = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(), 1, 0xff6b6b);
+itGroup.add(arrL, arrR);
+
+/* засечка равновесного расстояния: на ней силы уравновешены */
+const reqMark = makeLine([
+  new THREE.Vector3(-REQ / 2, -1.25, 0), new THREE.Vector3(-REQ / 2, -0.35, 0),
+  new THREE.Vector3(REQ / 2, -1.25, 0), new THREE.Vector3(REQ / 2, -0.35, 0),
+  new THREE.Vector3(-REQ / 2, -0.8, 0), new THREE.Vector3(REQ / 2, -0.8, 0)
+], 0xff5fa2);
+itGroup.add(reqMark);
+
+let dist = REQ;
+function forceVal(d){ return ljForce(d); }
+/* длина стрелки насыщается, но никогда не пропадает и всегда различима */
+function arrowLen(fRaw){
+  const rel = Math.abs(fRaw) / (Math.abs(fRaw) + 3);
+  return 0.45 + 1.55 * rel;
+}
+function itUpdate(){
+  const d = dist;
+  molA.position.x = -d / 2;
+  molB.position.x = d / 2;
+  const fRaw = forceVal(d);
+  const repel = d < REQ;
+  const name = forceName(d);
+  placeLabel('a', 0, 2.0, 0, name, true, 'lab--a');
+  const L = arrowLen(fRaw);
+  const col = repel ? 0xff6b6b : 0x7ee081;
+  /* стрелки начинаются у поверхности шара, а не в его центре,
+     иначе короткая стрелка целиком прячется внутри шарика */
+  const gap = IT_R + 0.06;
+  if (repel){
+    arrL.position.set(-d / 2 - gap, 0, 0); arrL.setDirection(new THREE.Vector3(-1, 0, 0));
+    arrR.position.set(d / 2 + gap, 0, 0);  arrR.setDirection(new THREE.Vector3(1, 0, 0));
+  } else {
+    arrL.position.set(-d / 2 + gap, 0, 0); arrL.setDirection(new THREE.Vector3(1, 0, 0));
+    arrR.position.set(d / 2 - gap, 0, 0);  arrR.setDirection(new THREE.Vector3(-1, 0, 0));
+  }
+  arrL.setLength(L, 0.24, 0.13);
+  arrR.setLength(L, 0.24, 0.13);
+  arrL.setColor(col); arrR.setColor(col);
+  arrL.visible = arrR.visible = true;
+  reqMark.visible = true;
+}
+
+/* график силы */
+const cvP = document.getElementById('cvPlot');
+const ctxP = cvP.getContext('2d');
+
+/* Пик отталкивания (≈2.6 млн при d=0.7) в миллион раз больше ямы притяжения
+   (≈−2.4). На симметричной шкале яма выглядит прямой линией, поэтому у шкалы
+   разные пределы вверх и вниз, а в углу — врезка с увеличением по расстоянию. */
+const F_TOP = 30, F_BOT = 4;
+const INSET = { r0: 1.35, r1: 2.85, f: 8 };
+let plotCache = null, plotKey = '';
+
+function drawAxes(g, o, W, H, rMin, rMax, fTop, fBot){
+  const pw = W - o.l - o.r, ph = H - o.t - o.b;
+  const X = r => o.l + (r - rMin) / (rMax - rMin) * pw;
+  const Y = f => o.t + ph / 2 - (f >= 0 ? f / fTop : f / fBot) * (ph / 2 - 6);
+  g.strokeStyle = 'rgba(255,255,255,.14)'; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(o.l, Y(0)); g.lineTo(o.l + pw, Y(0)); g.stroke();
+  g.strokeStyle = 'rgba(255,255,255,.06)';
+  for (let i = 0; i <= 4; i++){
+    const gx = o.l + pw * i / 4;
+    g.beginPath(); g.moveTo(gx, o.t); g.lineTo(gx, o.t + ph); g.stroke();
+  }
+  g.beginPath(); g.moveTo(o.l, o.t + ph); g.lineTo(o.l + pw, o.t + ph); g.stroke();
+  /* засечка равновесного расстояния */
+  g.strokeStyle = 'rgba(255,95,162,.55)';
+  g.setLineDash([3, 3]);
+  g.beginPath(); g.moveTo(X(REQ), o.t); g.lineTo(X(REQ), o.t + ph); g.stroke();
+  g.setLineDash([]);
+  return { X, Y, pw, ph };
+}
+function drawCurve(g, X, Y, rMin, rMax, fTop, fBot, o, ph, color){
+  g.save();
+  g.beginPath(); g.rect(o.l, o.t - 2, X(rMax) - o.l + 1, ph + 4); g.clip();
+  g.strokeStyle = color; g.lineWidth = 1.8;
+  g.beginPath();
+  let started = false;
+  for (let r = rMin; r <= rMax; r += 0.004){
+    const f = forceVal(r);
+    if (f > fTop){ started = false; continue; }
+    if (!started){ g.moveTo(X(r), Y(f)); started = true; } else g.lineTo(X(r), Y(f));
+  }
+  g.stroke();
+  g.restore();
+}
+function drawPlotStatic(){
+  const dpr = Math.min(devicePixelRatio, 2);
+  const W = cvP.clientWidth, H = cvP.clientHeight;
+  if (!W) return false;
+  if (cvP.width !== Math.round(W * dpr)){ cvP.width = Math.round(W * dpr); cvP.height = Math.round(H * dpr); }
+  const c = document.createElement('canvas');
+  c.width = cvP.width; c.height = cvP.height;
+  const g = c.getContext('2d');
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.clearRect(0, 0, W, H);
+
+  const rMin = 0.7, rMax = 4.5;
+  const o = { l: 34, r: 10, t: 14, b: 20 };
+  const a = drawAxes(g, o, W, H, rMin, rMax, F_TOP, F_BOT);
+  drawCurve(g, a.X, a.Y, rMin, rMax, F_TOP, F_BOT, o, a.ph, '#33ccff');
+
+  /* подписи шкалы: вверх и вниз разные пределы */
+  g.fillStyle = '#6b7080'; g.font = '9px Consolas,monospace'; g.textAlign = 'center';
+  for (let i = 0; i <= 4; i++){
+    const gx = o.l + a.pw * i / 4;
+    g.fillText(n(rMin + (rMax - rMin) * i / 4, 1), gx, o.t + a.ph + 10);
+  }
+  g.textAlign = 'right';
+  g.fillText('+' + F_TOP, o.l - 3, o.t + 8);
+  g.fillText('−' + F_BOT, o.l - 3, o.t + a.ph - 1);
+  g.textAlign = 'left'; g.fillStyle = '#8b90a0'; g.font = '9px system-ui';
+  g.fillText('расстояние (σ)', o.l, H - 3);
+  g.fillStyle = '#5b606e'; g.fillText('шкала F несимметрична: пик отталкивания обрезан', o.l + 96, H - 3);
+
+  /* врезка: увеличение по расстоянию в области равновесия */
+  const iw = Math.min(150, W * 0.46), ih = Math.min(76, H * 0.6);
+  const ix = W - iw - 8, iy = H - ih - 4;
+  g.fillStyle = 'rgba(6,8,12,.88)';
+  g.fillRect(ix, iy, iw, ih);
+  g.strokeStyle = 'rgba(255,255,255,.14)'; g.lineWidth = 1;
+  g.strokeRect(ix + .5, iy + .5, iw - 1, ih - 1);
+  const io = { l: ix + 26, r: 4, t: iy + 13, b: 12 };
+  const b = drawAxes(g, io, iw, ih, INSET.r0, INSET.r1, INSET.f, INSET.f);
+  drawCurve(g, b.X, b.Y, INSET.r0, INSET.r1, INSET.f, INSET.f, io, b.ph, '#7ee081');
+  g.fillStyle = '#6b7080'; g.font = '8px Consolas,monospace'; g.textAlign = 'center';
+  g.fillText(n(INSET.r0, 2), io.l, iy + ih - 3);
+  g.fillText(n(INSET.r1, 2), io.l + b.pw, iy + ih - 3);
+  g.fillStyle = '#7ee081'; g.font = 'bold 8px system-ui'; g.textAlign = 'left';
+  g.fillText('врезка: яма притяжения', ix + 3, iy + 9);
+  g.fillStyle = '#6b7080'; g.font = '8px Consolas,monospace'; g.textAlign = 'right';
+  g.fillText('+' + INSET.f, io.l - 2, io.t + 6);
+  g.fillText('−' + INSET.f, io.l - 2, io.t + b.ph - 1);
+
+  plotCache = c;
+  plotKey = W + 'x' + H + '@' + dpr;
+  return true;
+}
+function drawPlot(){
+  const W = cvP.clientWidth, H = cvP.clientHeight;
+  const dpr = Math.min(devicePixelRatio, 2);
+  const key = W + 'x' + H + '@' + dpr;
+  if (key !== plotKey) drawPlotStatic();
+  if (!plotCache) return;
+  ctxP.setTransform(1, 0, 0, 1, 0, 0);
+  ctxP.clearRect(0, 0, cvP.width, cvP.height);
+  ctxP.drawImage(plotCache, 0, 0);
+  ctxP.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const rMin = 0.7, rMax = 4.5;
+  const o = { l: 34, r: 10, t: 14, b: 20 };
+  const X = r => o.l + (r - rMin) / (rMax - rMin) * (W - o.l - o.r);
+  const Y = f => o.t + (H - o.t - o.b) / 2 - (f >= 0 ? f / F_TOP : f / F_BOT) * ((H - o.t - o.b) / 2 - 6);
+  const fw = forceVal(dist);
+  const showTop = fw > F_TOP;
+  const fy = showTop ? Y(F_TOP) : Y(fw);
+  ctxP.strokeStyle = 'rgba(255,179,71,.45)'; ctxP.lineWidth = 1;
+  ctxP.beginPath(); ctxP.moveTo(X(dist), Y(0)); ctxP.lineTo(X(dist), fy); ctxP.stroke();
+  ctxP.fillStyle = showTop ? '#ffb347' : forceName(dist) === 'равновесие' ? '#ff5fa2' : '#ffb347';
+  ctxP.beginPath(); ctxP.arc(X(dist), fy, 4, 0, 7); ctxP.fill();
+  if (showTop){
+    /* точка ушла за верх шкалы — рисуем её на срезе со стрелкой вверх */
+    ctxP.beginPath();
+    ctxP.moveTo(X(dist), fy + 5); ctxP.lineTo(X(dist) - 4, fy + 11); ctxP.lineTo(X(dist) + 4, fy + 11);
+    ctxP.closePath(); ctxP.fill();
+  }
+}
+
+/* ============================================================
+   3. Режимы
+   ============================================================ */
+
+let mode = 0;
+const MODES = ['molec', 'states', 'brown', 'diff', 'inter', 'molec'];
+const STEPS = [
+  'Молекула — мельчайшая частица вещества. <b>Молекула воды</b> состоит из двух атомов водорода и одного кислорода. Её размер ≈ 3·10⁻¹⁰ м. Поверните модель, измените масштаб.',
+  '<b>Твёрдое:</b> молекулы плотно упакованы, только колеблются на месте. <b>Жидкое:</b> молекулы скользят друг относительно друга. <b>Газ:</b> молекулы далеко друг от друга и движутся хаотично. Поднимайте нагрев и следите за переходом.',
+  '<b>Броуновское движение.</b> Молекулы жидкости постоянно ударяют по частице взвеси — она беспорядочно скачет. Это прямое доказательство движения молекул (Р. Броун, 1827).',
+  '<b>Диффузия.</b> Молекулы одного вещества сами проникают между молекулами другого. Уберите перегородку и следите, как газы перемешиваются.',
+  '<b>Притяжение и отталкивание.</b> На малых расстояниях молекулы отталкиваются, на больших — притягиваются. Есть расстояние равновесия, где силы уравновешены. Двигайте ползунок и следите за стрелками.',
+  '<b>Проверь себя.</b> Ответьте на вопросы по теме «Строение вещества».'
+];
+
+function setMode(m){
+  mode = m;
+  Object.entries(groups).forEach(([k, g]) => g.visible = (MODES[m] === k));
+  document.querySelectorAll('#steps .step').forEach(s => s.classList.toggle('is-on', +s.dataset.step === m));
+  document.querySelectorAll('.panel .sec').forEach(s => s.classList.toggle('is-on', s.id === 'sec' + m));
+
+  const note = document.getElementById('note');
+  note.innerHTML = STEPS[m];
+  note.classList.add('is-on');
+
+  const chip = (id, txt) => { const el = document.getElementById(id); el.style.display = txt ? '' : 'none'; el.innerHTML = txt; };
+  if (m === 0 || m === 5) chip('chip1', 'Молекула воды<br><b style="color:#ff5fa2">2H + O</b>');
+  else chip('chip1', '');
+
+  if (m === 1) camSmooth(-0.9, 0.5, 17, 0, 0, 0);
+  else if (m === 2) camSmooth(-1.35, 1.28, 16, 0, 2, 7);
+  else if (m === 3) camSmooth(-1.35, 1.28, 15, 0, 2, 8);
+  else if (m === 4) camSmooth(0, 0.08, 12, 0, 1.1, 7);
+  else camSmooth(-0.6, 0.25, 6.5, 0, 0.5, 5);
+
+  syncFloor();
+  showLegendFor(m);
+  /* секция с графиком скрыта, пока к ней не перешли: у скрытой секции
+     clientWidth = 0, поэтому график рисуется только после показа */
+  if (m === 4) drawPlot();
+}
+function showLegendFor(m){
+  const lg = document.getElementById('legend');
+  if (m === 0 || m === 5){
+    lg.style.display = '';
+    lg.innerHTML = '<div><i style="background:#ff6b6b"></i>Кислород O</div><div><i style="background:#ffffff"></i>Водород H</div>';
+  } else if (m === 1){
+    lg.style.display = '';
+    lg.innerHTML = '<div style="display:flex;align-items:center;gap:8px">' +
+      '<span style="color:#8b90a0">холоднее</span>' +
+      '<i style="width:74px;height:11px;border-radius:6px;margin:0;background:linear-gradient(90deg,#3d9bff,#ffd24a,#ff3d3d)"></i>' +
+      '<span style="color:#8b90a0">горячее</span></div>';
+  } else if (m === 2){
+    lg.style.display = '';
+    lg.innerHTML = '<div><i style="background:#7ee081"></i>Пылинка (частица взвеси)</div><div><i style="background:#33ccff"></i>Молекулы воды</div>';
+  } else if (m === 3){
+    lg.style.display = '';
+    lg.innerHTML = '<div><i style="background:#ff554d"></i>Молекулы газа А</div><div><i style="background:#33ccff"></i>Молекулы газа Б</div>';
+  } else lg.style.display = 'none';
+}
+let camTween = null;
+function camSmooth(yaw, pitch, dist, tx, ty, tz){
+  camTween = { yaw, pitch, dist, tx, ty, tz };
+  cam.sy = yaw; cam.sp = pitch; cam.sd = dist; cam.stx = tx; cam.sty = ty; cam.stz = tz;
+}
+
+document.getElementById('steps').addEventListener('click', e => {
+  const b = e.target.closest('.step');
+  if (!b) return;
+  setMode(+b.dataset.step);
+});
+
+/* ============================================================
+   4. Элементы управления
+   ============================================================ */
+
+/* --- шаг 0: молекула --- */
+document.getElementById('sScale').addEventListener('input', e => {
+  scaleVal = +e.target.value;
+  document.getElementById('oScale').textContent = n(scaleVal, 1);
+  molec.scale.set(scaleVal, scaleVal, scaleVal);
+});
+document.getElementById('bSpin').addEventListener('click', e => {
+  spin = !spin;
+  e.target.textContent = spin ? '❚❚ Стоп вращение' : '▶ Вращение';
+  e.target.classList.toggle('btn--main', spin);
+});
+document.getElementById('bResetM').addEventListener('click', () => {
+  camSmooth(-0.6, 0.25, 6.5, 0, 0.5, 5);
+});
+
+/* --- шаг 1: состояния --- */
+/* нагрев — единственный источник правды: кнопки состояний лишь двигают его,
+   поэтому ползунок и подсветка кнопок не могут разойтись */
+const HEAT_FOR = { solid: 0, liquid: 50, gas: 85 };
+const STATE_FOR_HEAT = h => h >= 70 ? 'gas' : h >= 30 ? 'liquid' : 'solid';
+
+st.heat = 0;
+function applyHeat(h){
+  st.heat = h;
+  const el = document.getElementById('sHeat');
+  if (+el.value !== h) el.value = h;
+  document.getElementById('oHeat').textContent = n(h, 0);
+  const want = STATE_FOR_HEAT(h);
+  if (want !== st.mode){
+    st.mode = want;
+    stReset();
+  }
+  document.querySelectorAll('#stateBtns .sBtn').forEach(x => x.classList.toggle('is-on', x.dataset.state === st.mode));
+  syncStateUI();
+  stSync();
+}
+document.getElementById('stateBtns').addEventListener('click', e => {
+  const b = e.target.closest('.sBtn');
+  if (!b) return;
+  applyHeat(HEAT_FOR[b.dataset.state]);
+});
+document.getElementById('sHeat').addEventListener('input', e => {
+  applyHeat(+e.target.value);
+});
+function syncStateUI(){
+  const names = { solid: 'Твёрдое', liquid: 'Жидкое', gas: 'Газ' };
+  document.getElementById('kState').textContent = names[st.mode];
+  document.getElementById('stHelp').innerHTML = st.mode === 'solid' ?
+    '<b>Твёрдое тело.</b> Молекулы стоят в узлах решётки и только <b>колеблются</b> на месте. Форма и объём сохраняются.' :
+    st.mode === 'liquid' ?
+    '<b>Жидкость.</b> Молекулы соприкасаются, но могут скользить друг относительно друга. Блок «таяет» и стекает на дно коробки. Объём сохраняется, форма — нет.' :
+    '<b>Газ.</b> Молекулы разлетаются по всему объёму и движутся хаотично. Газ занимает <b>весь</b> предоставленный объём.';
+}
+stReset();
+applyHeat(0);
+
+/* --- шаг 2: броуновское ---- */
+document.getElementById('bBrown').addEventListener('click', () => brReset());
+document.getElementById('bBrownT').addEventListener('click', e => {
+  br.trailOn = !br.trailOn;
+  e.target.textContent = br.trailOn ? 'Траектория: вкл' : 'Траектория: выкл';
+  if (!br.trailOn) br.trail = [];
+});
+
+/* --- шаг 3: диффузия --- */
+document.getElementById('bDiff').addEventListener('click', () => {
+  df.part = false;
+  wall.visible = false;
+  const b = document.getElementById('bDiff');
+  b.disabled = true; b.textContent = 'Перегородка убрана';
+  document.getElementById('dfHint').textContent = 'Ждём, пока газы перемешаются';
+});
+document.getElementById('bDiffReset').addEventListener('click', () => {
+  dfReset();
+  wall.visible = true;
+  const b = document.getElementById('bDiff');
+  b.disabled = false; b.textContent = 'Убрать перегородку';
+  document.getElementById('dfHint').textContent = 'Перегородка делит сосуд на две части';
+});
+dfReset();
+brReset();
+
+/* --- шаг 4: взаимодействие --- */
+function updateF(){
+  dist = +document.getElementById('sDist').value;
+  document.getElementById('oDist').textContent = n(dist, 2);
+  const f0 = forceVal(dist);
+  document.getElementById('kForce').textContent = forceName(dist);
+  /* сила в миллионах единиц нечитаема — показываем долю от максимума
+     притяжения: 100 % — самая сильная тяга, дальше только «тысячи раз» */
+  const rel = f0 / F_REF;
+  document.getElementById('kFRel').textContent =
+    Math.abs(rel) <= 999 ? n(rel * 100, 1) + ' %'
+      : (rel > 0 ? '+' : '−') + (Math.abs(rel) / 1000).toFixed(0) + ' тыс. ×';
+  const show = mode === 4;
+  if (show){
+    document.getElementById('interHelp').innerHTML =
+      dist < REQ - D_EQ ? '<b>Отталкивание:</b> молекулы слишком близко — их расталкивает. Поэтому твёрдое тело трудно сжать.' :
+      dist > REQ + D_EQ ? '<b>Притяжение:</b> молекулы сближаются и держатся друг за друга. Притяжение мешает разорвать твёрдое тело.' :
+      '<b>Равновесие:</b> силы скомпенсированы. Молекулы стремятся занять именно такое расстояние r₀ ≈ ' + n(REQ, 2) + ' σ.';
+  }
+}
+document.getElementById('sDist').addEventListener('input', () => {
+  updateF();
+  itUpdate();
+  drawPlot();
+});
+document.getElementById('bReq').addEventListener('click', () => {
+  /* r₀ = 1.6837… ползунок с шагом 0.002 даёт 1.684 — ближайшее достижимое */
+  const s = document.getElementById('sDist');
+  s.value = (Math.round(REQ * 500) / 500).toFixed(3);
+  updateF();
+  itUpdate();
+  drawPlot();
+});
+updateF();
+itUpdate();
+
+/* --- шаг 5: задачи --- */
+const QUIZ = [
+  {
+    q: 'Что называется молекулой?',
+    opt: ['мельчайшая частица вещества, обладающая его свойствами', 'атомы таблицы Менделеева', 'любое твёрдое тело', 'мельчайшая частица воздуха'],
+    expl: 'Молекула — наименьшая частица вещества, сохраняющая его химические свойства. Молекулы состоят из атомов.'
+  },
+  {
+    q: 'Почему запах духов через некоторое время чувствуется в другом конце комнаты?',
+    opt: ['это диффузия: молекулы духов сами проникают между молекулами воздуха', 'запах переносится светом', 'духи испаряются только под действием ветра', 'молекулы духов тяжелее воздуха'],
+    expl: 'Летучие молекулы духов движутся хаотично и, пробираясь между молекулами воздуха, заполняют всю комнату — это диффузия.'
+  },
+  {
+    q: 'В каком состоянии вещества молекулы в среднем находятся дальше всего друг от друга?',
+    opt: ['в газообразном', 'в жидком', 'в твёрдом', 'расстояние одинаково во всех состояниях'],
+    expl: 'В газе молекулы разлетаются, расстояние между ними в десятки и сотни раз больше размеров самих молекул.'
+  },
+  {
+    q: 'Почему твёрдое тело очень трудно сжать?',
+    opt: ['между молекулами действуют силы отталкивания', 'молекулы притягиваются к земле', 'в твёрдом теле нет пустот', 'молекулы неподвижны'],
+    expl: 'При сближении молекул на малые расстояния между ними возникает отталкивание, поэтому сжать твёрдое тело почти невозможно. Притяжение между молекулами объясняет, почему тело трудно разорвать.'
+  },
+  {
+    q: 'Какие частицы «толкают» пылинку при броуновском движении?',
+    opt: ['молекулы жидкости или газа', 'электроны', 'фотоны света', 'атомы ядра'],
+    expl: 'Молекулы окружающей жидкости беспорядочно ударяют по частице взвеси со всех сторон, и она скачет. Это наглядное доказательство движения молекул.'
+  },
+  {
+    q: 'Два куска пластилина легко слипаются в один. Почему?',
+    opt: ['при плотном прижатии молекулы сближаются и начинают притягиваться', 'пластилин имеет высокую температуру', 'молекулы пластилина склеиваются воздухом', 'это происходит из-за силы тяжести'],
+    expl: 'При плотном прижатии молекулы пластилина сближаются, и между ними начинает действовать притяжение — куски соединяются. Отталкивание при этом слабое: прижатые куски уже не держатся жёсткой решёткой.'
+  }
+];
+let quizIndex = -1, kRight = 0, kTotal = 0;
+/* правильный ответ записан первым, но показывается на случайном месте —
+   иначе «А» угадывается без размышлений */
+let quizOrder = [];
+function shuffle4(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function nextQuiz(){
+  if (QUIZ.length > 1) {
+    let nx = Math.floor(Math.random() * QUIZ.length);
+    while (nx === quizIndex % QUIZ.length) nx = Math.floor(Math.random() * QUIZ.length);
+    quizIndex = nx;
+  } else quizIndex = 0;
+  const t = QUIZ[quizIndex];
+  quizOrder = shuffle4(t.opt.map((_, i) => i));
+  document.getElementById('taskQ').innerHTML = t.q;
+  document.getElementById('taskOpts').innerHTML = quizOrder.map((orig, i) =>
+    '<button class="opt" data-i="' + orig + '">' + String.fromCharCode(65 + i) + ') ' + t.opt[orig] + '</button>').join('');
+  document.getElementById('taskExpl').className = 'expl';
+}
+let quizLocked = false;
+document.getElementById('taskOpts').addEventListener('click', e => {
+  const b = e.target.closest('.opt');
+  if (!b || quizLocked) return;
+  const t = QUIZ[quizIndex];
+  const i = +b.dataset.i;
+  /* один вопрос — один ответ: иначе повторные клики накручивали счёт */
+  quizLocked = true;
+  kTotal++;
+  document.getElementById('kTotal').textContent = kTotal;
+  const btns = [...document.querySelectorAll('#taskOpts .opt')];
+  const rightPos = quizOrder.indexOf(0);
+  const ex = document.getElementById('taskExpl');
+  if (i === 0){
+    b.classList.add('is-right');
+    kRight++;
+    document.getElementById('kRight').textContent = kRight;
+    ex.innerHTML = '<b>Верно!</b> ' + t.expl;
+  } else {
+    b.classList.add('is-wrong');
+    btns[rightPos].classList.add('is-right');
+    ex.innerHTML = 'Правильный ответ — <b>' + String.fromCharCode(65 + rightPos) + ')</b> ' + t.expl;
+  }
+  ex.classList.add('is-on');
+});
+document.getElementById('bNext').addEventListener('click', () => {
+  quizLocked = false;
+  nextQuiz();
+});
+nextQuiz();
+
+/* ============================================================
+   5. Цикл
+   ============================================================ */
+
+function resize(){
+  const w = host.clientWidth, h = host.clientHeight;
+  if (!w || !h) return;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+}
+window.addEventListener('resize', resize);
+
+function fpsLoop(now){
+  frameNo++;
+  const dt = Math.min((now - lastT) / 1000, 0.05);
+  lastT = now;
+
+  if (mode === 1){
+    stStep(dt);
+    stSync();
+    /* средняя скорость */
+    let vs = 0;
+    for (let i = 0; i < ST_N; i++) vs += Math.hypot(st.vel[i*3], st.vel[i*3+1], st.vel[i*3+2]);
+    document.getElementById('kSpeed').textContent = n(vs / ST_N, 1);
+    const names = { solid: 'Твёрдое', liquid: 'Жидкое', gas: 'Газ' };
+    document.getElementById('kState').textContent = names[st.mode];
+    document.getElementById('kCount').textContent = ST_N;
+    /* измеряемая, а не выдуманная величина: средняя дистанция
+       до ближайшего соседа в единицах диаметра молекулы σ.
+       Пересчитываем раз в 12 кадров — полный перебор O(n²) каждый кадр не нужен */
+    if (frameNo % 12 === 0){
+      let sum = 0;
+      for (let i = 0; i < ST_N; i++){
+        let best = Infinity;
+        for (let j = 0; j < ST_N; j++){
+          if (i === j) continue;
+          const dx = st.pos[i*3] - st.pos[j*3];
+          const dy = st.pos[i*3+1] - st.pos[j*3+1];
+          const dz = st.pos[i*3+2] - st.pos[j*3+2];
+          const d = dx*dx + dy*dy + dz*dz;
+          if (d < best) best = d;
+        }
+        sum += Math.sqrt(best);
+      }
+      stNeigh = (sum / ST_N) / SIG;
+    }
+    document.getElementById('kNeigh').textContent = n(stNeigh, 2);
+  } else if (mode === 2){
+    brStep(dt);
+    document.getElementById('kBrown').textContent = n(br.speed, 2);
+    document.getElementById('kMol').textContent = BR_N - 1;
+  } else if (mode === 3){
+    dfStep(dt);
+    document.getElementById('kMix').textContent = Math.round(df.mixed) + ' %';
+    document.getElementById('kTime').textContent = n(df.time, 1);
+  }
+
+  if ((mode === 0 || mode === 5) && spin) molSpin.rotation.y += dt * 0.8;
+
+  /* камера */
+  if (camTween){
+    cam.yaw += (camTween.yaw - cam.yaw) * 0.07;
+    cam.pitch += (camTween.pitch - cam.pitch) * 0.07;
+    cam.dist += (camTween.dist - cam.dist) * 0.07;
+    cam.tx += (camTween.tx - cam.tx) * 0.07;
+    cam.ty += (camTween.ty - cam.ty) * 0.07;
+    cam.tz += (camTween.tz - cam.tz) * 0.07;
+  } else {
+    cam.yaw += (cam.sy - cam.yaw) * 0.07;
+    cam.pitch += (cam.sp - cam.pitch) * 0.07;
+    cam.dist += (cam.sd - cam.dist) * 0.07;
+    cam.tx += (cam.stx - cam.tx) * 0.07;
+    cam.ty += (cam.sty - cam.ty) * 0.07;
+    cam.tz += (cam.stz - cam.tz) * 0.07;
+  }
+  applyCamera();
+
+  /* метки по модам */
+  if (mode === 0 || mode === 5){
+    const s = scaleVal;
+    const ry = molSpin.rotation.y;
+    const hx = BOND * Math.sin(ANGLE / 2) * s;
+    const hy = BOND * Math.cos(ANGLE / 2) * s;
+    const cv = Math.cos(ry), sv = Math.sin(ry);
+    placeLabel('a', hx * cv, hy, hx * sv, 'H', true, 'lab--g');
+    placeLabel('b', -hx * cv, hy, -hx * sv, 'H', true, 'lab--g');
+    placeLabel('c', 0, 0, 0, 'O', true, 'lab--h');
+    placeLabel('d', 0, -2.4 * s, 0, 'размер ≈ 3·10⁻¹⁰ м', true, 'lab--a');
+  } else if (mode === 4){
+    itUpdate();
+  } else {
+    ['a','b','c','d','e'].forEach(k => placeLabel(k, 0, 0, 0, '', false));
+  }
+
+  projectLabels(host.clientWidth, host.clientHeight);
+  renderer.render(scene, camera);
+  requestAnimationFrame(fpsLoop);
+}
+
+let lastT = performance.now();
+let frameNo = 0;
+let stNeigh = 0;
+window.__camState = () => ({
+  x: camera.position.x, y: camera.position.y, z: camera.position.z,
+  yaw: cam.yaw, pitch: cam.pitch, dist: cam.dist, tween: camTween !== null
+});
+
+/* ============================================================
+   6. Старт
+   ============================================================ */
+
+setMode(0);
+resize();
+requestAnimationFrame(fpsLoop);
+
+})();
+</script>
+</body>
+</html>

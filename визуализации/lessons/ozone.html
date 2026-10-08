@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Молекула озона O₃ — как она устроена на самом деле</title>
+<meta name="description" content="Интерактивная 3D-модель молекулы озона O₃: угол 116,8°, длина связи 1,278 Å, резонанс двух структур Льюиса, 18 валентных электронов, правило VSEPR, дипольный момент 0,53 Д, сравнение с O₂ и образование озонового слоя. Объёмная модель, диполи, озоновый слой и проверка знаний.">
+<meta name="keywords" content="озон, O3, молекула озона, строение молекулы, резонанс, VSEPR, дипольный момент, озоновый слой, ультрафиолет, O2, 3D, химия">
+<style>
+:root{
+  --bg:#08080b; --panel:rgba(19,19,25,.86); --panel-2:#14141a;
+  --border:rgba(255,255,255,.1); --border-2:rgba(255,255,255,.2);
+  --text:#eceff4; --dim:#8b90a0;
+  --accent:#33ccff; --o:#ff8a5c; --t:#ff4d3d; --v:#a78bfa; --g:#7ee081; --warn:#ff6b6b;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--bg); color:var(--text); overflow:hidden;
+  font-family:'Segoe UI',Inter,system-ui,-apple-system,sans-serif; font-size:14px;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'JetBrains Mono','SF Mono',Consolas,ui-monospace,monospace}
+button,input,select{font:inherit;color:inherit}
+
+.app{
+  height:100%; display:grid;
+  grid-template-columns:1fr 362px;
+  grid-template-rows:56px minmax(0,1fr) 164px;
+  grid-template-areas:"top top" "stage panel" "bot panel";
+}
+.top{grid-area:top;display:flex;align-items:center;gap:16px;padding:0 18px;border-bottom:1px solid var(--border);background:var(--panel-2);z-index:5}
+.brand{display:flex;flex-direction:column;line-height:1.15;min-width:180px}
+.brand b{font-size:15px;letter-spacing:.2px}
+.brand span{font-size:11px;color:var(--dim)}
+.steps{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.step{
+  border:1px solid var(--border);background:transparent;color:var(--dim);
+  padding:7px 12px;border-radius:10px;cursor:pointer;transition:.16s;
+}
+.step:hover{color:var(--text);border-color:var(--border-2)}
+.step.is-on{color:var(--accent);border-color:rgba(51,204,255,.45);background:rgba(51,204,255,.12)}
+.top__hint{font-size:11px;color:var(--dim);white-space:nowrap}
+
+.stage{grid-area:stage;position:relative;overflow:hidden}
+#scene{position:absolute;inset:0}
+#scene canvas{display:block}
+
+.labels{position:absolute;inset:0;pointer-events:none}
+.lab{
+  position:absolute;transform:translate(-50%,-50%);
+  background:rgba(10,10,14,.82);border:1px solid var(--border);
+  padding:2px 8px;border-radius:8px;font-size:12px;white-space:nowrap;
+  backdrop-filter:blur(6px);
+}
+.lab--a{color:var(--accent);border-color:rgba(51,204,255,.4)}
+.lab--o{color:var(--o);border-color:rgba(255,138,92,.4)}
+.lab--t{color:var(--t);border-color:rgba(255,77,61,.4)}
+.lab--v{color:var(--v);border-color:rgba(167,139,250,.45)}
+.lab--g{color:var(--g);border-color:rgba(126,224,129,.4)}
+
+.hud{position:absolute;left:16px;top:14px;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.chip{
+  background:rgba(10,10,14,.7);border:1px solid var(--border);border-radius:10px;
+  padding:6px 11px;font-size:12px;backdrop-filter:blur(6px);
+}
+.chip b{color:var(--accent);font-weight:600}
+.legend{position:absolute;right:16px;top:14px;display:flex;flex-direction:column;gap:7px;
+  background:rgba(10,10,14,.7);border:1px solid var(--border);border-radius:10px;padding:10px 13px;
+  font-size:12px;backdrop-filter:blur(6px)}
+.legend i{display:inline-block;width:15px;height:15px;border-radius:50%;vertical-align:middle;margin-right:8px}
+
+.panel{grid-area:panel;border-left:1px solid var(--border);background:var(--panel-2);
+  overflow-y:auto;display:flex;flex-direction:column;gap:0}
+.sec{padding:14px 16px;border-bottom:1px solid var(--border);display:none}
+.sec.is-on{display:block}
+.sec__t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.row label{font-size:13px;color:var(--text)}
+.row output{font-size:13px;color:var(--accent);min-width:74px;text-align:right}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;
+  background:rgba(255,255,255,.14);outline:none;margin:6px 0 14px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--accent);cursor:pointer;box-shadow:0 0 0 4px rgba(51,204,255,.18)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:var(--accent);cursor:pointer}
+
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi div{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:9px 11px}
+.kpi span{display:block;font-size:10px;color:var(--dim);letter-spacing:.05em;margin-bottom:3px}
+.kpi b{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.kpi .u{font-size:11px;color:var(--dim);margin-left:3px}
+
+.btn{
+  width:100%;padding:10px;border-radius:11px;cursor:pointer;
+  border:1px solid var(--border);background:rgba(255,255,255,.05);transition:.16s;
+}
+.btn:hover{border-color:var(--border-2);background:rgba(255,255,255,.09)}
+.btn--main{background:rgba(51,204,255,.14);border-color:rgba(51,204,255,.4);color:var(--accent)}
+.btn--go{background:rgba(126,224,129,.14);border-color:rgba(126,224,129,.4);color:var(--g)}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btns3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.btns .wide{grid-column:1 / -1}
+
+.sBtn{padding:9px 4px;border-radius:10px;cursor:pointer;font-size:12.5px;
+  border:1px solid var(--border);background:rgba(255,255,255,.05);transition:.16s;color:var(--text)}
+.sBtn:hover{border-color:var(--border-2)}
+.sBtn.is-on{color:#1a1a1a;border-color:transparent;font-weight:600}
+.sBtn--o{background:rgba(255,138,92,.26)}
+.sBtn--o.is-on{background:#ff8a5c}
+
+.problem{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:11px;padding:12px}
+.problem__q{font-size:13.5px;line-height:1.55;margin-bottom:12px}
+.opt{display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:8px;border-radius:10px;
+  border:1px solid var(--border);background:rgba(255,255,255,.04);cursor:pointer;transition:.15s;font-size:13px}
+.opt:hover{border-color:var(--border-2);background:rgba(255,255,255,.08)}
+.opt.is-right{border-color:rgba(126,224,129,.7);background:rgba(126,224,129,.14);color:var(--g)}
+.opt.is-wrong{border-color:rgba(255,107,107,.6);background:rgba(255,107,107,.12);color:var(--warn)}
+.expl{font-size:12.5px;line-height:1.5;color:var(--dim);margin-top:8px;display:none}
+.expl.is-on{display:block}
+.expl b{color:var(--g)}
+
+.formula{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:10px;
+  padding:11px 12px;margin-bottom:9px;font-size:14px;text-align:center;line-height:1.7}
+.formula span{color:var(--dim);font-size:11px;display:block;margin-top:2px}
+.formula sub{font-size:.72em;line-height:0}
+.formula .T{color:var(--t)} .formula .C{color:var(--o)} .formula .c{color:var(--accent)}
+
+.statLine{font-size:13px;margin-bottom:9px}
+.statLine b{color:var(--accent)}
+
+.bot{grid-area:bot;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,44%);
+  gap:16px;padding:12px 18px;border-top:1px solid var(--border);background:var(--panel-2);min-height:0}
+.tiles{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;min-width:0}
+.tiles div{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;
+  padding:6px 11px;min-width:0;overflow:hidden}
+.tiles span{display:block;font-size:9.5px;color:var(--dim);letter-spacing:.05em;margin-bottom:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tiles b{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+.tiles .u{font-size:11px;color:var(--dim);margin-left:4px}
+.bot__cv{min-width:0;display:flex}
+#cvBot{width:100%;height:100%;display:block;background:rgba(0,0,0,.25);
+  border:1px solid var(--border);border-radius:10px}
+
+.note{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);
+  background:rgba(10,10,14,.9);border:1px solid var(--border);border-radius:11px;
+  padding:9px 15px;font-size:12.5px;max-width:84%;text-align:center;backdrop-filter:blur(8px);
+  opacity:0;transition:.25s;pointer-events:none;z-index:3;line-height:1.55}
+.note.is-on{opacity:1}
+.note b{color:var(--accent)}
+
+.stage,.panel,.bot{min-width:0;min-height:0}
+
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:5px}
+::-webkit-scrollbar-track{background:transparent}
+
+@media(max-width:1040px){
+  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 44dvh 190px auto;
+       grid-template-areas:"top" "stage" "bot" "panel"}
+  .panel{border-left:0;border-top:1px solid var(--border)}
+  .legend{display:none}
+  .top__hint{display:none}
+  .top{flex-wrap:wrap;padding:9px 14px}
+  .brand{min-width:0}
+  .steps{margin-left:0;width:100%}
+  .step{flex:1;text-align:center;padding:7px 3px;font-size:12px}
+  .bot{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 118px;gap:10px}
+  .tiles{grid-template-rows:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="brand">
+      <b>Молекула озона O<sub>3</sub></b>
+      <span>Строение вещества · химия и физика</span>
+    </div>
+    <div class="steps" id="steps">
+      <button class="step is-on" data-step="0">1 · Форма</button>
+      <button class="step" data-step="1">2 · Резонанс</button>
+      <button class="step" data-step="2">3 · Электроны</button>
+      <button class="step" data-step="3">4 · Диполь</button>
+      <button class="step" data-step="4">5 · O₃ и O₂</button>
+      <button class="step" data-step="5">6 · Озоновый слой</button>
+      <button class="step" data-step="6">7 · Проверка</button>
+    </div>
+    <div class="top__hint">Мышь — поворот · Колесо — масштаб</div>
+  </header>
+
+  <section class="stage">
+    <div id="scene"></div>
+    <div class="labels" id="labels"></div>
+
+    <div class="hud">
+      <div class="chip" id="chip1" style="display:none"></div>
+      <div class="chip" id="chip2" style="display:none"></div>
+    </div>
+
+    <div class="legend" id="legend"></div>
+
+    <div class="note" id="note"></div>
+  </section>
+
+  <aside class="panel">
+
+    <div class="sec is-on" id="sec0">
+      <h3 class="sec__t">Как выглядит молекула</h3>
+      <div class="formula">O<sub class="T">3</sub><span>три атома кислорода в одной плоскости</span></div>
+      <div class="btns3" id="modelBtns">
+        <button class="sBtn sBtn--o is-on" data-model="0">Палочки</button>
+        <button class="sBtn sBtn--o" data-model="1">Люис</button>
+        <button class="sBtn sBtn--o" data-model="2">Объёмная</button>
+      </div>
+      <div style="height:14px"></div>
+      <div class="row"><label for="sScale">Масштаб (увеличение)</label><output id="oScale">1,0</output></div>
+      <input type="range" id="sScale" min="0.5" max="2.5" step="0.1" value="1">
+      <div class="btns">
+        <button class="btn btn--main" id="bSpin">❚❚ Стоп вращение</button>
+        <button class="btn" id="bPlane">Плоскость: вкл</button>
+      </div>
+      <div class="btns" style="margin-top:8px"><button class="btn" id="bResetM" style="grid-column:1 / -1">Сброс вида</button></div>
+      <div class="expl" id="m0Help" style="display:block;margin-top:12px"></div>
+    </div>
+
+    <div class="sec" id="sec1">
+      <h3 class="sec__t">Две картинки — одна молекула</h3>
+      <div class="formula">O=O–O <span class="c">⇄</span> O–O=O<span>в реальности обе связи одинаковы</span></div>
+      <div class="row"><label for="sOrd">Порядок связи (в центре)</label><output id="oOrd">1,5</output></div>
+      <input type="range" id="sOrd" min="1" max="2" step="0.05" value="1.5">
+      <div class="btns">
+        <button class="btn btn--main" id="bRes">▶ Анимация резонанса</button>
+        <button class="btn" id="bOrdReset">Вернуть 1,5</button>
+      </div>
+      <div class="expl" id="m1Help" style="display:block;margin-top:12px"></div>
+    </div>
+
+    <div class="sec" id="sec2">
+      <h3 class="sec__t">18 электронов и форма</h3>
+      <div class="kpi">
+        <div><span>ВСЕГО ВАЛЕНТНЫХ</span><b>18</b><span class="u">эл.</span></div>
+        <div><span>В ТРЁХ СВЯЗЯХ</span><b>6</b><span class="u">эл.</span></div>
+        <div><span>НЕПОДЕЛЁННЫХ ПАР</span><b>6</b><span class="u">пар</span></div>
+        <div><span>ОКЕТ У ЦЕНТРАЛЬНОГО O</span><b>Есть</b></div>
+      </div>
+      <div class="statLine" style="margin-top:12px">Электронных облаков у центрального O: <b>3</b> → форма «угол»</div>
+      <div class="btns" style="margin-top:10px">
+        <button class="btn btn--main" id="bDots">Точки: вкл</button>
+        <button class="btn" id="bCloud">Облака: выкл</button>
+        <button class="btn wide" id="bIdeal">Показать идеальные 120°</button>
+      </div>
+      <div class="expl" id="m2Help" style="display:block;margin-top:12px"></div>
+    </div>
+
+    <div class="sec" id="sec3">
+      <h3 class="sec__t">Полярность: почему не ноль</h3>
+      <div class="kpi">
+        <div><span>ДИПОЛЬНЫЙ МОМЕНТ</span><b id="kMu">0,53</b><span class="u">Д</span></div>
+        <div><span>МОЛЕКУЛА ПОЛЯРНА</span><b id="kPol">да</b></div>
+      </div>
+      <div style="height:14px"></div>
+      <div class="row"><label for="sAng">Угол между связями (модель)</label><output id="oAng">116,8</output></div>
+      <input type="range" id="sAng" min="90" max="180" step="0.5" value="116.8">
+      <div class="formula" id="dipF" style="margin-bottom:9px"></div>
+      <div class="btns">
+        <button class="btn btn--main" id="bReal">Вернуть 116,8°</button>
+        <button class="btn" id="bDip">Диполи: вкл</button>
+      </div>
+      <div class="expl" id="m3Help" style="display:block;margin-top:12px"></div>
+    </div>
+
+    <div class="sec" id="sec4">
+      <h3 class="sec__t">Озон против кислорода</h3>
+      <div class="kpi">
+        <div><span>O₂ · ПОРЯДОК СВЯЗИ</span><b>2</b></div>
+        <div><span>O₂ · ДЛИНА</span><b>1,208</b><span class="u">Å</span></div>
+        <div><span>O₃ · ПОРЯДОК СВЯЗИ</span><b>1,5</b></div>
+        <div><span>O₃ · ДЛИНА</span><b>1,278</b><span class="u">Å</span></div>
+      </div>
+      <div style="height:14px"></div>
+      <div class="row"><label for="sHeat">Нагрев</label><output id="oHeat2">0</output></div>
+      <input type="range" id="sHeat" min="0" max="100" step="1" value="0">
+      <div class="statLine">Энергия разрыва связи: <b>O₂ — 498</b> и <b style="color:#ff8a5c">O₃ — 106</b> кДж/моль</div>
+      <div class="statLine">При нагреве выше 55: <b id="kBrk" style="color:#7ee081">озон цел</b></div>
+      <div class="expl" id="m4Help" style="display:block;margin-top:12px"></div>
+    </div>
+
+    <div class="sec" id="sec5">
+      <h3 class="sec__t">Озоновый слой</h3>
+      <div class="kpi">
+        <div><span>ВЫСОТА СЛОЯ</span><b>20–30</b><span class="u">км</span></div>
+        <div><span>ДОЛЯ ОЗОНА</span><b>90</b><span class="u">%</span></div>
+        <div><span>ТОЛЩИНА ПРИ 0 °С</span><b>3</b><span class="u">мм</span></div>
+        <div><span>ПОГЛОЩАЕТ</span><b>λ &lt; 242</b><span class="u">нм</span></div>
+      </div>
+      <div class="btns" style="margin-top:12px">
+        <button class="btn btn--main" id="bUV">Пустить ультрафиолет</button>
+        <button class="btn" id="bUVReset">Сброс счётчика</button>
+      </div>
+      <div class="statLine" style="margin-top:10px">Разбито молекул O<sub>2</sub> (схематично): <b id="kCyc">0</b></div>
+      <div class="expl" id="m5Help" style="display:block;margin-top:12px"></div>
+    </div>
+
+    <div class="sec" id="sec6">
+      <h3 class="sec__t">Проверь себя</h3>
+      <div class="problem">
+        <div class="problem__q" id="taskQ"></div>
+        <div id="taskOpts"></div>
+        <div class="expl" id="taskExpl"></div>
+        <button class="btn btn--main" id="bNext" style="margin-top:10px">Другая задача</button>
+      </div>
+      <div class="kpi" style="margin-top:12px">
+        <div><span>ВЕРНО</span><b id="kRight">0</b></div>
+        <div><span>ВСЕГО</span><b id="kTotal">0</b></div>
+      </div>
+    </div>
+
+  </aside>
+
+  <section class="bot">
+    <div class="tiles" id="tiles"></div>
+    <div class="bot__cv"><canvas id="cvBot"></canvas></div>
+  </section>
+
+</div>
+
+<script src="../assets/vendor/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+if (!window.THREE) {
+  document.body.insertAdjacentHTML('beforeend',
+    '<div style="position:fixed;inset:0;display:grid;place-items:center;background:#08080b">' +
+    '<div style="text-align:center;color:#8b90a0;padding:30px">Не удалось загрузить библиотеку 3D: three.min.js не найден.</div></div>');
+  return;
+}
+const THREE = window.THREE;
+
+const D2R = Math.PI / 180;
+const YAX = new THREE.Vector3(0, 1, 0);
+const ZAX = new THREE.Vector3(0, 0, 1);
+const n = (v, d) => {
+  if (v == null || !isFinite(v)) return '—';
+  return v.toFixed(d).replace('.', ',').replace(/,0+$/, '').replace(/(\d),$/, '$1');
+};
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+
+/* ============================================================
+   1. Сцена
+   ============================================================ */
+
+const host = document.getElementById('scene');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x08080b);
+scene.fog = new THREE.Fog(0x08080b, 130, 430);
+
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 2000);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(host.clientWidth, host.clientHeight);
+host.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+const sun = new THREE.DirectionalLight(0xffffff, 1.15);
+sun.position.set(30, 50, 40);
+scene.add(sun);
+const rim = new THREE.DirectionalLight(0x66ccff, 0.5);
+rim.position.set(-30, 22, -30);
+scene.add(rim);
+
+const cam = { yaw: -0.6, pitch: 0.22, dist: 5.2, tx: 0, ty: 0.35, tz: 0, sy: -0.6, sp: 0.22, sd: 5.2, stx: 0, sty: 0.35, stz: 0 };
+function applyCamera(){
+  const t = new THREE.Vector3(cam.tx, cam.ty, cam.tz);
+  camera.position.set(
+    t.x + cam.dist * Math.cos(cam.pitch) * Math.sin(cam.yaw),
+    t.y + cam.dist * Math.sin(cam.pitch),
+    t.z + cam.dist * Math.cos(cam.pitch) * Math.cos(cam.yaw)
+  );
+  camera.lookAt(t);
+}
+let camTween = null;
+let drag = null;
+renderer.domElement.addEventListener('pointerdown', e => {
+  drag = { x: e.clientX, y: e.clientY, yaw: cam.yaw, pitch: cam.pitch };
+  camTween = null;
+  renderer.domElement.setPointerCapture(e.pointerId);
+});
+renderer.domElement.addEventListener('pointermove', e => {
+  if (!drag) return;
+  cam.yaw = drag.yaw - (e.clientX - drag.x) * 0.005;
+  cam.pitch = Math.max(-0.05, Math.min(1.45, drag.pitch + (e.clientY - drag.y) * 0.004));
+  cam.sy = cam.yaw; cam.sp = cam.pitch;
+});
+const endDrag = () => {
+  if (drag){ cam.sy = cam.yaw; cam.sp = cam.pitch; drag = null; }
+};
+renderer.domElement.addEventListener('pointerup', endDrag);
+renderer.domElement.addEventListener('pointercancel', endDrag);
+renderer.domElement.addEventListener('wheel', e => {
+  e.preventDefault();
+  camTween = null;
+  cam.dist = Math.max(1.2, Math.min(400, cam.sd * Math.pow(1.0015, e.deltaY)));
+  cam.sd = cam.dist;
+}, { passive: false });
+
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(240, 240),
+  new THREE.MeshStandardMaterial({ color: 0x0e0e13, roughness: 0.95 })
+);
+ground.rotation.x = -Math.PI / 2;
+scene.add(ground);
+const grid = new THREE.GridHelper(120, 40, 0x33ccff, 0x1e1e28);
+grid.material.transparent = true; grid.material.opacity = 0.14;
+scene.add(grid);
+
+/* метки */
+const labelsHost = document.getElementById('labels');
+const LABELS = {};
+['a','b','c','d','e'].forEach(k => {
+  const el = document.createElement('div');
+  el.className = 'lab lab--a';
+  labelsHost.appendChild(el);
+  LABELS[k] = { el, pos: new THREE.Vector3(), on: false, cls: 'lab--a' };
+});
+const _p = new THREE.Vector3();
+function placeLabel(key, x, y, z, text, on, cls){
+  const L = LABELS[key];
+  L.on = on !== false;
+  L.pos.set(x, y, z || 0);
+  L.el.textContent = text || '';
+  if (cls){ L.el.className = 'lab ' + cls; L.cls = cls; }
+}
+function hideLabels(){
+  ['a','b','c','d','e'].forEach(k => placeLabel(k, 0, 0, 0, '', false));
+}
+function projectLabels(w, h){
+  for (const k in LABELS){
+    const L = LABELS[k];
+    if (!L.on || !L.el.textContent){ L.el.style.display = 'none'; continue; }
+    _p.copy(L.pos).project(camera);
+    if (_p.z > 1){ L.el.style.display = 'none'; continue; }
+    L.el.style.display = '';
+    L.el.style.left = ((_p.x * 0.5 + 0.5) * w) + 'px';
+    L.el.style.top = ((-_p.y * 0.5 + 0.5) * h) + 'px';
+  }
+}
+function makeLine(pts, color, opacity){
+  const g = new THREE.BufferGeometry().setFromPoints(pts);
+  const l = new THREE.Line(g, new THREE.LineBasicMaterial({ color, transparent: true, opacity: opacity == null ? 0.6 : opacity }));
+  l.frustumCulled = false;
+  return l;
+}
+
+/* ============================================================
+   2. Строительные блоки
+   ============================================================ */
+
+const ATOM_GEO = new THREE.SphereGeometry(1, 32, 22);
+const BOND_GEO = new THREE.CylinderGeometry(0.055, 0.055, 1, 14);
+const DOM_GEO = new THREE.CylinderGeometry(0.2, 0.2, 1, 16);
+const C_TERM = 0xe8452f, C_CENT = 0xffa15c, C_BOND = 0x9aa3b5;
+
+function newMat(c, rough){
+  return new THREE.MeshStandardMaterial({
+    color: c, roughness: rough == null ? 0.34 : rough, metalness: 0.12, transparent: true, opacity: 1
+  });
+}
+function makeAtom(c, rough){ return new THREE.Mesh(ATOM_GEO, newMat(c, rough)); }
+function makeBond(){
+  const a = new THREE.Mesh(BOND_GEO, newMat(C_BOND, 0.45));
+  const b = new THREE.Mesh(BOND_GEO, newMat(C_BOND, 0.45));
+  const g = new THREE.Group();
+  g.add(a, b);
+  return { a, b, g };
+}
+function setOp(mesh, o){
+  mesh.material.opacity = o;
+  mesh.material.depthWrite = o > 0.9;
+  mesh.visible = o > 0.01;
+}
+function setGroupOp(group, o){
+  group.traverse(m => { if (m.isMesh) setOp(m, o); });
+}
+const _d = new THREE.Vector3(), _pp = new THREE.Vector3(), _mid = new THREE.Vector3();
+function placeSeg(mesh, p, q, off){
+  _d.subVectors(q, p);
+  const len = _d.length() || 1e-4;
+  _d.divideScalar(len);
+  _pp.crossVectors(_d, ZAX);
+  if (_pp.lengthSq() < 1e-8) _pp.set(1, 0, 0);
+  _pp.normalize();
+  _mid.addVectors(p, q).multiplyScalar(0.5).addScaledVector(_pp, off || 0);
+  mesh.position.copy(_mid);
+  mesh.quaternion.setFromUnitVectors(YAX, _d);
+  mesh.scale.set(1, len, 1);
+}
+
+/* длина связи по её порядку: 1,0 → 1,484 Å; 1,5 → 1,278 Å; 2,0 → 1,208 Å */
+function bondLen(ord){
+  if (ord <= 1.5) return 1.484 + (ord - 1) * (1.278 - 1.484) / 0.5;
+  return 1.278 + (ord - 1.5) * (1.208 - 1.278) / 0.5;
+}
+function bondEnergy(ord){
+  if (ord <= 1.5) return 146 + (ord - 1) * (106 - 146) / 0.5;
+  return 106 + (ord - 1.5) * (498 - 106) / 0.5;
+}
+const ANG = 116.8;
+
+const P1 = new THREE.Vector3(), P2 = new THREE.Vector3(), PC = new THREE.Vector3();
+function place3(half, L1, L2){
+  P1.set(-L1 * Math.sin(half), L1 * Math.cos(half), 0);
+  P2.set(L2 * Math.sin(half), L2 * Math.cos(half), 0);
+}
+function setBondOrder(bd, ord, on){
+  bd.g.visible = !!on;
+  if (!on) return;
+  setOp(bd.a, 1);
+  const e = clamp(ord - 1, 0, 1);
+  bd.b.visible = e > 0.02;
+  setOp(bd.b, e);
+}
+
+function makeMolec(cfg){
+  cfg = cfg || {};
+  const g = new THREE.Group();
+  const t1 = makeAtom(C_TERM), cc = makeAtom(C_CENT), t2 = makeAtom(C_TERM);
+  const b1 = makeBond(), b2 = makeBond();
+  g.add(t1, cc, t2, b1.g, b2.g);
+  const st = {
+    r: cfg.r == null ? 0.34 : cfg.r,
+    ord1: cfg.ord1 == null ? 1.5 : cfg.ord1,
+    ord2: cfg.ord2 == null ? 1.5 : cfg.ord2,
+    ang: cfg.ang == null ? ANG : cfg.ang,
+    sticks: cfg.sticks !== false
+  };
+  function set(){
+    const half = st.ang * D2R / 2;
+    const L1 = bondLen(st.ord1), L2 = bondLen(st.ord2);
+    place3(half, L1, L2);
+    t1.position.copy(P1); cc.position.set(0, 0, 0); t2.position.copy(P2);
+    t1.scale.setScalar(st.r); cc.scale.setScalar(st.r * 1.06); t2.scale.setScalar(st.r);
+    placeSeg(b1.a, P1, PC, -0.072); placeSeg(b1.b, P1, PC, 0.072);
+    placeSeg(b2.a, PC, P2, -0.072); placeSeg(b2.b, PC, P2, 0.072);
+    setBondOrder(b1, st.ord1, st.sticks);
+    setBondOrder(b2, st.ord2, st.sticks);
+  }
+  set();
+  return { g, t1, cc, t2, b1, b2, st, set };
+}
+
+function makeDimer(cfg){
+  cfg = cfg || {};
+  const g = new THREE.Group();
+  const a = makeAtom(cfg.color || C_TERM), b = makeAtom(cfg.color || C_TERM);
+  const bd = makeBond();
+  g.add(a, b, bd.g);
+  const st = { ord: cfg.ord == null ? 2 : cfg.ord, r: cfg.r == null ? 0.34 : cfg.r };
+  function set(){
+    const L = bondLen(st.ord);
+    a.position.set(-L / 2, 0, 0); b.position.set(L / 2, 0, 0);
+    a.scale.setScalar(st.r); b.scale.setScalar(st.r);
+    placeSeg(bd.a, a.position, b.position, -0.072);
+    placeSeg(bd.b, a.position, b.position, 0.072);
+    setBondOrder(bd, st.ord, cfg.sticks !== false);
+  }
+  set();
+  return { g, a, b, bd, st, set };
+}
+
+function makeArrow(color){
+  const g = new THREE.Group();
+  const m = new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.3, roughness: 0.4, transparent: true, opacity: 0.95 });
+  const sh = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 1, 12), m);
+  const hd = new THREE.Mesh(new THREE.ConeGeometry(0.115, 0.3, 16), m);
+  g.add(sh, hd);
+  g.userData = { sh, hd };
+  return g;
+}
+function setArrow(a, from, dir, len){
+  const d = dir.clone().normalize();
+  a.position.copy(from);
+  a.quaternion.setFromUnitVectors(YAX, d);
+  const head = Math.min(0.3, len * 0.4);
+  const shaft = Math.max(0.02, len - head);
+  a.userData.sh.scale.set(1, shaft, 1);
+  a.userData.sh.position.set(0, shaft / 2, 0);
+  a.userData.hd.position.set(0, shaft + head / 2, 0);
+  a.userData.hd.scale.set(1, head / 0.3, 1);
+}
+
+function rotY(v, a, out){
+  const c = Math.cos(a), s = Math.sin(a);
+  out.set(v.x * c + v.z * s, v.y, -v.x * s + v.z * c);
+  return out;
+}
+
+/* ============================================================
+   3. Группы режимов
+   ============================================================ */
+
+const G = { m0: new THREE.Group(), m1: new THREE.Group(), m2: new THREE.Group(),
+            m3: new THREE.Group(), m4: new THREE.Group(), m5: new THREE.Group() };
+Object.values(G).forEach(g => scene.add(g));
+
+/* ---------- 3.1 Форма ---------- */
+const spin0 = new THREE.Group();
+const mol0 = makeMolec({ r: 0.34 });
+spin0.add(mol0.g);
+
+const arcPts = [];
+{
+  const half = ANG * D2R / 2, R = 0.62;
+  for (let i = 0; i <= 26; i++){
+    const th = -half + 2 * half * i / 26;
+    arcPts.push(new THREE.Vector3(R * Math.sin(th), R * Math.cos(th), 0));
+  }
+  arcPts.push(new THREE.Vector3(R * Math.sin(half) * 1.16, R * Math.cos(half) * 1.16, 0));
+  for (let i = 26; i >= 0; i--){
+    const th = -half + 2 * half * i / 26;
+    arcPts.push(new THREE.Vector3(R * Math.sin(th) * 1.16, R * Math.cos(th) * 1.16, 0));
+  }
+  arcPts.push(new THREE.Vector3(R * Math.sin(-half) * 1.16, R * Math.cos(-half) * 1.16, 0));
+  for (let i = 0; i <= 26; i++){
+    const th = -half + 2 * half * i / 26;
+    arcPts.push(new THREE.Vector3(R * Math.sin(th), R * Math.cos(th), 0));
+  }
+}
+const angleArc = makeLine(arcPts, 0x33ccff, 0.75);
+spin0.add(angleArc);
+
+const planeMat = new THREE.MeshBasicMaterial({ color: 0x33ccff, transparent: true, opacity: 0.075, side: THREE.DoubleSide, depthWrite: false });
+const molPlane = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 3.4), planeMat);
+molPlane.position.y = 0.3;
+const planeEdge = new THREE.LineSegments(
+  new THREE.EdgesGeometry(new THREE.PlaneGeometry(4.4, 3.4)),
+  new THREE.LineBasicMaterial({ color: 0x33ccff, transparent: true, opacity: 0.3 })
+);
+molPlane.add(planeEdge);
+spin0.add(molPlane);
+G.m0.add(spin0);
+
+const SPAN = 2 * bondLen(1.5) * Math.sin(ANG * D2R / 4);
+const sizeGuide = makeLine([
+  new THREE.Vector3(-SPAN, -1.15, 0), new THREE.Vector3(SPAN, -1.15, 0)
+], 0x33ccff, 0.5);
+G.m0.add(sizeGuide);
+const sizeTick = makeLine([
+  new THREE.Vector3(-SPAN, -1.3, 0), new THREE.Vector3(-SPAN, -1.0, 0),
+  new THREE.Vector3(SPAN, -1.3, 0), new THREE.Vector3(SPAN, -1.0, 0)
+], 0x33ccff, 0.5);
+G.m0.add(sizeTick);
+
+let spin = true, scaleVal = 1, planeOn = true, modelMode = 0;
+const MODELS = [
+  { r: 0.34, sticks: true,  help: '<b>Стереоскопическая модель.</b> Шарики намеренно уменьшены, иначе они закрыли бы друг друга. Видно связи и угол.' },
+  { r: 0.40, sticks: true,  help: '<b>Модель Льюиса.</b> Размер шариков условный: у концевых атомов по три неподелённые пары, у центрального — одна. Позже мы их нарисуем.' },
+  { r: 1.42, sticks: false, help: '<b>Объёмная (ван-дер-ваальсовская) модель.</b> Здесь атомы почти соприкасаются: диаметр атома кислорода ≈ 3,0 Å, а расстояние между центрами — 1,278 Å. Именно так озон выглядит в электронном микроскопе.' }
+];
+
+function applyModel(){
+  const M = MODELS[modelMode];
+  mol0.st.r = M.r;
+  mol0.st.sticks = M.sticks;
+  mol0.set();
+  sizeGuide.visible = M.sticks;
+  sizeTick.visible = M.sticks;
+  document.getElementById('m0Help').innerHTML = M.help;
+  syncBot();
+}
+
+/* ---------- 3.2 Резонанс ---------- */
+const mA = makeMolec({ ord1: 2, ord2: 1 });
+const mH = makeMolec({ ord1: 1.5, ord2: 1.5 });
+const mB = makeMolec({ ord1: 1, ord2: 2 });
+mA.g.position.x = -5.2; mB.g.position.x = 5.2;
+G.m1.add(mA.g, mH.g, mB.g);
+let resOn = false, resT = 0, resOrd = 1.5;
+const m1HelpTxt = '<b>Структуры Льюиса.</b> Слева O=O–O, справа O–O=O. Обе неверны: в реальности молекула — <b>быстрое перетекание</b> между ними, поэтому связи равны и короче двойной. Порядок связи 1,5, длина 1,278 Å — между одинарной и двойной.';
+function syncRes(){
+  mH.st.ord1 = resOrd; mH.st.ord2 = resOrd;
+  mH.set();
+  document.getElementById('oOrd').textContent = n(resOrd, 2);
+  document.getElementById('m1Help').innerHTML = resOrd < 1.2 || resOrd > 1.9
+    ? '<b>Так не бывает.</b> Порядок связи в реальном озоне всегда 1,5: ни одна из двух картинок не описывает молекулу точно. Верните ползунок к 1,5.'
+    : m1HelpTxt;
+  syncBot();
+}
+
+/* ---------- 3.3 Электроны ---------- */
+const spin2 = new THREE.Group();
+const mol2 = makeMolec({ r: 0.34 });
+spin2.add(mol2.g);
+
+const domainMatA = new THREE.MeshBasicMaterial({ color: 0x33ccff, transparent: true, opacity: 0.17, depthWrite: false });
+const domainMatL = new THREE.MeshBasicMaterial({ color: 0xa78bfa, transparent: true, opacity: 0.3, depthWrite: false });
+const dom1 = new THREE.Mesh(DOM_GEO, domainMatA);
+const dom2 = new THREE.Mesh(DOM_GEO, domainMatA);
+const domL = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), domainMatL);
+spin2.add(dom1, dom2, domL);
+
+const dotGeo = new THREE.SphereGeometry(0.075, 10, 8);
+const dotMat = new THREE.MeshStandardMaterial({ color: 0xdfe6f2, emissive: 0x2b6c86, emissiveIntensity: 0.35, roughness: 0.4, transparent: true, opacity: 1 });
+const dotsGroup = new THREE.Group();
+spin2.add(dotsGroup);
+const _v1 = new THREE.Vector3(), _v2 = new THREE.Vector3(), _v3 = new THREE.Vector3();
+function addPair(center, dir, count){
+  for (let c = 0; c < count; c++){
+    const off = _v1.copy(dir).normalize();
+    _v2.set(off.z, 0, -off.x).normalize();
+    for (let s = -1; s <= 1; s += 2){
+      const m = new THREE.Mesh(dotGeo, dotMat);
+      m.position.copy(center).addScaledVector(off, 0.30).addScaledVector(_v2, 0.075 * s);
+      dotsGroup.add(m);
+    }
+  }
+}
+function buildDots(){
+  while (dotsGroup.children.length) dotsGroup.remove(dotsGroup.children[0]);
+  const half = ANG * D2R / 2;
+  const L = bondLen(1.5);
+  place3(half, L, L);
+  /* центральный атом: неподелённая пара с внешней стороны от «угла» */
+  addPair(_v3.set(0, -0.40, 0), _v1.set(0, 1, 0), 1);
+  /* левый концевой: две пары по обе стороны от связи */
+  _v1.subVectors(PC, P1).normalize();
+  _v2.set(-_v1.y, _v1.x, 0);
+  addPair(P1, _v2, 1); addPair(P1, _v2.clone().negate(), 1);
+  /* правый концевой: две пары плюс одна наружу */
+  _v1.subVectors(PC, P2).normalize();
+  _v2.set(-_v1.y, _v1.x, 0);
+  addPair(P2, _v2, 1); addPair(P2, _v2.clone().negate(), 1);
+  addPair(P2, _v1.clone().negate(), 1);
+  dotsGroup.visible = dotsOn;
+}
+
+const magnify = new THREE.Group();
+{
+  const cx = 0, cy = 2.15, L = 0.62, MAG = 4;
+  const ray = (th, len) => new THREE.Vector3(cx + len * Math.sin(th), cy + len * Math.cos(th), 0);
+  const arc = (halfDeg, r) => {
+    const p = [];
+    for (let i = 0; i <= 18; i++){
+      const th = (-halfDeg + 2 * halfDeg * i / 18) * D2R;
+      p.push(ray(th, r));
+    }
+    return p;
+  };
+  const gap = (120 - ANG) * MAG / 2;   /* разница 3,2°, нарисована вчетверо крупнее */
+  magnify.add(
+    makeLine([ray(60 * D2R, 0), ray(60 * D2R, L)], 0x7ee081, 0.9),
+    makeLine([ray(-60 * D2R, 0), ray(-60 * D2R, L)], 0x7ee081, 0.9),
+    makeLine(arc(60, 0.44), 0x7ee081, 0.7),
+    makeLine([ray((60 - gap) * D2R, 0), ray((60 - gap) * D2R, L)], 0xff8a5c, 0.95),
+    makeLine([ray(-(60 - gap) * D2R, 0), ray(-(60 - gap) * D2R, L)], 0xff8a5c, 0.95),
+    makeLine(arc(60 - gap, 0.3), 0xff8a5c, 0.8)
+  );
+}
+magnify.visible = false;
+spin2.add(magnify);
+const magLab = new THREE.Vector3(0, 2.95, 0);
+
+let dotsOn = true, cloudOn = false, idealOn = false;
+function applyElec(){
+  const half = ANG * D2R / 2;
+  const L = bondLen(1.5);
+  place3(half, L, L);
+  domainMatA.opacity = cloudOn ? 0.17 : 0;
+  domainMatL.opacity = cloudOn ? 0.3 : 0;
+  placeSeg(dom1, P1, PC, 0);
+  placeSeg(dom2, PC, P2, 0);
+  domL.position.set(0, -0.66, 0);
+  domL.scale.set(0.3, 0.42, 0.3);
+  dotsGroup.visible = dotsOn;
+  magnify.visible = idealOn;
+  syncBot();
+}
+const m2HelpTxt = '<b>Три электронных области</b> вокруг центрального O: две связи и одна неподелённая пара. Одинокая пара «толще» связей и сжимает угол с идеальных 120° до 116,8°. Всего 18 электронов: 6 — в трёх связях и 12 — в шести неподелённых парах. <b>Октет у всех трёх атомов соблюдён</b>. Точки показаны по одной структуре Льюиса (слева 2 пары, справа 3), но из-за резонанса концевые атомы в реальности равноправны: у каждого по 2,5 пары и по δ+. Слабая связь O–O и заряды на концах делают озон сильным окислителем.';
+
+/* ---------- 3.4 Диполь ---------- */
+const mol3 = makeMolec({ r: 0.34 });
+G.m3.add(mol3.g);
+const dip1 = makeArrow(0xff6b6b), dip2 = makeArrow(0xff6b6b), dipNet = makeArrow(0x33ccff);
+G.m3.add(dip1, dip2, dipNet);
+let dipAng = ANG, dipOn = true;
+const MU_BOND = 0.506;
+function syncDip(){
+  mol3.st.ang = dipAng;
+  mol3.set();
+  dip1.visible = dip2.visible = dipOn;
+  dipNet.visible = dipOn;
+  if (dipOn){
+    const half = dipAng * D2R / 2, L = bondLen(1.5);
+    _v1.set(-Math.sin(half), Math.cos(half), 0);
+    _v2.set(Math.sin(half), Math.cos(half), 0);
+    _v1.normalize(); _v2.normalize();
+    setArrow(dip1, _v3.copy(_v1).multiplyScalar(0.35), _v1, 0.95);
+    setArrow(dip2, _v3.copy(_v2).multiplyScalar(0.35), _v2, 0.95);
+    const mu = 2 * MU_BOND * Math.cos(half);
+    const netLen = 0.4 + 1.5 * Math.abs(Math.cos(half));
+    setArrow(dipNet, new THREE.Vector3(0, 0.35, 0), new THREE.Vector3(0, 1, 0), netLen);
+    document.getElementById('kMu').textContent = n(mu, 2);
+    document.getElementById('kPol').textContent = mu < 0.02 ? 'нет' : 'да';
+    document.getElementById('oAng').textContent = n(dipAng, 1);
+    document.getElementById('dipF').innerHTML =
+      'μ = 2 · 0,506 · cos(' + n(dipAng / 2, 1) + '°) = <b style="color:var(--accent)">' + n(mu, 2) + ' Д</b>' +
+      '<span>две связи полярны, но их вертикальные части складываются, а горизонтальные гасят друг друга</span>';
+    document.getElementById('m3Help').innerHTML = dipAng > 175
+      ? '<b>Линейная молекула — диполь ноль.</b> Именно так ведёт себя CO₂: две связи полярны, но симметрия их погашает. У озона угол 116,8°, и остаётся 0,53 Д.'
+      : '<b>Молекула полярна.</b> Диполь каждой связи направлен от центрального δ+ к концевому δ−. Продольные компоненты складываются, поперечные гасятся. Остаётся 0,53 Д — озон полярен, но не сильно.';
+  }
+  syncBot();
+}
+
+/* ---------- 3.5 O₃ и O₂ ---------- */
+const o2left = makeDimer({ ord: 2, r: 0.34 });
+o2left.g.position.x = -3.4;
+const o3right = makeMolec({ r: 0.34 });
+o3right.g.position.x = 3.4;
+const o2right = makeDimer({ ord: 2, r: 0.34 });
+o2right.g.position.x = 3.4;
+const freeO = makeAtom(0x7fd4ff, 0.3);
+freeO.scale.setScalar(0.34);
+G.m4.add(o2left.g, o3right.g, o2right.g, freeO);
+let cmpHeat = 0, cmpT = 0, cmpK = 0, cmpShown = -1;
+function applyCmp(dt){
+  cmpT += dt;
+  const k = clamp((cmpHeat - 55) / 25, 0, 1);
+  setGroupOp(o3right.g, 1 - k);
+  setGroupOp(o2right.g, k);
+  freeO.visible = k > 0.02;
+  if (freeO.visible){
+    setOp(freeO, k);
+    const p = cmpT * 0.9;
+    freeO.position.set(3.4 + 1.0 + p * 1.2 * k, 0.3 + p * 0.5 * k, 0);
+  }
+  if (k !== cmpK){
+    cmpK = k;
+    const brk = k > 0.5 ? 'распался: O₂ + O' : 'озон цел';
+    const el = document.getElementById('kBrk');
+    el.textContent = brk;
+    el.style.color = k > 0.5 ? '#ff8a5c' : '#7ee081';
+  }
+  const hv = Math.round(cmpHeat);
+  if (hv !== cmpShown){
+    cmpShown = hv;
+    document.getElementById('oHeat2').textContent = String(hv);
+    syncBot();
+  }
+}
+const m4HelpTxt = '<b>Озон — «избыточная» форма кислорода.</b> Собрать 3 молекулы O₂ в 2 молекулы O₃ энергетически невыгодно: нужно затратить 285 кДж/моль. Зато распад O₃ → O₂ + O отдаёт 106 кДж/моль — поэтому озон в 4,7 раза реакционнее кислорода и так сильно окисляет.';
+
+/* ---------- 3.6 Озоновый слой ---------- */
+const SKY = (function(){
+  const cv = document.createElement('canvas');
+  cv.width = 8; cv.height = 256;
+  const c = cv.getContext('2d');
+  const grd = c.createLinearGradient(0, 0, 0, 256);
+  grd.addColorStop(0, '#04060c');
+  grd.addColorStop(0.42, '#08182b');
+  grd.addColorStop(0.58, '#17456d');
+  grd.addColorStop(1, '#256f9e');
+  c.fillStyle = grd; c.fillRect(0, 0, 8, 256);
+  const tex = new THREE.CanvasTexture(cv);
+  const m = new THREE.Mesh(
+    new THREE.SphereGeometry(600, 32, 16),
+    new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide, fog: false, depthWrite: false })
+  );
+  return m;
+})();
+G.m5.add(SKY);
+
+const earth = new THREE.Mesh(
+  new THREE.BoxGeometry(500, 2, 500),
+  new THREE.MeshStandardMaterial({ color: 0x14432f, roughness: 0.9 })
+);
+earth.position.y = -1;
+G.m5.add(earth);
+
+function band(y0, y1, color, op){
+  const m = new THREE.Mesh(
+    new THREE.BoxGeometry(420, y1 - y0, 420),
+    new THREE.MeshBasicMaterial({ color, transparent: true, opacity: op, depthWrite: false })
+  );
+  m.position.y = (y0 + y1) / 2;
+  return m;
+}
+G.m5.add(band(0.6, 12, 0x2f7fd0, 0.06), band(12, 50, 0x2f7fd0, 0.1), band(20, 30, 0x7ee0ff, 0.09));
+
+[[12, 'Тропопауза 12 км'], [20, 'Озоновый слой 20–30 км'], [50, 'Стратопауза 50 км']].forEach(p => {
+  const l = makeLine([new THREE.Vector3(-140, p[0], 0), new THREE.Vector3(140, p[0], 0)], 0x9ad8ff, 0.4);
+  G.m5.add(l);
+});
+
+const UV = [
+  { name: 'УФ-C', color: 0x9a5cff, stop: 34, w: 1.5, op: 0.34 },
+  { name: 'УФ-B', color: 0x4d7cff, stop: 24, w: 1.5, op: 0.3 },
+  { name: 'УФ-A', color: 0x3ad0d0, stop: 0,  w: 1.1, op: 0.2 }
+];
+const uvBeams = [];
+UV.forEach((u, i) => {
+  const x = -22 + i * 20;
+  const top = 95, bot = u.stop;
+  const beam = new THREE.Mesh(
+    new THREE.BoxGeometry(u.w, top - bot, u.w),
+    new THREE.MeshBasicMaterial({ color: u.color, transparent: true, opacity: u.op, depthWrite: false })
+  );
+  beam.position.set(x, (top + bot) / 2, 0);
+  const pulse = new THREE.Mesh(
+    new THREE.BoxGeometry(u.w * 1.7, 2.6, u.w * 1.7),
+    new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.85, depthWrite: false })
+  );
+  pulse.position.set(x, top, 0);
+  pulse.visible = false;
+  G.m5.add(beam, pulse);
+  uvBeams.push({ beam, pulse, top, bot, color: u.color });
+});
+
+const ATM_N = 22, ATM_PER = 5.2;
+const atmGeo = new THREE.SphereGeometry(1, 10, 7);
+const matO2a = new THREE.MeshStandardMaterial({ color: 0xd8452f, roughness: 0.4, transparent: true });
+const matO3a = new THREE.MeshStandardMaterial({ color: 0xff6a4d, roughness: 0.4, transparent: true });
+const matAtomO = new THREE.MeshStandardMaterial({ color: 0x8fe3ff, emissive: 0x2a7fbf, emissiveIntensity: 0.8, roughness: 0.3, transparent: true });
+const atmSlots = [];
+for (let i = 0; i < ATM_N; i++){
+  const grp = new THREE.Group();
+  const s = (parent, x, y, z, mat) => {
+    const m = new THREE.Mesh(atmGeo, mat);
+    m.scale.setScalar(0.42); m.position.set(x, y, z);
+    parent.add(m);
+    return m;
+  };
+  const o2 = new THREE.Group();
+  o2.position.x = -0.6; grp.add(o2);
+  s(o2, -0.36, 0, 0, matO2a); s(o2, 0.36, 0, 0, matO2a);
+  const at = new THREE.Group();
+  at.position.x = 0.2; grp.add(at);
+  s(at, 0, 0, 0, matAtomO); s(at, 0, 0, 0, matAtomO);
+  const oz = new THREE.Group();
+  oz.position.x = 0.8; grp.add(oz);
+  const h = 58.4 * D2R / 2;
+  s(oz, -0.32 * Math.sin(h), 0.32 * Math.cos(h), 0, matO3a);
+  s(oz, 0, 0, 0, matO3a);
+  s(oz, 0.32 * Math.sin(h), 0.32 * Math.cos(h), 0, matO3a);
+  grp.position.set((Math.random() - 0.5) * 190, 21 + Math.random() * 9, (Math.random() - 0.5) * 120);
+  G.m5.add(grp);
+  atmSlots.push({ grp, o2, at, oz, ph: i / ATM_N, y0: grp.position.y, sp: Math.random() * 6.28 });
+}
+let uvOn = false, uvT = 0, uvCycles = -1;
+const m5HelpTxt = '<b>Ультрафиолет разбивает O₂ на атомы</b> (λ &lt; 242 нм), и атомы тут же присоединяются к другим молекулам: O + O₂ → O₃. Так рождается озон. Около 90% его сосредоточено в поясе 20–30 км. Если бы весь атмосферный озон привести к нормальному давлению, слой оказался бы <b>толщиной 3 мм</b>.';
+
+function stepAtm(dt){
+  if (uvOn) uvT += dt;
+  const t = uvOn ? uvT : 0;
+  const cyc = Math.floor(t / ATM_PER);
+  if (cyc !== uvCycles){
+    uvCycles = cyc;
+    document.getElementById('kCyc').textContent = String(cyc * ATM_N);
+  }
+  for (const s of atmSlots){
+    const p = (t / ATM_PER + s.ph) % 1;
+    s.grp.position.y = s.y0 + Math.sin(t * 0.25 + s.sp) * 1.6;
+    const o2on = p < 0.3 || (p > 0.55 && p < 0.84);
+    s.o2.visible = o2on;
+    s.oz.visible = p >= 0.84;
+    s.at.visible = p >= 0.3 && p < 0.84;
+    if (s.at.visible){
+      const k = (p - 0.3) / 0.54;
+      const spread = k < 0.45 ? 0.2 + k * 2.4 : 1.28;
+      s.at.children[0].position.set(-spread / 2, 0, 0);
+      s.at.children[1].position.set(spread / 2, 0, 0);
+    }
+    if (s.oz.visible && p < 0.98){
+      const k = (p - 0.84) / 0.14;
+      s.oz.scale.setScalar(0.25 + 0.75 * k);
+    } else s.oz.scale.setScalar(1);
+  }
+  for (const b of uvBeams){
+    b.pulse.visible = uvOn;
+    if (!uvOn) continue;
+    const ph = (t / 2.1) % 1;
+    const y = b.top - (b.top - b.bot) * ph;
+    b.pulse.position.set(b.beam.position.x, y, 0);
+    b.pulse.material.color.set(b.color);
+    b.pulse.material.opacity = 0.9 * (1 - ph * 0.6);
+  }
+}
+
+/* ============================================================
+   4. Режимы
+   ============================================================ */
+
+let mode = 0;
+const MODES = ['m0', 'm1', 'm2', 'm3', 'm4', 'm5', 'm0'];
+const STEPS = [
+  'Молекула озона — <b>O₃</b>. Три атома кислорода лежат в <b>одной плоскости</b>, но не на одной прямой: угол O–O–O = <b>116,8°</b>. Обе связи совершенно одинаковые — <b>1,278 Å</b>. Покрутите модель и смените шарики со «палочек» на объёмные.',
+  '<b>Резонанс.</b> Озон можно нарисовать двумя способами: O=O–O и O–O=O. Реальна <b>смесь</b> обеих форм: связи промежуточные, порядок <b>1,5</b>, длина 1,278 Å. Ни одна картинка не описывает молекулу точно.',
+  'В молекуле <b>18 валентных электронов</b>. У центрального кислорода <b>3 электронных облака</b> — две связи и одна неподелённая пара. Одинокая пара занимает больше места, чем связь, и сжимает угол с идеальных 120° до <b>116,8°</b>.',
+  'Обе связи полярны, и их дипольные моменты <b>частично гасят друг друга</b>: μ = 2·μ(связи)·cos(θ/2). При 116,8° остаётся 0,53 Д. Сдвиньте угол до 180° — и молекула станет неполярной, как CO₂.',
+  'Связь O=O вдвое прочнее связи в озоне: <b>498</b> против <b>106 кДж/моль</b>. Озон — «богатая энергией» форма кислорода: он нестабилен и в 4,7 раза реакционнее O₂. Нагрейте — и он распадётся на O₂ и атом O.',
+  '<b>Озоновый слой.</b> Ультрафиолет λ &lt; 242 нм разбивает O₂ на атомы, атомы собираются сновь в O₃. Около 90% атмосферного озона лежит в поясе 20–30 км и поглощает вредное излучение.',
+  'Ответьте на вопросы о строении молекулы озона и об озоновом слое.'
+];
+
+function camSmooth(yaw, pitch, dist, tx, ty, tz){
+  camTween = { yaw, pitch, dist, tx, ty, tz };
+  cam.sy = yaw; cam.sp = pitch; cam.sd = dist; cam.stx = tx; cam.sty = ty; cam.stz = tz;
+}
+
+const chip = (id, txt) => {
+  const el = document.getElementById(id);
+  el.style.display = txt ? '' : 'none';
+  el.innerHTML = txt;
+};
+const CHIPS = [
+  ['O<sub>3</sub> · угол <b>116,8°</b> · связь <b>1,278 Å</b>', ''],
+  ['структуры Льюиса и настоящая молекула', 'реальные связи: <b>1,278 Å</b>, порядок <b>1,5</b>'],
+  ['<b>18</b> валентных электронов', 'октет соблюдён, но связь O–O слабая'],
+  ['', 'μ = <b>' + document.getElementById('kMu').textContent + '</b> Д'],
+  ['<b>O₂</b>: 498 кДж/моль', 'O<sub>3</sub>: <b>106</b> кДж/моль'],
+  ['', 'O + O<sub>2</sub> → O<sub>3</sub>'],
+  ['<b>O<sub>3</sub></b> · угол <b>116,8°</b> · связь <b>1,278 Å</b>', '18 электронов · резонанс']
+];
+const LEGENDS = [
+  '<div><i style="background:#e8452f"></i>Концевой атом кислорода O</div><div><i style="background:#ffa15c"></i>Центральный атом O (δ+)</div>',
+  '<div><i style="background:#e8452f"></i>Концевой атом кислорода O</div><div><i style="background:#9aa3b5"></i>Связь</div>',
+  '<div><i style="background:#dfe6f2"></i>Электроны (неподелённые пары)</div><div><i style="background:#a78bfa"></i>Облако неподелённой пары</div>',
+  '<div><i style="background:#ff6b6b"></i>Диполь связи (δ+ → δ−)</div><div><i style="background:#33ccff"></i>Результирующий диполь</div>',
+  '<div><i style="background:#e8452f"></i>Кислород O</div><div><i style="background:#7fd4ff"></i>Отдельный атом кислорода</div>',
+  '<div><i style="background:#d8452f"></i>Молекула O₂</div><div><i style="background:#ff6a4d"></i>Молекула O₃</div><div><i style="background:#8fe3ff"></i>Атом O</div>',
+  '<div><i style="background:#e8452f"></i>Концевой атом кислорода O</div><div><i style="background:#ffa15c"></i>Центральный атом O (δ+)</div>'
+];
+
+function setMode(m){
+  mode = m;
+  Object.keys(G).forEach(k => G[k].visible = (MODES[m] === k));
+  ground.visible = grid.visible = (m !== 5);
+  scene.fog.color.set(m === 5 ? 0x1b4f7a : 0x08080b);
+  document.querySelectorAll('#steps .step').forEach(s => s.classList.toggle('is-on', +s.dataset.step === m));
+  document.querySelectorAll('.panel .sec').forEach(s => s.classList.toggle('is-on', s.id === 'sec' + m));
+
+  const note = document.getElementById('note');
+  note.innerHTML = STEPS[m];
+  note.classList.add('is-on');
+
+  document.getElementById('legend').innerHTML = LEGENDS[m];
+  document.getElementById('legend').style.display = '';
+  const c = CHIPS[m];
+  chip('chip1', c[0]); chip('chip2', c[1]);
+
+  if (m === 0) camSmooth(-0.6, 0.22, 5.2, 0, 0.35, 0);
+  else if (m === 1) camSmooth(0, 0.28, 13, 0, 0.3, 0);
+  else if (m === 2) camSmooth(-0.55, 0.2, 4.6, 0, 0.3, 0);
+  else if (m === 3) camSmooth(-0.5, 0.16, 4.4, 0, 0.6, 0);
+  else if (m === 4) camSmooth(-0.2, 0.24, 9.5, 0, 0.5, 0);
+  else if (m === 5) camSmooth(-0.1, 0.12, 165, 0, 40, 0);
+  else camSmooth(-0.6, 0.26, 6, 0, 0.4, 0);
+
+  syncBot();
+}
+document.getElementById('steps').addEventListener('click', e => {
+  const b = e.target.closest('.step');
+  if (!b) return;
+  setMode(+b.dataset.step);
+});
+
+/* ============================================================
+   5. Управление
+   ============================================================ */
+
+document.getElementById('sScale').addEventListener('input', e => {
+  scaleVal = +e.target.value;
+  document.getElementById('oScale').textContent = n(scaleVal, 1);
+  G.m0.scale.set(scaleVal, scaleVal, scaleVal);
+});
+document.getElementById('bSpin').addEventListener('click', e => {
+  spin = !spin;
+  e.target.textContent = spin ? '❚❚ Стоп вращение' : '▶ Вращение';
+  e.target.classList.toggle('btn--main', spin);
+});
+document.getElementById('bPlane').addEventListener('click', e => {
+  planeOn = !planeOn;
+  e.target.textContent = planeOn ? 'Плоскость: вкл' : 'Плоскость: выкл';
+  e.target.classList.toggle('btn--main', planeOn);
+  molPlane.visible = planeOn;
+});
+document.getElementById('bResetM').addEventListener('click', () => camSmooth(-0.6, 0.22, 5.2, 0, 0.35, 0));
+document.getElementById('modelBtns').addEventListener('click', e => {
+  const b = e.target.closest('.sBtn');
+  if (!b) return;
+  modelMode = +b.dataset.model;
+  document.querySelectorAll('#modelBtns .sBtn').forEach(x => x.classList.toggle('is-on', x === b));
+  applyModel();
+});
+
+document.getElementById('sOrd').addEventListener('input', e => {
+  resOrd = +e.target.value;
+  if (resOn) setRes(false);
+  syncRes();
+});
+document.getElementById('bOrdReset').addEventListener('click', () => {
+  resOrd = 1.5;
+  document.getElementById('sOrd').value = '1.5';
+  setRes(false);
+  syncRes();
+});
+function setRes(on){
+  resOn = on;
+  const b = document.getElementById('bRes');
+  b.textContent = on ? '❚❚ Стоп анимацию' : '▶ Анимация резонанса';
+  b.classList.toggle('btn--main', on);
+  if (!on){ setGroupOp(mA.g, 1); setGroupOp(mB.g, 1); }
+}
+document.getElementById('bRes').addEventListener('click', () => setRes(!resOn));
+
+document.getElementById('bDots').addEventListener('click', e => {
+  dotsOn = !dotsOn;
+  e.target.textContent = dotsOn ? 'Точки: вкл' : 'Точки: выкл';
+  e.target.classList.toggle('btn--main', dotsOn);
+  applyElec();
+});
+document.getElementById('bCloud').addEventListener('click', e => {
+  cloudOn = !cloudOn;
+  e.target.textContent = cloudOn ? 'Облака: вкл' : 'Облака: выкл';
+  e.target.classList.toggle('btn--main', cloudOn);
+  applyElec();
+});
+document.getElementById('bIdeal').addEventListener('click', e => {
+  idealOn = !idealOn;
+  e.target.textContent = idealOn ? 'Скрыть 120°' : 'Показать идеальные 120°';
+  e.target.classList.toggle('btn--main', idealOn);
+  applyElec();
+});
+
+document.getElementById('sAng').addEventListener('input', e => {
+  dipAng = +e.target.value;
+  syncDip();
+});
+document.getElementById('bReal').addEventListener('click', () => {
+  dipAng = ANG;
+  document.getElementById('sAng').value = '116.8';
+  syncDip();
+});
+document.getElementById('bDip').addEventListener('click', e => {
+  dipOn = !dipOn;
+  e.target.textContent = dipOn ? 'Диполи: вкл' : 'Диполи: выкл';
+  e.target.classList.toggle('btn--main', dipOn);
+  syncDip();
+});
+
+document.getElementById('sHeat').addEventListener('input', e => { cmpHeat = +e.target.value; });
+document.getElementById('bUV').addEventListener('click', e => {
+  uvOn = !uvOn;
+  e.target.textContent = uvOn ? '❚❚ Стоп ультрафиолет' : 'Пустить ультрафиолет';
+  e.target.classList.toggle('btn--main', uvOn);
+});
+document.getElementById('bUVReset').addEventListener('click', () => {
+  uvT = 0; uvCycles = 0;
+});
+
+/* ============================================================
+   6. Нижний виджет
+   ============================================================ */
+
+const cvB = document.getElementById('cvBot');
+const ctxB = cvB.getContext('2d');
+const tilesHost = document.getElementById('tiles');
+
+const BOT_TITLE = [
+  'Скелетная формула молекулы O₃',
+  'Структуры Льюиса и настоящая молекула',
+  'Правило VSEPR: три электронных области',
+  'Сложение дипольных моментов',
+  'Энергетическая диаграмма: 3 O₂ → 2 O₃',
+  'Профиль озона в атмосфере',
+  'Результат'
+];
+function botTiles(){
+  switch (mode){
+    case 0: return [['УГОЛ O–O–O', '116,8', '°'], ['ДЛИНА СВЯЗИ', '1,278', 'Å'], ['ВАЛЕНТНЫХ ЭЛЕКТРОНОВ', '18', ''], ['РАСПОЛОЖЕНИЕ АТОМОВ', 'Плоское', '']];
+    case 1: return [['ПОРЯДОК СВЯЗИ', n(resOrd, 2), ''], ['ДЛИНА СВЯЗИ', n(bondLen(resOrd), 3), 'Å'], ['ПРОЧНОСТЬ СВЯЗИ', n(bondEnergy(resOrd), 0), 'кДж/моль'], ['СТРУКТУР ЛЬЮИСА', '2', 'штуки']];
+    case 2: return [['ВСЕГО ЭЛЕКТРОНОВ', '18', ''], ['В ТРЁХ СВЯЗЯХ', '6', 'эл.'], ['НЕПОДЕЛЁННЫХ ПАР', '6', 'пар'], ['ОКЕТ У ЦЕНТРАЛЬНОГО O', 'есть', '8 эл.']];
+    case 3: return [['УГОЛ МЕЖДУ СВЯЗЯМИ', n(dipAng, 1), '°'], ['cos(θ/2)', n(Math.cos(dipAng * D2R / 2), 3), ''], ['ДИПОЛЬНЫЙ МОМЕНТ', n(2 * MU_BOND * Math.cos(dipAng * D2R / 2), 2), 'Д'], ['ПОЛЯРНОСТЬ', Math.abs(Math.cos(dipAng * D2R / 2)) < 0.02 ? 'нет' : 'да', '']];
+    case 4: {
+      const k = clamp((cmpHeat - 55) / 25, 0, 1);
+      return [['СВЯЗЬ O₂', '498', 'кДж/моль'], ['СВЯЗЬ O₃', '106', 'кДж/моль'], ['ВО СКОЛЬКО РАЗ СЛАБЕЕ', '4,7', 'раз'], ['O₃ → O₂ + O', k > 0.5 ? '+106' : '0', 'кДж/моль']];
+    }
+    case 5: return [['ВЫСОТА СЛОЯ', '20–30', 'км'], ['ДОЛЯ ОЗОНА АТМОСФЕРЫ', '90', '%'], ['ТОЛЩИНА ПРИ 0 °С И 1 атм', '3', 'мм'], ['ПОГЛОЩАЕТ ИЗЛУЧЕНИЕ', 'λ < 242', 'нм']];
+    default: {
+      const p = kTotal ? Math.round(kRight / kTotal * 100) : 0;
+      const g = p >= 80 ? 'отлично' : p >= 60 ? 'хорошо' : p > 0 ? 'повторите' : 'начните';
+      return [['ВЕРНЫХ ОТВЕТОВ', String(kRight), ''], ['ВСЕГО ВОПРОСОВ', String(kTotal), ''], ['ПРОЦЕНТ', String(p), '%'], ['ОЦЕНКА', g, '']];
+    }
+  }
+}
+function botPts(cx, cy, R, ang){
+  const h = (ang == null ? ANG : ang) * D2R / 4;
+  return {
+    p1: { x: cx - R * Math.sin(h), y: cy - R * Math.cos(h) },
+    c:  { x: cx, y: cy },
+    p2: { x: cx + R * Math.sin(h), y: cy - R * Math.cos(h) }
+  };
+}
+function botAtom(c, p, r, color, label){
+  c.beginPath(); c.arc(p.x, p.y, r, 0, 6.2832);
+  c.fillStyle = color; c.fill();
+  c.fillStyle = '#0a0a0e';
+  c.font = 'bold 11px system-ui'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText(label, p.x, p.y + 0.5);
+}
+function botBond(c, p, q, double){
+  c.strokeStyle = '#8b90a0'; c.lineWidth = 2; c.lineCap = 'round';
+  [[-3, 3]].forEach(o => {
+    c.beginPath();
+    c.moveTo(p.x + o[0], p.y + o[1]);
+    c.lineTo(q.x + o[0], q.y + o[1]);
+    c.stroke();
+  });
+  if (double){
+    c.beginPath();
+    c.moveTo(p.x, p.y - 3.5); c.lineTo(q.x, q.y - 3.5);
+    c.moveTo(p.x, p.y + 3.5); c.lineTo(q.x, q.y + 3.5);
+    c.stroke();
+  }
+}
+function botDots(c, p, dirs, r){
+  c.fillStyle = '#dfe6f2';
+  dirs.forEach(d => {
+    for (let s = -1; s <= 1; s += 2){
+      c.beginPath();
+      c.arc(p.x + d[0] * r - d[1] * 2.4 * s, p.y + d[1] * r + d[0] * 2.4 * s, 1.9, 0, 6.2832);
+      c.fill();
+    }
+  });
+}
+function drawBot(){
+  const W = cvB.clientWidth, H = cvB.clientHeight;
+  if (!W || !H) return;
+  const dpr = Math.min(devicePixelRatio, 2);
+  if (cvB.width !== Math.round(W * dpr)){
+    cvB.width = Math.round(W * dpr);
+    cvB.height = Math.round(H * dpr);
+  }
+  const c = ctxB;
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  c.clearRect(0, 0, W, H);
+  c.textBaseline = 'alphabetic';
+
+  c.fillStyle = '#8b90a0'; c.font = '11px system-ui'; c.textAlign = 'left';
+  c.fillText(BOT_TITLE[mode], 4, 14);
+
+  if (mode === 0 || mode === 1){
+    if (mode === 0){
+      const P = botPts(W * 0.28, H * 0.72, 42);
+      botBond(c, P.p1, P.c, false);
+      botBond(c, P.c, P.p2, false);
+      botAtom(c, P.p1, 11, '#e8452f', 'O');
+      botAtom(c, P.c, 12.5, '#ffa15c', 'O');
+      botAtom(c, P.p2, 11, '#e8452f', 'O');
+      c.strokeStyle = '#33ccff'; c.lineWidth = 1.4;
+      c.beginPath(); c.arc(P.c.x, P.c.y, 22, -1.02, 1.02); c.stroke();
+      c.fillStyle = '#33ccff'; c.font = '11px system-ui'; c.textAlign = 'center';
+      c.fillText('116,8°', P.c.x, P.c.y - 27);
+      c.textAlign = 'left'; c.fillStyle = '#6b7080'; c.font = '11px system-ui';
+      c.fillText('Плоская молекула: все три атома лежат', W * 0.56, H * 0.42);
+      c.fillText('в одной плоскости, угол 116,8°.', W * 0.56, H * 0.42 + 16);
+      c.fillText('Обе связи 1,278 Å, порядок 1,5.', W * 0.56, H * 0.42 + 32);
+      c.fillText('Всего 18 валентных электронов.', W * 0.56, H * 0.42 + 48);
+    } else {
+      const y = H * 0.6, R = 32;
+      [[0.22, 2, 1, 'структура I'], [0.78, 1, 2, 'структура II']].forEach(s => {
+        const P = botPts(W * s[0], y, R);
+        botBond(c, P.p1, P.c, s[1] === 2);
+        botBond(c, P.c, P.p2, s[2] === 2);
+        botAtom(c, P.p1, 10, '#e8452f', 'O');
+        botAtom(c, P.c, 11, '#ffa15c', 'O');
+        botAtom(c, P.p2, 10, '#e8452f', 'O');
+        botDots(c, P.p1, [[-0.4, -0.9], [0.4, 0.9]], 13);
+        botDots(c, P.c, [[-0.6, 0.8]], 12);
+        botDots(c, P.p2, [[-0.4, -0.9], [0.4, 0.9], [0.95, 0.1]], 13);
+        c.fillStyle = '#6b7080'; c.font = '10px system-ui'; c.textAlign = 'center';
+        c.fillText(s[3] + ': 1,208 и 1,484 Å', W * s[0], y + R + 20);
+      });
+      c.fillStyle = '#33ccff'; c.font = '18px system-ui'; c.textAlign = 'center';
+      c.fillText('⇄', W * 0.5, y + 6);
+      c.fillStyle = '#7ee081'; c.font = '11px system-ui';
+      c.fillText('реально: порядок 1,5, длина 1,278 Å', W * 0.5, H * 0.22);
+    }
+    return;
+  }
+
+  if (mode === 2){
+    const cx = W * 0.24, cy = H * 0.66, R = 34;
+    const P = botPts(cx, cy, R);
+    c.strokeStyle = '#33ccff'; c.lineWidth = 5; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(P.p1.x, P.p1.y); c.lineTo(P.c.x, P.c.y); c.lineTo(P.p2.x, P.p2.y); c.stroke();
+    c.fillStyle = '#a78bfa';
+    c.beginPath(); c.arc(cx, cy + 34, 12, 0, 6.2832); c.fill();
+    c.fillStyle = '#0a0a0e'; c.font = 'bold 10px system-ui'; c.textAlign = 'center';
+    c.fillText('••', cx, cy + 37);
+    c.fillStyle = '#6b7080'; c.font = '11px system-ui'; c.textAlign = 'left';
+    const lines = [
+      '2 связи + 1 неподелённая пара = 3 области',
+      '3 области → форма «угол», а не линия',
+      'идеальный угол 120°, реальный 116,8°',
+      'неподелённая пара толще связей и',
+      'сжимает угол на 3,2°',
+      '18 электронов: 6 в связях, 12 в парах —',
+      'октет соблюдён, но концевые O — δ+'
+    ];
+    lines.forEach((s, i) => c.fillText(s, W * 0.52, H * 0.28 + i * 15));
+    return;
+  }
+
+  if (mode === 3){
+    const cx = W * 0.24, cy = H * 0.74, R = 36;
+    const P = botPts(cx, cy, R, dipAng);
+    c.strokeStyle = '#ff6b6b'; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(P.p1.x, P.p1.y); c.lineTo(P.c.x, P.c.y); c.lineTo(P.p2.x, P.p2.y); c.stroke();
+    c.beginPath(); c.moveTo(P.c.x, P.c.y - 22); c.lineTo(P.c.x, P.c.y - 52); c.stroke();
+    c.beginPath(); c.moveTo(P.c.x - 4, P.c.y - 46); c.lineTo(P.c.x, P.c.y - 54); c.lineTo(P.c.x + 4, P.c.y - 46);
+    c.strokeStyle = '#33ccff'; c.lineWidth = 2.4;
+    c.beginPath(); c.moveTo(P.c.x, P.c.y - 22); c.lineTo(P.c.x, P.c.y - 58); c.stroke();
+    c.fillStyle = '#6b7080'; c.font = '11px system-ui'; c.textAlign = 'left';
+    const mu = 2 * MU_BOND * Math.cos(dipAng * D2R / 2);
+    c.fillText('Красные — диполи двух связей (δ+ → δ−).', W * 0.52, H * 0.34);
+    c.fillText('Синий — их сумма: ' + n(mu, 2) + ' Д.', W * 0.52, H * 0.34 + 16);
+    c.fillText('Вертикальные части складываются,', W * 0.52, H * 0.34 + 38);
+    c.fillText('горизонтальные гасят друг друга.', W * 0.52, H * 0.34 + 54);
+    c.fillText('При 180° сумма равна нулю.', W * 0.52, H * 0.34 + 76);
+    return;
+  }
+
+  if (mode === 4){
+    const base = H - 24, top = 26;
+    c.strokeStyle = 'rgba(255,255,255,.12)'; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(30, top); c.lineTo(30, base); c.lineTo(W - 8, base); c.stroke();
+    c.fillStyle = '#6b7080'; c.font = '10px system-ui'; c.textAlign = 'right';
+    c.fillText('0', 26, base + 3);
+    c.fillText('+143', 26, top + 4);
+    c.fillText('кДж/моль', 26, top - 8);
+    const yTop = base - (base - top) * 0.62, yBot = base;
+    c.fillStyle = 'rgba(51,204,255,.18)';
+    c.fillRect(46, yTop, W * 0.3, base - yTop);
+    c.fillStyle = '#33ccff'; c.fillRect(46, yTop, W * 0.3, 2.5);
+    c.fillStyle = 'rgba(255,138,92,.18)';
+    c.fillRect(W * 0.52, yBot - 3, W * 0.28, 3);
+    c.fillStyle = '#33ccff'; c.font = '12px system-ui'; c.textAlign = 'left';
+    c.fillText('2 O₃', 48, yTop - 6);
+    c.fillStyle = '#ff8a5c';
+    c.fillText('3 O₂', W * 0.52, base - 8);
+    c.strokeStyle = '#ff8a5c'; c.lineWidth = 2;
+    c.beginPath();
+    c.moveTo(W * 0.42, base - 3); c.lineTo(W * 0.42, yTop);
+    c.moveTo(W * 0.42 - 4, yTop + 8); c.lineTo(W * 0.42, yTop); c.lineTo(W * 0.42 + 4, yTop + 8);
+    c.stroke();
+    c.fillStyle = '#6b7080'; c.font = '11px system-ui';
+    c.fillText('получить озон — затратить 285 кДж/моль', W * 0.52, yTop + 16);
+    c.fillText('O₃ → O₂ + O — отдать 106 кДж/моль', W * 0.52, yTop + 32);
+    return;
+  }
+
+  if (mode === 5){
+    const L = 34, Rr = W - 10, T = 26, B = H - 20;
+    c.strokeStyle = 'rgba(255,255,255,.12)'; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(L, B); c.lineTo(L, T); c.lineTo(Rr, B); c.stroke();
+    c.fillStyle = 'rgba(51,204,255,.2)';
+    c.beginPath(); c.moveTo(L, B);
+    for (let i = 0; i <= 60; i++){
+      const km = i / 60 * 60;
+      const f = Math.exp(-Math.pow((km - 25) / 11, 2));
+      c.lineTo(L + (Rr - L) * km / 60, B - f * (B - T) * 0.92);
+    }
+    c.lineTo(Rr, B); c.closePath(); c.fill();
+    c.strokeStyle = '#33ccff'; c.lineWidth = 2; c.beginPath();
+    for (let i = 0; i <= 60; i++){
+      const km = i / 60 * 60;
+      const f = Math.exp(-Math.pow((km - 25) / 11, 2));
+      const X = L + (Rr - L) * km / 60, Y = B - f * (B - T) * 0.92;
+      if (i === 0) c.moveTo(X, Y); else c.lineTo(X, Y);
+    }
+    c.stroke();
+    c.fillStyle = '#6b7080'; c.font = '10px system-ui'; c.textAlign = 'center';
+    [0, 15, 30, 45, 60].forEach(km => c.fillText(km, L + (Rr - L) * km / 60, B + 13));
+    c.textAlign = 'right'; c.fillText('км', L - 4, B + 13);
+    c.fillStyle = '#33ccff'; c.textAlign = 'center';
+    c.fillText('максимум 25 км — 300 ДОБ', L + (Rr - L) * 25 / 60, T - 6);
+    c.fillStyle = '#6b7080'; c.textAlign = 'left';
+    c.fillText('ДОБ — единица толщины слоя озона', 8, T - 6);
+    return;
+  }
+
+  const p = kTotal ? kRight / kTotal : 0;
+  c.fillStyle = '#6b7080'; c.font = '11px system-ui'; c.textAlign = 'left';
+  c.fillText('Проверьте себя на вкладке справа — вопросы меняются.', 6, H * 0.45);
+  const bw = W - 120;
+  c.fillStyle = 'rgba(255,255,255,.08)';
+  c.fillRect(100, H * 0.58, bw, 10);
+  c.fillStyle = p >= 0.6 ? '#7ee081' : '#ff8a5c';
+  c.fillRect(100, H * 0.58, bw * clamp(p, 0, 1), 10);
+  c.fillStyle = '#eceff4'; c.font = 'bold 20px system-ui';
+  c.fillText(kRight + ' / ' + kTotal, 6, H * 0.67);
+}
+function syncBot(){
+  tilesHost.innerHTML = botTiles().map(t =>
+    '<div><span>' + t[0] + '</span><b>' + t[1] + '</b>' + (t[2] ? '<span class="u">' + t[2] + '</span>' : '') + '</div>'
+  ).join('');
+  drawBot();
+}
+
+/* ============================================================
+   7. Задачи
+   ============================================================ */
+
+const QUIZ = [
+  {
+    q: 'Какой угол между атомами в настоящей молекуле озона?',
+    opt: ['104,5°', '116,8°', '120°', '180°'], right: 1,
+    expl: 'Три электронные области у центрального O тяготеют к 120°, но неподелённая пара сжимает угол до <b>116,8°</b>. 104,5° — это угол в воде.'
+  },
+  {
+    q: 'Сколько валентных электронов в молекуле O₃?',
+    opt: ['6', '12', '18', '24'], right: 2,
+    expl: 'У каждого атома кислорода по 6 валентных электронов: 6 · 3 = <b>18</b>. Из них 6 — в трёх связях, а 12 — в шести неподелённых парах.'
+  },
+  {
+    q: 'Почему две связи в O₃ одинаковые, если в одной структуре Льюиса одна записана двойной, а в другой — одинарной?',
+    opt: ['Потому что молекула состоит из разных атомов', 'Потому что структуры — не молекулы, а лишь способы описания, и реально есть их смесь (резонанс)',
+      'Потому что в структуре Льюиса нельзя писать двойную связь', 'Потому что атомы различаются по размеру'], right: 1,
+    expl: 'Обе картинки неверны по отдельности. Молекула — <b>гибрид</b> двух форм, поэтому обе связи имеют промежуточный порядок 1,5 и одинаковую длину 1,278 Å.'
+  },
+  {
+    q: 'Сколько электронных облаков вокруг центрального атома кислорода в O₃?',
+    opt: ['2', '3', '4', '5'], right: 1,
+    expl: 'Две связи и одна неподелённая пара — итого <b>3 области</b>. По правилу VSEPR три области дают форму «угол».'
+  },
+  {
+    q: 'У всех трёх атомов кислорода в O₃ соблюдён октет. Тогда почему озон — такой сильный окислитель?',
+    opt: ['Связь O–O слабая, а на концевом атоме сидит δ+ — он отнимает электроны',
+      'Потому что у атомов слишком много электронов', 'Потому что молекула очень большая',
+      'Потому что озон радиоактивен'], right: 0,
+    expl: 'Связь O–O в озоне почти вдвое слабее двойной связи в O₂ (106 против 498 кДж/моль), и распад O₃ → O₂ + O выделяет энергию. А на концевом атоме сидит <b>частичный положительный заряд</b>: он отнимает электроны у всего, к чему прикасается.'
+  },
+  {
+    q: 'Дипольный момент молекулы озона при угле 116,8° равен примерно 0,5 Д. Почему он такой маленький, хотя обе связи полярны?',
+    opt: ['Обе связи неполярны', 'Диполи связей направлены навстречу друг другу и гасятся',
+      'Молекула неполярна совсем', 'Атомы кислорода не электризуются'], right: 1,
+    expl: 'Диполь связи направлен от центрального δ+ к концевому δ−. Продольные компоненты складываются, поперечные взаимно уничтожаются. Остаётся <b>0,53 Д</b>. При линейном угле 180° был бы ноль, как у CO₂.'
+  },
+  {
+    q: 'Связь в молекуле O₂ примерно во сколько раз прочнее связи в O₃?',
+    opt: ['в 2 раза', 'в 4,7 раза', 'в 10 раз', 'они одинаковые'], right: 1,
+    expl: '498 кДж/моль против 106 кДж/моль — примерно в <b>4,7 раза</b>. Именно поэтому озон легко распадается на O₂ и атом кислорода и так сильно окисляет.'
+  },
+  {
+    q: 'Где сосредоточено около 90% озона атмосферы?',
+    opt: ['У самой поверхности Земли', 'В поясе 20–30 км (стратосфера)', 'В верхней атмосфере, 80–100 км', 'Оно распределено равномерно'],
+    right: 1,
+    expl: 'Слой сосредоточен в <b>стратосфере, 20–30 км</b>. Именно там ультрафиолет превращает O₂ в атомы, из которых собирается озон.'
+  },
+  {
+    q: 'Какая толщина получится, если весь озоновый слой атмосферы привести к нормальному давлению?',
+    opt: ['3 м', '3 км', '3 мм', '30 см'], right: 2,
+    expl: 'Всего <b>3 миллиметра</b>. Столь тонкий слой держит всю жизнь на Земле от жёсткого ультрафиолета.'
+  }
+];
+let quizIndex = -1, kRight = 0, kTotal = 0;
+function nextQuiz(){
+  if (QUIZ.length > 1){
+    let nx = Math.floor(Math.random() * QUIZ.length);
+    while (nx === quizIndex % QUIZ.length) nx = Math.floor(Math.random() * QUIZ.length);
+    quizIndex = nx;
+  } else quizIndex = 0;
+  const t = QUIZ[quizIndex];
+  document.getElementById('taskQ').innerHTML = t.q;
+  document.getElementById('taskOpts').innerHTML = t.opt.map((o, i) =>
+    '<button class="opt" data-i="' + i + '">' + String.fromCharCode(65 + i) + ') ' + o + '</button>').join('');
+  document.getElementById('taskExpl').className = 'expl';
+}
+document.getElementById('taskOpts').addEventListener('click', e => {
+  const b = e.target.closest('.opt');
+  if (!b) return;
+  const t = QUIZ[quizIndex];
+  const i = +b.dataset.i;
+  if (b.classList.contains('is-right')) return;
+  kTotal++;
+  document.getElementById('kTotal').textContent = kTotal;
+  const btns = [...document.querySelectorAll('#taskOpts .opt')];
+  const ex = document.getElementById('taskExpl');
+  if (i === t.right){
+    b.classList.add('is-right');
+    kRight++;
+    document.getElementById('kRight').textContent = kRight;
+    ex.innerHTML = '<b>Верно!</b> ' + t.expl;
+    ex.classList.add('is-on');
+  } else {
+    b.classList.add('is-wrong');
+    btns[t.right].classList.add('is-right');
+    ex.innerHTML = 'Правильный ответ — <b>' + String.fromCharCode(65 + t.right) + ')</b>. ' + t.expl;
+    ex.classList.add('is-on');
+  }
+  syncBot();
+});
+document.getElementById('bNext').addEventListener('click', nextQuiz);
+nextQuiz();
+
+/* ============================================================
+   8. Цикл
+   ============================================================ */
+
+function resize(){
+  const w = host.clientWidth, h = host.clientHeight;
+  if (!w || !h) return;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+  drawBot();
+}
+window.addEventListener('resize', resize);
+
+const _v4 = new THREE.Vector3();
+const _arcLab = new THREE.Vector3(0, 0.95, 0);
+const _lpLab = new THREE.Vector3(0, -1.15, 0);
+function labelsForMode(){
+  hideLabels();
+  if (mode === 0 || mode === 6){
+    const a = spin0.rotation.y;
+    rotY(mol0.t1.position, a, _v4); placeLabel('a', _v4.x, _v4.y, _v4.z, 'O₁', true, 'lab--t');
+    rotY(mol0.t2.position, a, _v4); placeLabel('b', _v4.x, _v4.y, _v4.z, 'O₃', true, 'lab--t');
+    rotY(mol0.cc.position, a, _v4); placeLabel('c', _v4.x + 0.72, _v4.y - 0.42, _v4.z, 'O₂ (центр)', true, 'lab--o');
+    rotY(_arcLab, a, _v4); placeLabel('d', _v4.x, _v4.y, _v4.z, '116,8°', true, 'lab--a');
+    placeLabel('e', 0, -1.6 * scaleVal, 0, '2,18 Å между центрами атомов', sizeGuide.visible, 'lab--a');
+    return;
+  }
+  if (mode === 1){
+    placeLabel('a', -5.2, -1.55, 0, 'структура I: O=O–O', true, 'lab--t');
+    placeLabel('b', -5.2, -1.9, 0, '1,208 и 1,484 Å', true, 'lab--a');
+    placeLabel('c', 0, -1.55, 0, 'РЕАЛЬНАЯ МОЛЕКУЛА', true, 'lab--g');
+    placeLabel('d', 0, -1.9, 0, n(bondLen(resOrd), 3) + ' Å, порядок ' + n(resOrd, 2), true, 'lab--g');
+    placeLabel('e', 5.2, -1.55, 0, 'структура II: O–O=O', true, 'lab--t');
+    return;
+  }
+  if (mode === 2){
+    const a = spin2.rotation.y;
+    rotY(mol2.t1.position, a, _v4); placeLabel('a', _v4.x, _v4.y, _v4.z, '2 пары', true, 'lab--v');
+    rotY(mol2.t2.position, a, _v4); placeLabel('b', _v4.x, _v4.y, _v4.z, '3 пары', true, 'lab--v');
+    rotY(mol2.cc.position, a, _v4); placeLabel('c', _v4.x, _v4.y, _v4.z, '1 пара', true, 'lab--v');
+    rotY(_lpLab, a, _v4);
+    placeLabel('d', _v4.x, _v4.y, _v4.z, 'октет соблюдён, концевые O — δ+', true, 'lab--o');
+    if (idealOn){
+      rotY(magLab, a, _v4);
+      placeLabel('e', _v4.x, _v4.y, _v4.z, 'идеал 120° и факт 116,8° — разница ×4', true, 'lab--g');
+    }
+    return;
+  }
+  if (mode === 3){
+    const half = dipAng * D2R / 2, L = bondLen(1.5);
+    _v1.set(-Math.sin(half), Math.cos(half), 0).multiplyScalar(L);
+    _v2.set(Math.sin(half), Math.cos(half), 0).multiplyScalar(L);
+    placeLabel('a', _v1.x, _v1.y, 0, 'δ−', dipOn, 'lab--t');
+    placeLabel('b', _v2.x, _v2.y, 0, 'δ−', dipOn, 'lab--t');
+    placeLabel('c', 0, 0.0, 0, 'δ+', true, 'lab--o');
+    placeLabel('d', 0, 1.85, 0, 'μ = ' + n(2 * MU_BOND * Math.cos(half), 2) + ' Д', dipOn, 'lab--a');
+    return;
+  }
+  if (mode === 4){
+    placeLabel('a', -3.4, -1.15, 0, 'O₂ · 1,208 Å · порядок 2', true, 'lab--a');
+    const k = clamp((cmpHeat - 55) / 25, 0, 1);
+    placeLabel('b', 3.4, -1.15, 0, k > 0.5 ? 'O₂ + O' : 'O₃ · 1,278 Å · порядок 1,5', true, k > 0.5 ? 'lab--o' : 'lab--a');
+    placeLabel('c', 5.6, 1.3, 0, '+106 кДж/моль', k > 0.5, 'lab--o');
+    return;
+  }
+  if (mode === 5){
+    placeLabel('a', -46, 4, 0, 'Земля', true, 'lab--g');
+    placeLabel('b', 30, 6, 0, 'Тропосфера 0–12 км', true, 'lab--a');
+    placeLabel('c', 30, 25, 0, 'Озоновый слой 20–30 км', true, 'lab--g');
+    placeLabel('d', 30, 55, 0, 'Стратосфера 12–50 км', true, 'lab--a');
+    placeLabel('e', -34, 90, 0, 'Солнце: УФ-C и УФ-B', true, 'lab--o');
+    return;
+  }
+}
+
+function fpsLoop(now){
+  const dt = Math.min((now - lastT) / 1000, 0.05);
+  lastT = now;
+
+  if (mode === 0 && spin) spin0.rotation.y += dt * 0.75;
+  if (mode === 2 && spin) spin2.rotation.y -= dt * 0.6;
+  if (mode === 1 && resOn){
+    resT += dt;
+    const w = 0.5 + 0.5 * Math.sin(resT * 1.6);
+    setGroupOp(mA.g, 0.2 + 0.8 * (1 - w));
+    setGroupOp(mB.g, 0.2 + 0.8 * w);
+  }
+  if (mode === 4) applyCmp(dt);
+  if (mode === 5) stepAtm(dt);
+
+  if (camTween){
+    cam.yaw += (camTween.yaw - cam.yaw) * 0.07;
+    cam.pitch += (camTween.pitch - cam.pitch) * 0.07;
+    cam.dist += (camTween.dist - cam.dist) * 0.07;
+    cam.tx += (camTween.tx - cam.tx) * 0.07;
+    cam.ty += (camTween.ty - cam.ty) * 0.07;
+    cam.tz += (camTween.tz - cam.tz) * 0.07;
+  } else {
+    cam.yaw += (cam.sy - cam.yaw) * 0.07;
+    cam.pitch += (cam.sp - cam.pitch) * 0.07;
+    cam.dist += (cam.sd - cam.dist) * 0.07;
+    cam.tx += (cam.stx - cam.tx) * 0.07;
+    cam.ty += (cam.sty - cam.ty) * 0.07;
+    cam.tz += (cam.stz - cam.tz) * 0.07;
+  }
+  applyCamera();
+
+  labelsForMode();
+  projectLabels(host.clientWidth, host.clientHeight);
+  renderer.render(scene, camera);
+  requestAnimationFrame(fpsLoop);
+}
+
+let lastT = performance.now();
+window.__ozoneState = () => ({
+  mode, resOn, dotsOn, cloudOn, idealOn, uvOn, uvCycles,
+  angle: dipAng, order: resOrd, bond: bondLen(resOrd),
+  camYaw: cam.yaw, camDist: cam.dist
+});
+
+/* ============================================================
+   9. Старт
+   ============================================================ */
+
+applyModel();
+buildDots();
+applyElec();
+syncDip();
+syncRes();
+document.getElementById('m2Help').innerHTML = m2HelpTxt;
+document.getElementById('m4Help').innerHTML = m4HelpTxt;
+document.getElementById('m5Help').innerHTML = m5HelpTxt;
+molPlane.visible = planeOn;
+setMode(0);
+resize();
+requestAnimationFrame(fpsLoop);
+
+})();
+</script>
+</body>
+</html>

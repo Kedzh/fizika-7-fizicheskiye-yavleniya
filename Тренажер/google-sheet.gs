@@ -1,10 +1,15 @@
 /*********************************************************
- *  Сбор результатов прохождения тренажёра по физике
+ *  Сбор результатов прохождения тренажёров (физика и математика)
  *  Google Apps Script — веб-приложение
  *
  *  ТАБЛИЦА УЖЕ УКАЗАНА
  *  https://docs.google.com/spreadsheets/d/1qbNXTekKjG1zCQcY3rMAFgEDq1j4m9Dhtwe5i9CUam4/edit
  *  ID: 1qbNXTekKjG1zCQcY3rMAFgEDq1j4m9Dhtwe5i9CUam4
+ *
+ *  ЛИСТЫ
+ *  - Физика (без поля tab) — первый лист, как и раньше.
+ *  - Математика (поле tab = «Математика») — отдельный лист «Математика»,
+ *    создаётся автоматически при первой отправке.
  *
  *  КАК ПОДКЛЮЧИТЬ
  *  1. Откройте таблицу по ссылке выше.
@@ -41,41 +46,63 @@ var HEADERS = [
 function doGet(e) {
   try {
     var ss = openSheet();
-    ensureHeaders(ss);
+    ensureSheetHeaders(ss.getSheets()[0]);
+    var names = [];
+    ss.getSheets().forEach(function (s) { names.push(s.getName()); });
     return json({
       ok: true,
       name: ss.getName(),
       url: ss.getUrl(),
-      columns: HEADERS.length
+      columns: HEADERS.length,
+      sheets: names
     });
   } catch (err) {
     return json({ ok: false, error: String(err && err.message ? err.message : err) });
   }
 }
 
-/* Приём результата: тренажёр отправляет POST с JSON в теле */
+/* Приём результата: тренажёр отправляет POST с JSON в теле.
+   Для математики (поле tab = «Математика») — отдельный лист «Математика»,
+   иначе — первый лист таблицы (как было для физики). */
 function doPost(e) {
   var lock = LockService.getScriptLock();
   try {
     lock.waitLock(20000);
     var ss = openSheet();
-    var sheet = ensureHeaders(ss);
 
     var raw = e && e.postData && e.postData.contents ? e.postData.contents : '{}';
     var d = JSON.parse(raw);
-    var row = buildRow(d);
 
-    if (isDuplicate(sheet, row)) {
-      return json({ ok: true, skipped: true, reason: 'Дубль уже есть в таблице' });
-    }
+    var sheet = targetSheet(ss, d);
+    var res = writeRow(sheet, d);
 
-    sheet.appendRow(row);
-    return json({ ok: true, row: sheet.getLastRow() });
+    return json({ ok: true, sheet: sheet.getName(), row: res.row, skipped: !!res.reason, reason: res.reason || '' });
   } catch (err) {
     return json({ ok: false, error: String(err && err.message ? err.message : err) });
   } finally {
     try { lock.releaseLock(); } catch (ignore) {}
   }
+}
+
+/* Лист назначения: «Математика» — отдельный лист с такими же заголовками */
+function targetSheet(ss, d) {
+  var tab = String((d && d.tab) || '').trim();
+  var sheet;
+  if (tab === 'Математика') {
+    sheet = ss.getSheetByName('Математика');
+    if (!sheet) sheet = ss.insertSheet('Математика');
+  } else {
+    sheet = ss.getSheets()[0];
+  }
+  return ensureSheetHeaders(sheet);
+}
+
+/* Проверка данных, защита от дублей и запись строки */
+function writeRow(sheet, d) {
+  var row = buildRow(d);
+  if (isDuplicate(sheet, row)) return { row: 0, reason: 'Дубль уже есть в таблице' };
+  sheet.appendRow(row);
+  return { row: sheet.getLastRow() };
 }
 
 /* Проверка данных перед записью: мусор и подделки в таблицу не попадают */
@@ -156,7 +183,7 @@ function normTime(v) {
 /* Ручная отправка строки из редактора — для проверки */
 function testFromEditor() {
   var ss = openSheet();
-  var sheet = ensureHeaders(ss);
+  var sheet = ensureSheetHeaders(ss.getSheets()[0]);
   sheet.appendRow(buildRow({
     date: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd.MM.yyyy'),
     time: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'HH:mm:ss'),
@@ -185,8 +212,7 @@ function openSheet() {
   throw new Error('Таблица не указана. Откройте скрипт из нужной таблицы или впишите SPREADSHEET_ID.');
 }
 
-function ensureHeaders(ss) {
-  var sheet = ss.getSheets()[0];
+function ensureSheetHeaders(sheet) {
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(HEADERS);
     sheet.getRange(1, 1, 1, HEADERS.length)

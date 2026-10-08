@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 8. Молекулы — физика 7 класс</title>
+<meta name="description" content="Интерактивная 3D-визуализация к §8 «Молекулы» (физика 7 класс, учебник Перышкина): конструктор молекул из атомов, распад и слияние молекул, рождение озона, масляная плёнка и туннельный микроскоп.">
+<meta name="keywords" content="молекулы, атомы, урок 8, физика 7 класс, озон, масляная плёнка, туннельный микроскоп, 3D">
+<style>
+:root{
+  --bg:#08080b; --panel:rgba(19,19,25,.86); --panel-2:#14141a;
+  --border:rgba(255,255,255,.1); --border-2:rgba(255,255,255,.2);
+  --text:#eceff4; --dim:#8b90a0;
+  --accent:#33ccff; --v:#8b5cf6; --h:#ff5fa2; --g:#7ee081; --warn:#ff6b6b;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--bg); color:var(--text); overflow:hidden;
+  font-family:'Segoe UI',Inter,system-ui,-apple-system,sans-serif; font-size:14px;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select{font:inherit;color:inherit}
+.app{
+  height:100%; display:grid;
+  grid-template-columns:1fr 370px;
+  grid-template-rows:56px 1fr 150px;
+  grid-template-areas:"top top" "stage panel" "chart panel";
+}
+.top{grid-area:top;display:flex;align-items:center;gap:16px;padding:0 18px;border-bottom:1px solid var(--border);background:var(--panel-2);z-index:5}
+.brand{display:flex;flex-direction:column;line-height:1.15;min-width:150px}
+.brand b{font-size:15px;letter-spacing:.2px}
+.brand span{font-size:11px;color:var(--dim)}
+.steps{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.step{
+  border:1px solid var(--border);background:transparent;color:var(--dim);
+  padding:7px 12px;border-radius:10px;cursor:pointer;transition:.16s;
+}
+.step:hover{color:var(--text);border-color:var(--border-2)}
+.step.is-on{color:var(--accent);border-color:rgba(51,204,255,.45);background:rgba(51,204,255,.12)}
+.top__hint{font-size:11px;color:var(--dim);white-space:nowrap}
+.stage{grid-area:stage;position:relative;overflow:hidden}
+#scene{position:absolute;inset:0}
+#scene canvas{display:block}
+.labels{position:absolute;inset:0;pointer-events:none}
+.lab{
+  position:absolute;transform:translate(-50%,-50%);
+  background:rgba(10,10,14,.82);border:1px solid var(--border);
+  padding:2px 8px;border-radius:8px;font-size:12px;white-space:nowrap;
+  backdrop-filter:blur(6px);
+}
+.lab--a{color:var(--accent);border-color:rgba(51,204,255,.4)}
+.lab--h{color:var(--h);border-color:rgba(255,101,162,.4)}
+.lab--g{color:var(--g);border-color:rgba(126,224,129,.4)}
+.hud{position:absolute;left:16px;top:14px;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.chip{
+  background:rgba(10,10,14,.7);border:1px solid var(--border);border-radius:10px;
+  padding:6px 11px;font-size:12px;backdrop-filter:blur(6px);
+}
+.chip b{color:var(--accent);font-weight:600}
+.legend{position:absolute;right:16px;top:14px;display:flex;flex-direction:column;gap:7px;
+  background:rgba(10,10,14,.7);border:1px solid var(--border);border-radius:10px;padding:10px 13px;
+  font-size:12px;backdrop-filter:blur(6px)}
+.legend i{display:inline-block;width:15px;height:15px;border-radius:50%;vertical-align:middle;margin-right:8px}
+.panel{grid-area:panel;border-left:1px solid var(--border);background:var(--panel-2);
+  overflow-y:auto;display:flex;flex-direction:column;gap:0}
+.sec{padding:14px 16px;border-bottom:1px solid var(--border);display:none}
+.sec.is-on{display:block}
+.sec__t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.row:last-child{margin-bottom:0}
+.row label{font-size:13px;color:var(--text)}
+.row output{font-size:13px;color:var(--accent);min-width:74px;text-align:right}
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi div{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:9px 11px}
+.kpi span{display:block;font-size:10px;color:var(--dim);letter-spacing:.05em;margin-bottom:3px}
+.kpi b{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.kpi .u{font-size:11px;color:var(--dim);margin-left:3px}
+.btn{
+  width:100%;padding:10px;border-radius:11px;cursor:pointer;
+  border:1px solid var(--border);background:rgba(255,255,255,.05);transition:.16s;
+}
+.btn:hover{border-color:var(--border-2);background:rgba(255,255,255,.09)}
+.btn--main{background:rgba(51,204,255,.14);border-color:rgba(51,204,255,.4);color:var(--accent)}
+.btn--go{background:rgba(126,224,129,.14);border-color:rgba(126,224,129,.4);color:var(--g)}
+.btn:disabled{opacity:.45;cursor:default}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btns3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.sBtn{padding:9px 4px;border-radius:10px;cursor:pointer;font-size:12.5px;
+  border:1px solid var(--border);background:rgba(255,255,255,.05);transition:.16s;color:var(--text)}
+.sBtn:hover{border-color:var(--border-2)}
+.sBtn.is-on{color:#101014;border-color:transparent;font-weight:600}
+.sBtn--o{background:rgba(255,107,107,.25)} .sBtn--h{background:rgba(255,95,162,.28)} .sBtn--c{background:rgba(144,151,163,.3)}
+.sBtn--o.is-on{background:#ff6b6b} .sBtn--h.is-on{background:#ff5fa2} .sBtn--c.is-on{background:#9097a3}
+.formula{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:10px;
+  padding:11px 12px;margin-bottom:9px;font-size:15px;text-align:center;line-height:1.7;color:var(--text)}
+.formula span{color:var(--dim);font-size:11px;display:block;margin-top:2px}
+.formula .H{color:#ff5fa2} .formula .O{color:#ff6b6b} .formula .C{color:#9097a3}
+.statLine{font-size:13px;margin-bottom:9px}
+.statLine b{color:var(--accent)}
+.problem{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:11px;padding:12px}
+.problem__q{font-size:13.5px;line-height:1.55;margin-bottom:12px}
+.opt{display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:8px;border-radius:10px;
+  border:1px solid var(--border);background:rgba(255,255,255,.04);cursor:pointer;transition:.15s;font-size:13px}
+.opt:hover{border-color:var(--border-2);background:rgba(255,255,255,.08)}
+.opt.is-right{border-color:rgba(126,224,129,.7);background:rgba(126,224,129,.14);color:var(--g)}
+.opt.is-wrong{border-color:rgba(255,107,107,.6);background:rgba(255,107,107,.12);color:var(--warn)}
+.expl{font-size:12.5px;line-height:1.5;color:var(--dim);margin-top:8px;display:none}
+.expl.is-on{display:block}
+.expl b{color:var(--g)}
+.counts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.counts .cnt{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:8px;text-align:center}
+.counts .cnt b{display:block;font-size:20px;font-weight:700}
+.counts .cnt span{font-size:10px;color:var(--dim)}
+.note{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);
+  background:rgba(10,10,14,.9);border:1px solid var(--border);border-radius:11px;
+  padding:8px 15px;font-size:12.5px;max-width:84%;text-align:center;backdrop-filter:blur(8px);
+  opacity:0;transition:.25s;pointer-events:none;z-index:3}
+.note.is-on{opacity:1}
+.note b{color:var(--accent)}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:5px}
+::-webkit-scrollbar-track{background:transparent}
+.stage,.panel,.chart{min-width:0;min-height:0}
+.chart{
+  grid-area:chart;border-top:1px solid var(--border);background:var(--panel-2);
+  display:flex;align-items:center;justify-content:center;padding:0 24px;position:relative;
+}
+.chart .equ{
+  font-size:20px;color:var(--accent);text-align:center;font-weight:600;line-height:1.5;position:relative;z-index:2;
+}
+.chart .equ em{font-style:normal;color:var(--dim);font-size:13px;display:block;margin-bottom:2px}
+@media(max-width:1000px){
+  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 44dvh 120px auto;
+       grid-template-areas:"top" "stage" "chart" "panel"}
+  .panel{border-left:0;border-top:1px solid var(--border)}
+  .legend{display:none}
+  .top__hint{display:none}
+  .top{flex-wrap:wrap;padding:9px 14px}
+  .brand{min-width:0}
+  .steps{margin-left:0;width:100%}
+  .step{flex:1;text-align:center;padding:7px 3px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="brand">
+      <b>Урок 8 · Молекулы</b>
+      <span>Физика · 7 класс · §8</span>
+    </div>
+    <div class="steps" id="steps">
+      <button class="step is-on" data-step="0">1 · Молекулы</button>
+      <button class="step" data-step="1">2 · Распад</button>
+      <button class="step" data-step="2">3 · Озон</button>
+      <button class="step" data-step="3">4 · Плёнка</button>
+      <button class="step" data-step="4">5 · Микроскоп</button>
+      <button class="step" data-step="5">6 · Проверка</button>
+    </div>
+    <div class="top__hint">Мышь — поворот · Колесо — масштаб</div>
+  </header>
+
+  <section class="stage">
+    <div id="scene"></div>
+    <div class="labels" id="labels"></div>
+
+    <div class="hud">
+      <div class="chip" id="chip1" style="display:none"></div>
+      <div class="chip" id="chip2" style="display:none"></div>
+    </div>
+
+    <div class="legend" id="legend"></div>
+    <div class="note" id="note"></div>
+  </section>
+
+  <aside class="panel">
+
+    <div class="sec is-on" id="sec0">
+      <h3 class="sec__t">Молекулы состоят из атомов</h3>
+      <div class="formula" id="asFormula">Молекула — мельчайшая частица вещества<span>Собери молекулу: выбери готовый образец или построй сам</span></div>
+      <div class="btns" style="margin-bottom:10px">
+        <button class="btn btn--main preset-mol" data-mol="H2O">Вода H₂O</button>
+        <button class="btn preset-mol" data-mol="O2">Кислород O₂</button>
+      </div>
+      <div class="btns" style="margin-bottom:10px">
+        <button class="btn preset-mol" data-mol="O3">Озон O₃</button>
+        <button class="btn preset-mol" data-mol="CO2">CO₂</button>
+      </div>
+      <div class="btns" style="margin-bottom:12px">
+        <button class="btn preset-mol" data-mol="H2">Водород H₂</button>
+        <button class="btn preset-mol" data-mol="CO">CO</button>
+      </div>
+      <div class="formula" id="cntLabel">Конструктор — добавь атомы<span>нажимай на «детали» и собери свою молекулу</span></div>
+      <div class="counts" id="countsRow">
+        <div class="cnt"><b id="cntH">0</b><span>атомов H</span></div>
+        <div class="cnt"><b id="cntO">0</b><span>атомов O</span></div>
+        <div class="cnt"><b id="cntC">0</b><span>атомов C</span></div>
+      </div>
+      <div class="btns3" style="margin-bottom:10px">
+        <button class="sBtn sBtn--h" id="btnAddH">＋ H</button>
+        <button class="sBtn sBtn--o" id="btnAddO">＋ O</button>
+        <button class="sBtn sBtn--c" id="btnAddC">＋ C</button>
+      </div>
+      <div class="btns" style="margin-bottom:12px">
+        <button class="btn btn--go" id="btnAssemble">Собрать</button>
+        <button class="btn" id="btnClearC">Сброс</button>
+      </div>
+      <div class="kpi">
+        <div><span>МАССА Mr</span><b id="kMass">18</b><span class="u">а.е.м.</span></div>
+        <div><span>РАЗМЕР</span><b id="kSize">0,31</b><span class="u">нм</span></div>
+        <div><span>ДЛИНА СВЯЗИ</span><b id="kBondV">0,096</b><span class="u">нм</span></div>
+        <div><span>АТОМОВ</span><b id="kAtoms">3</b><span class="u">шт.</span></div>
+      </div>
+      <div class="row" style="margin-top:10px"><label>Колебания · T</label><output id="oTemp">1,0</output></div>
+      <input type="range" id="sTemp" min="0" max="100" value="50">
+      <div class="expl" id="asMsg"></div>
+    </div>
+
+    <div class="sec" id="sec1">
+      <h3 class="sec__t">Распад и слияние молекул (рис. 23)</h3>
+      <div class="formula">2 H₂O → 2 H₂ + O₂<span>молекулы могут делиться на атомы и образовываться из них</span></div>
+      <button class="btn btn--main" id="btnRad">⚡ Облучить</button>
+      <div style="height:12px"></div>
+      <div class="kpi">
+        <div><span>ТЕМПЕРАТУРА</span><b id="dzT">300</b><span class="u">К</span></div>
+        <div><span>СКОРОСТЬ ⟨v⟩</span><b id="dzV">—</b><span class="u">м/с</span></div>
+        <div><span>СВОБОДНЫХ АТОМОВ</span><b id="dzFree">0</b><span class="u">шт.</span></div>
+        <div><span>МОЛЕКУЛ</span><b id="dzMol">2</b><span class="u">шт.</span></div>
+      </div>
+      <div style="height:12px"></div>
+      <div class="statLine" id="dzStatus">Нажми «Облучить», чтобы увидеть, как две молекулы воды распадаются на атомы.</div>
+      <div class="expl is-on" id="dzHelp">
+        <b>Что запомнить:</b> из тех же атомов получились другие молекулы — значит, образовалось <b>новое вещество</b> с другими свойствами. Молекулы действительно делятся на атомы и образуются из них.
+      </div>
+    </div>
+
+    <div class="sec" id="sec2">
+      <h3 class="sec__t">Рождение озона (рис. в учебнике)</h3>
+      <div class="formula">3 O₂ → 2 O₃<span>под действием ультрафиолета Солнца из кислорода образуется озон</span></div>
+      <button class="btn btn--main" id="btnUV">☀ Включить ультрафиолет</button>
+      <div style="height:12px"></div>
+      <div class="drop-grid">
+        <div><span>Атомы O</span><b id="ozFree">6</b></div>
+        <div><span>O₂</span><b id="ozO2">3</b></div>
+        <div><span>O₃</span><b id="ozO3">0</b></div>
+      </div>
+      <div class="statLine" id="ozStatus">Озон собирается в слое на высоте 20—25 км и защищает Землю от жёсткого излучения.</div>
+      <div class="expl" id="ozHelp">
+        <b>Новое вещество!</b> Молекулы озона содержат по три атома кислорода, а не два, как у кислорода.
+      </div>
+    </div>
+
+    <div class="sec" id="sec3">
+      <h3 class="sec__t">Масляная плёнка (рис. 25)</h3>
+      <div class="formula">d ≈ 10⁻⁹ м<span>метод Рентгена и Рэлея: толщина плёнки ≈ диаметр одной молекулы</span></div>
+      <button class="btn btn--main" id="btnDrop">💧 Капнуть масло</button>
+      <div style="height:12px"></div>
+      <div class="statLine" id="flStatus">Капля раствора масла упадёт на воду и растечётся тончайшей плёнкой.</div>
+      <div class="expl" id="flHelp">
+        <b>Оцени размер!</b> Если молекулу воды увеличить до размера яблока, то яблоко, увеличенное во столько же раз, стало бы размером <b>с Землю</b>.
+      </div>
+    </div>
+
+    <div class="sec" id="sec4">
+      <h3 class="sec__t">Атомы «на глазах» (рис. 24)</h3>
+      <div class="formula">туннельный микроскоп<span>увеличение до 10⁶ раз — видны отдельные атомы</span></div>
+      <button class="btn btn--main" id="btnScan">🔬 Сканировать образец</button>
+      <div style="height:12px"></div>
+      <div class="statLine" id="scStatus">До микроскопов учёные лишь догадывались об атомах — а здесь они настоящие!</div>
+      <div class="expl" id="scHelp">
+        <b>Платина.</b> На видео — схема изображения туннельного микроскопа: сканер пробегает по образцу и «рисует» отдельные атомы платины.
+      </div>
+    </div>
+
+    <div class="sec" id="sec5">
+      <h3 class="sec__t">Проверь себя</h3>
+      <div class="problem">
+        <div class="problem__q" id="taskQ"></div>
+        <div id="taskOpts"></div>
+        <div class="expl" id="taskExpl"></div>
+        <button class="btn btn--main" id="bNext" style="margin-top:10px">Другая задача</button>
+      </div>
+      <div class="kpi" style="margin-top:12px">
+        <div><span>ВЕРНО</span><b id="kRight">0</b></div>
+        <div><span>ВСЕГО</span><b id="kTotal">0</b></div>
+      </div>
+    </div>
+
+  </aside>
+
+  <section class="chart">
+    <div class="equ" id="chartEqu"></div>
+  </section>
+
+</div>
+
+<script src="../assets/vendor/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+if (!window.THREE) {
+  document.body.insertAdjacentHTML('beforeend',
+    '<div style="position:fixed;inset:0;display:grid;place-items:center;background:#08080b">' +
+    '<div style="text-align:center;color:#8b90a0;padding:30px">Не удалось загрузить библиотеку 3D: three.min.js не найден.</div></div>');
+  return;
+}
+const THREE = window.THREE;
+
+const n = (v, d) => {
+  if (v == null || !isFinite(v)) return '—';
+  return v.toFixed(d).replace('.', ',').replace(/,0+$/, '').replace(/(\d),$/, '$1');
+};
+/* формат для физических величин: до 3 значащих знаков */
+const fmt = (v, d) => n(v, d == null ? 3 : d);
+/* русское склонение: plural(5, 'атом', 'атома', 'атомов') */
+const plural = (k, a, b, c) => (k % 100 >= 11 && k % 100 <= 14) ? c : (k % 10 === 1 ? a : (k % 10 >= 2 && k % 10 <= 4 ? b : c));
+
+/* ============================================================
+   1. Сцена
+   ============================================================ */
+
+const host = document.getElementById('scene');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x08080b);
+scene.fog = new THREE.Fog(0x08080b, 80, 220);
+
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(host.clientWidth, host.clientHeight);
+host.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+const sunL = new THREE.DirectionalLight(0xffffff, 1.1);
+sunL.position.set(30, 50, 40);
+scene.add(sunL);
+const rim = new THREE.DirectionalLight(0x66ccff, 0.45);
+rim.position.set(-30, 20, -30);
+scene.add(rim);
+
+const cam = { yaw: -0.6, pitch: 0.3, dist: 8.5, tx: 0, ty: 0.5, tz: 0, sy: -0.6, sp: 0.3, sd: 8.5 };
+function applyCamera(){
+  const t = new THREE.Vector3(cam.tx, cam.ty, cam.tz);
+  camera.position.set(
+    t.x + cam.dist * Math.cos(cam.pitch) * Math.sin(cam.yaw),
+    t.y + cam.dist * Math.sin(cam.pitch),
+    t.z + cam.dist * Math.cos(cam.pitch) * Math.cos(cam.yaw)
+  );
+  camera.lookAt(t);
+}
+let drag = null;
+renderer.domElement.addEventListener('pointerdown', e => {
+  drag = { x: e.clientX, y: e.clientY, yaw: cam.yaw, pitch: cam.pitch };
+  camTween = null;
+  renderer.domElement.setPointerCapture(e.pointerId);
+});
+renderer.domElement.addEventListener('pointermove', e => {
+  if (!drag) return;
+  cam.yaw = drag.yaw - (e.clientX - drag.x) * 0.005;
+  cam.pitch = Math.max(-0.05, Math.min(1.45, drag.pitch + (e.clientY - drag.y) * 0.004));
+  cam.sy = cam.yaw; cam.sp = cam.pitch;
+});
+const endDrag = () => {
+  if (drag){
+    cam.sy = cam.yaw; cam.sp = cam.pitch;
+    drag = null;
+  }
+};
+renderer.domElement.addEventListener('pointerup', endDrag);
+renderer.domElement.addEventListener('pointercancel', endDrag);
+renderer.domElement.addEventListener('wheel', e => {
+  e.preventDefault();
+  camTween = null;
+  cam.dist = Math.max(4, Math.min(180, cam.sd * Math.pow(1.0015, e.deltaY)));
+  cam.sd = cam.dist;
+}, { passive: false });
+
+/* Пол нужен только там, где есть поверхность (вода, образец в микроскопе).
+   На шагах с молекулами в вакууме он скрыт, иначе прорезал бы шары. */
+const floor = new THREE.Group();
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(240, 240),
+  new THREE.MeshStandardMaterial({ color: 0x0e0e13, roughness: 0.95 })
+);
+ground.rotation.x = -Math.PI / 2;
+floor.add(ground);
+const grid = new THREE.GridHelper(120, 40, 0x33ccff, 0x1e1e28);
+grid.material.transparent = true; grid.material.opacity = 0.14;
+floor.add(grid);
+scene.add(floor);
+function setFloor(on){ floor.visible = on; }
+
+const labelsHost = document.getElementById('labels');
+const LABELS = {};
+['a','b','c','d','e','f','g','h'].forEach(k => {
+  const el = document.createElement('div');
+  el.className = 'lab lab--a';
+  labelsHost.appendChild(el);
+  LABELS[k] = { el, pos: new THREE.Vector3(), on: false, cls: 'lab--a' };
+});
+const _p = new THREE.Vector3();
+function placeLabel(key, x, y, z, text, on, cls){
+  const L = LABELS[key];
+  L.on = on !== false;
+  L.pos.set(x, y, z || 0);
+  L.el.textContent = text || '';
+  if (cls){ L.el.className = 'lab ' + cls; L.cls = cls; }
+}
+function projectLabels(w, h){
+  for (const k in LABELS){
+    const L = LABELS[k];
+    if (!L.on || !L.el.textContent){ L.el.style.display = 'none'; continue; }
+    _p.copy(L.pos).project(camera);
+    if (_p.z > 1){ L.el.style.display = 'none'; continue; }
+    L.el.style.display = '';
+    L.el.style.left = ((_p.x * 0.5 + 0.5) * w) + 'px';
+    L.el.style.top = ((-_p.y * 0.5 + 0.5) * h) + 'px';
+  }
+}
+
+/* ============================================================
+   2. Группы сцен
+   ============================================================ */
+
+const groups = {
+  g0: new THREE.Group(),
+  g1: new THREE.Group(),
+  g2: new THREE.Group(),
+  g3: new THREE.Group(),
+  g4: new THREE.Group()
+};
+Object.values(groups).forEach(g => scene.add(g));
+
+const C_OX = 0xff6b6b, C_H = 0xf1f5f9, C_C = 0x9097a3, C_OZ = 0x8b5cf6, C_OIL = 0xfbbf24;
+
+function makeAtom(r, color, emissive){
+  return new THREE.Mesh(
+    new THREE.SphereGeometry(r, 26, 18),
+    new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.12, emissive: emissive || 0x000000, emissiveIntensity: 0 })
+  );
+}
+function stick(from, to, r, color){
+  const dir = new THREE.Vector3().subVectors(to, from);
+  const len = dir.length();
+  const cyl = new THREE.Mesh(
+    new THREE.CylinderGeometry(r, r, len, 14),
+    new THREE.MeshStandardMaterial({ color: color || 0x8b90a0, roughness: 0.5 })
+  );
+  cyl.position.copy(from).add(to).multiplyScalar(0.5);
+  cyl.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+  return cyl;
+}
+function makeLine(pts, color, opacity){
+  const g = new THREE.BufferGeometry().setFromPoints(pts);
+  const l = new THREE.Line(g, new THREE.LineBasicMaterial({ color, transparent: true, opacity: opacity == null ? 0.5 : opacity }));
+  l.frustumCulled = false;
+  return l;
+}
+
+/* ============================================================
+   1.5 Физика урока: масштаб, массы, колебания молекул, газ
+   ============================================================ */
+
+/* Один и тот же масштаб для всех шагов, кроме туннельного микроскопа:
+   1 единица сцены = 0,024 нм. Длины связей и радиусы взяты справочно,
+   поэтому молекулы на экране соразмерны настоящим, а панель сообщает их
+   размер в нанометрах. */
+const NM = 0.024;
+/* ковалентные радиусы, нм: у водорода и кислорода они подобраны так, что
+   атомы в молекуле смыкаются встык (H–O = 0,096 нм ≈ r(H) + r(O)) */
+const RAD_NM = { H: 0.031, C: 0.070, O: 0.066 };
+const RAD = { H: RAD_NM.H / NM, C: RAD_NM.C / NM, O: RAD_NM.O / NM };
+/* относительная атомная масса */
+const MASS = { H: 1, C: 12, O: 16 };
+const COL = { H: C_H, C: C_C, O: C_OX, P: 0x6366f1, OZ: C_OZ };
+
+/* Геометрия молекул в нанометрах — по справочным длинам связей и углам.
+   Именно этими числами объясняется и форма молекулы, и её размер:
+   у воды угол 104,5°, у озона 116,8°, угол у пероксида водорода объёмный. */
+const GEO = {
+  H2O: { el: ['O','H','H'], M: 18, d: 0.096, bonds: [[0,1],[0,2]],
+         p: [[0,0,0],[0.0759,0.0588,0],[-0.0759,0.0588,0]],
+         note: 'угол H–O–H = 104,5°', ang: 104.5 },
+  H2:  { el: ['H','H'], M: 2, d: 0.074, bonds: [[0,1]],
+         p: [[-0.037,0,0],[0.037,0,0]], note: 'самая маленькая молекула' },
+  O2:  { el: ['O','O'], M: 32, d: 0.121, bonds: [[0,1]],
+         p: [[-0.0605,0,0],[0.0605,0,0]], note: 'двойная связь' },
+  O3:  { el: ['O','O','O'], M: 48, d: 0.128, bonds: [[0,1],[0,2]],
+         p: [[0,0,0],[0.1090,0.0671,0],[-0.1090,0.0671,0]],
+         note: 'угол O–O–O = 116,8°, молекула не линейна', ang: 116.8 },
+  CO2: { el: ['O','C','O'], M: 44, d: 0.116, bonds: [[0,1],[1,2]],
+         p: [[-0.116,0,0],[0,0,0],[0.116,0,0]], note: 'линейная молекула, угол 180°', ang: 180 },
+  CO:  { el: ['C','O'], M: 28, d: 0.113, bonds: [[0,1]],
+         p: [[0,0,0],[0.113,0,0]], note: '' },
+  OH:  { el: ['O','H'], M: 17, d: 0.097, bonds: [[0,1]],
+         p: [[0,0,0],[0.097,0,0]], note: '' },
+  H2O2:{ el: ['H','O','O','H'], M: 34, d: 0.095, bonds: [[0,1],[1,2],[2,3]],
+         p: [[-0.0905,0.0936,0],[-0.074,0,0],[0.074,0,0],[0.0905,-0.0345,0.0870]],
+         note: 'неплоская молекула: атомы выстроены «зигзагом»' }
+};
+/* детерминированный генератор: опыт должен повторяться одинаково */
+let _seed = 20260901;
+function rnd(){
+  _seed = (_seed * 1664525 + 1013904223) % 4294967296;
+  return _seed / 4294967296;
+}
+/* размер молекулы в нм — наибольшее расстояние между поверхностями атомов */
+function molSize(def){
+  let mx = 0;
+  const n = def.p.length;
+  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++){
+    const a = def.p[i], b = def.p[j];
+    const d = Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])
+            + RAD_NM[def.el[i]] + RAD_NM[def.el[j]];
+    if (d > mx) mx = d;
+  }
+  return mx || 2 * RAD_NM[def.el[0]];
+}
+
+/* Собственные частоты колебаний связей, Гц. Частота задаётся самой связью
+   (жёсткость k и приведённая масса μ) и от температуры не зависит —
+   температура меняет только амплитуду. Значения замедлены примерно
+   в 10¹² раз, иначе колебания не видно глазом. */
+const BOND_F = { HH: 3.1, OH: 2.2, OO: 1.35, CO: 1.7 };
+/* длины связей, нм — по ним же судим о сближении атомов */
+const BOND_NM = { HH: 0.074, OO: 0.121, OH: 0.096, CO: 0.116 };
+const VIB_K = 0.62;   /* амплитуда при T = 300 K, единицы сцены */
+/* Гармоническое приближение верно только пока колебание мало. При большой
+   амплитуде потенциальная яма становится несимметричной (ангармонизм), и
+   растянуть связь сильнее этой доли её длины атом уже не может — связь
+   просто разорвалась бы. Этот прел служит такой страховкой. */
+const VIB_STRAIN = 0.12;
+
+/* Амплитуда ∝ √T (энергия колебаний пропорциональна kT) */
+let vibT = 1;
+function vibAmp(){ return VIB_K * Math.sqrt(vibT); }
+
+const _va = new THREE.Vector3(), _vb = new THREE.Vector3();
+
+/* Колебание связи. Амплитуда ∝ √T: средняя энергия колебаний гармонического
+   осциллятора пропорциональна kT, а <x²> = kT/(μω²). Отсюда видно, что лёгкие
+   связи (H–H) качаются заметно сильнее тяжёлых (O=O), а частота ω задана
+   самой связью — жёсткостью и массами — и от температуры не зависит. */
+function bondOffset(b, t){
+  const A = b.a, B = b.b;
+  const mu = A.userData.m * B.userData.m / (A.userData.m + B.userData.m);
+  const f = BOND_F[b.key] || 2;
+  /* направление связи берём от равновесных положений: сама связь
+     неподвижна, движутся только атомы на её концах */
+  const d = _va.subVectors(B.userData.eq, A.userData.eq);
+  const len = d.length() || 1e-6;
+  d.multiplyScalar(1 / len);
+  /* heat > 1 у только что образовавшейся связи: она ещё «горячая» */
+  let amp = vibAmp() * (b.heat || 1) / (f * Math.sqrt(mu) / 0.45);
+  amp = Math.min(amp, VIB_STRAIN * len);
+  const s = amp * Math.sin(2 * Math.PI * f * t + b.ph);
+  /* смещения обратно пропорциональны массам — центр масс не сдвигается */
+  A.userData.off.addScaledVector(d, s / A.userData.m);
+  B.userData.off.addScaledVector(d, -s / B.userData.m);
+}
+/* полный шаг жизни молекулы: собственное вращение + колебания связей */
+function stepMolecule(mol, t){
+  spinMol(mol, t);
+  for (const a of mol.atoms) a.userData.off.set(0, 0, 0);
+  for (const b of mol.bonds) if (b.on) bondOffset(b, t);
+  for (const a of mol.atoms) a.position.copy(a.userData.eq).add(a.userData.off);
+  recenterMol(mol);
+  for (const b of mol.bonds) if (b.on) fitBond(b);
+}
+/* страховка: если сумма смещений всё же разошлась, возвращаем молекулу
+   в исходную точку — иначе она «уплывала» бы от случайных толчков */
+function recenterMol(mol){
+  const at = mol.atoms;
+  let mt = 0, cx = 0, cy = 0, cz = 0;
+  for (const a of at){ const m = a.userData.m; mt += m; cx += a.position.x * m; cy += a.position.y * m; cz += a.position.z * m; }
+  cx /= mt; cy /= mt; cz /= mt;
+  for (const a of at){ a.position.x -= cx; a.position.y -= cy; a.position.z -= cz; }
+}
+/* валик связи подгоняется под текущие положения атомов и обрезается
+   по радиусам, чтобы не торчать наружу сквозь шары */
+function fitBond(b){
+  const d = _va.subVectors(b.b.position, b.a.position);
+  const len = d.length() || 1e-6;
+  const cut = RAD[b.a.userData.el] + RAD[b.b.userData.el];
+  b.s.scale.set(1, Math.max(0.05, len - cut), 1);
+  b.s.position.copy(b.a.position).addScaledVector(d, RAD[b.a.userData.el] / len);
+  b.s.quaternion.setFromUnitVectors(_vb.set(0, 1, 0), d.multiplyScalar(1 / len));
+}
+/* Полный шаг жизни молекулы: собственное вращение + колебания связей.
+   order — номер прохода (чётный/нечётный) не нужен, оставлен для ясности. */
+
+/* Строит молекулу по её настоящей геометрии. center — положение центра масс. */
+function makeMolecule(def, center, parent){
+  const g = new THREE.Group();
+  const atoms = [];
+  def.el.forEach((e, i) => {
+    const m = makeAtom(RAD[e], COL[e]);
+    m.position.fromArray(def.p[i]).divideScalar(NM);
+    m.userData.m = MASS[e];
+    m.userData.el = e;
+    m.userData.eq = m.position.clone();   /* равновесное положение */
+    m.userData.off = new THREE.Vector3(); /* смещение от колебаний */
+    m.userData.ph = i * 1.7 + 0.4;
+    g.add(m);
+    atoms.push(m);
+  });
+  const bonds = [];
+  def.bonds.forEach((pair, i) => {
+    const a = atoms[pair[0]], b = atoms[pair[1]];
+    const s = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.16, 0.16, 1, 12),
+      new THREE.MeshStandardMaterial({ color: 0xaeb6c4, roughness: 0.45, metalness: 0.2 })
+    );
+    g.add(s);
+    const nb = { a, b, s, ph: i * 2.3, on: true, key: bondKey(a.userData.el, b.userData.el) };
+    fitBond(nb);
+    bonds.push(nb);
+  });
+  g.position.copy(center || new THREE.Vector3());
+  parent.add(g);
+  /* поворот оси: у настоящих молекул тепловой вращательный момент есть
+     всегда, поэтому даже «неподвижная» молекула медленно вертится */
+  return { g, atoms, bonds, def, phase: rnd() * 6,
+           rot: new THREE.Vector3(0.10, 0.16, 0.06) };
+}
+/* плавное вращение вокруг тепловой оси — не по шаблонной орбите */
+function spinMol(mol, t){
+  mol.g.rotation.x = mol.rot.x * t + Math.sin(t * 0.31 + mol.phase) * 0.12;
+  mol.g.rotation.y = mol.rot.y * t + Math.cos(t * 0.24 + mol.phase) * 0.15;
+  mol.g.rotation.z = mol.rot.z * t + Math.sin(t * 0.19 + mol.phase * 1.7) * 0.10;
+}
+function bondKey(a, b){
+  const k = [a, b].sort().join('');
+  return k === 'HH' ? 'HH' : k === 'OH' ? 'OH' : k === 'OO' ? 'OO' : 'CO';
+}
+function setBonds(mol, on){ mol.bonds.forEach(b => b.s.visible = on && b.on); }
+function showBonds(mol){ mol.bonds.forEach(b => b.s.visible = b.on); }
+
+/* ============================================================
+   1.6 Движение свободных атомов (газ)
+   ============================================================ */
+
+/* Свободный атом летит по инерции, отскакивает от стенок сосуда и
+   упруго сталкивается с другими атомами — обмен компонентами скорости
+   вдоль линии столкновения. Никакого «подтягивания»: движение честное. */
+const GAS = { box: new THREE.Vector3(9, 6, 6) };   /* половина размеров сосуда */
+
+function randomSpeed(T){
+  /* распределение Максвелла: три независимые нормальные компоненты.
+     Средняя скорость растёт как √T — температура и есть скорость движения.
+     Генератор общий с остальным опытом (rnd), поэтому повторный запуск
+     даёт ровно ту же картину, а не новую случайную. */
+  const c = [];
+  for (let i = 0; i < 3; i++){
+    let a = 0, b = 0;
+    while (a === 0) a = rnd();
+    while (b === 0) b = rnd();
+    c.push(Math.sqrt(-2 * Math.log(a)) * Math.cos(6.2832 * b));
+  }
+  const s = 0.62 * Math.sqrt(T / 16);
+  return [c[0] * s, c[1] * s, c[2] * s];
+}
+function speedOf(p){ return Math.hypot(p.vel[0], p.vel[1], p.vel[2]); }
+function gasSubstep(list, dt){
+  const b = GAS.box;
+  for (const p of list){
+    p.pos.x += p.vel[0] * dt;
+    p.pos.y += p.vel[1] * dt;
+    p.pos.z += p.vel[2] * dt;
+    const r = p.r, s = p.vel;
+    if (p.pos.x > b.x - r){ p.pos.x = 2 * (b.x - r) - p.pos.x; s[0] = -s[0]; }
+    if (p.pos.x < -b.x + r){ p.pos.x = -2 * (b.x - r) - p.pos.x; s[0] = -s[0]; }
+    if (p.pos.y > b.y - r){ p.pos.y = 2 * (b.y - r) - p.pos.y; s[1] = -s[1]; }
+    if (p.pos.y < -b.y + r){ p.pos.y = -2 * (b.y - r) - p.pos.y; s[1] = -s[1]; }
+    if (p.pos.z > b.z - r){ p.pos.z = 2 * (b.z - r) - p.pos.z; s[2] = -s[2]; }
+    if (p.pos.z < -b.z + r){ p.pos.z = -2 * (b.z - r) - p.pos.z; s[2] = -s[2]; }
+  }
+  /* упругие столкновения: меняем только нормальные компоненты скорости */
+  for (let i = 0; i < list.length; i++){
+    for (let j = i + 1; j < list.length; j++){
+      const a = list[i], c = list[j];
+      _va.set(c.pos.x - a.pos.x, c.pos.y - a.pos.y, c.pos.z - a.pos.z);
+      const dmin = a.r + c.r;
+      const d2 = _va.lengthSq();
+      if (d2 > dmin * dmin || d2 < 1e-9) continue;
+      const d = Math.sqrt(d2);
+      _va.multiplyScalar(1 / d);
+      const dv = (c.vel[0] - a.vel[0]) * _va.x + (c.vel[1] - a.vel[1]) * _va.y + (c.vel[2] - a.vel[2]) * _va.z;
+      if (dv > 0) continue;                 /* разлетаются — не сталкиваются */
+      /* одинаковые массы: простые обмены дают упругий удар */
+      const ma = a.m, mc = c.m;
+      const jimp = -2 * dv / (1 / ma + 1 / mc);
+      a.vel[0] -= jimp * _va.x / ma; a.vel[1] -= jimp * _va.y / ma; a.vel[2] -= jimp * _va.z / ma;
+      c.vel[0] += jimp * _va.x / mc; c.vel[1] += jimp * _va.y / mc; c.vel[2] += jimp * _va.z / mc;
+      const push = (dmin - d) * 0.5;
+      a.pos.x -= _va.x * push; a.pos.y -= _va.y * push; a.pos.z -= _va.z * push;
+      c.pos.x += _va.x * push; c.pos.y += _va.y * push; c.pos.z += _va.z * push;
+    }
+  }
+}
+function stepGas(list, dt){
+  if (!list.length) return;
+  /* Дискретный шаг пропускает атомы друг сквозь друга, если за кадр
+     пролетает больше радиуса, поэтому шаг дробим на подшаги. */
+  let vmax = 0, rmin = 1e9;
+  for (const p of list){ vmax = Math.max(vmax, speedOf(p)); rmin = Math.min(rmin, p.r); }
+  const n = Math.min(24, Math.max(1, Math.ceil(vmax * dt / (0.3 * rmin))));
+  const h = dt / n;
+  for (let s = 0; s < n; s++) gasSubstep(list, h);
+}
+function meanSpeed(list){
+  if (!list.length) return 0;
+  let s = 0;
+  for (const p of list) s += speedOf(p);
+  return s / list.length;
+}
+
+/* ============================================================
+   2.1 Конструктор молекул (шаг 0)
+   ============================================================ */
+
+const g0 = groups.g0;
+const FORMULA = {
+  H2O: 'H₂O', H2: 'H₂', O2: 'O₂', O3: 'O₃', CO2: 'CO₂', CO: 'CO', H2O2: 'H₂O₂', OH: 'OH'
+};
+const NAME = {
+  H2O: 'вода', H2: 'водород', O2: 'кислород', O3: 'озон',
+  CO2: 'углекислый газ', CO: 'угарный газ', H2O2: 'перекись водорода', OH: 'гидроксил'
+};
+let curMol = null;      /* связанная молекула */
+let curLoose = null;    /* набор несвязанных атомов */
+
+/* Связанные молекулы строим по справочной геометрии и показываем
+   настоящие числа: относительную молекулярную массу, размер и длину связи. */
+function showMol(type){
+  const def = GEO[type];
+  if (!def) return;
+  if (curLoose){ g0.remove(curLoose.g); curLoose = null; }
+  if (curMol){ g0.remove(curMol.g); curMol = null; }
+  curMol = makeMolecule(def, new THREE.Vector3(0, 0, 0), g0);
+  const f = FORMULA[type];
+  document.getElementById('asFormula').innerHTML =
+    '<b style="color:var(--accent)">' + NAME[type] + ' ' + f + '</b>' +
+    '<span>' + def.el.length + ' ' + plural(def.el.length, 'атом', 'атома', 'атомов') +
+    ', масса ' + def.M + ' а.е.м. · ' + (def.note || ('длина связи ' + fmt(def.d) + ' нм')) + '</span>';
+  setKpi(def.M, molSize(def), def.el.length, def.d);
+}
+/* Несвязанный набор атомов: связи нет, поэтому и молекулы нет —
+   расстояния между атомами не фиксированы. */
+function showLoose(){
+  if (curMol){ g0.remove(curMol.g); curMol = null; }
+  if (curLoose){ g0.remove(curLoose.g); curLoose = null; }
+  const chars = [];
+  ['H','O','C'].forEach(t => { for (let j = 0; j < counts[t]; j++) chars.push(t); });
+  const g = new THREE.Group();
+  const atoms = chars.map((e, i) => {
+    const m = makeAtom(RAD[e], COL[e]);
+    m.userData.m = MASS[e];
+    m.userData.el = e;
+    m.userData.ph = i * 1.9 + 0.3;
+    g.add(m);
+    return m;
+  });
+  const gap = Math.max(...chars.map(e => RAD[e])) * 2 + 0.6;
+  let x = -((chars.length - 1) * gap) / 2;
+  atoms.forEach(a => { a.position.set(x, 0, 0); x += gap; });
+  g0.add(g);
+  curLoose = { g, atoms, bonds: [] };
+  const M = chars.reduce((s, e) => s + MASS[e], 0);
+  const size = gap * chars.length;
+  setKpi(M, size, chars.length, 0);
+  document.getElementById('asFormula').innerHTML =
+    '<b style="color:var(--accent)">Набор атомов</b>' +
+    '<span>суммарная масса ' + M + ' а.е.м., но связи нет — это ещё не молекула</span>';
+}
+function setKpi(M, size, n, bond){
+  document.getElementById('kMass').textContent = M;
+  document.getElementById('kSize').textContent = fmt(size);
+  document.getElementById('kAtoms').textContent = n;
+  document.getElementById('kBondV').textContent = bond ? fmt(bond) : '—';
+}
+/* лёгкое дрожание несвязанных атомов вокруг своих мест */
+function stepLoose(t){
+  if (!curLoose) return;
+  for (const a of curLoose.atoms){
+    const ph = a.userData.ph;
+    a.position.y = Math.sin(t * 1.6 + ph) * 0.10;
+    a.position.z = Math.cos(t * 1.3 + ph) * 0.10;
+  }
+}
+
+let counts = { H: 0, O: 0, C: 0 };
+function setCounts(){
+  document.getElementById('cntH').textContent = counts.H;
+  document.getElementById('cntO').textContent = counts.O;
+  document.getElementById('cntC').textContent = counts.C;
+}
+function formulaKey(){
+  const k = [];
+  if (counts.H) k.push('H' + counts.H);
+  if (counts.O) k.push('O' + counts.O);
+  if (counts.C) k.push('C' + counts.C);
+  return k.join('-') || 'none';
+}
+const COMBO = {
+  'H2-O1': 'H2O', 'O2': 'O2', 'O3': 'O3', 'C1-O2': 'CO2',
+  'H2': 'H2', 'C1-O1': 'CO', 'H2-O2': 'H2O2', 'O1-H1': 'OH'
+};
+function assemble(){
+  const key = formulaKey();
+  const msg = document.getElementById('asMsg');
+  const target = COMBO[key];
+  if (target){
+    showMol(target);
+    msg.className = 'expl is-on';
+    msg.innerHTML = '<b style="color:var(--g)">Получилось!</b> Формула: ' + FORMULA[target] +
+      '. Масса молекулы ' + GEO[target].M + ' а.е.м., размер ' + fmt(molSize(GEO[target])) + ' нм.' +
+      (GEO[target].note ? ' ' + GEO[target].note + '.' : '');
+    return;
+  }
+  const total = counts.H + counts.O + counts.C;
+  if (total === 0){
+    msg.className = 'expl';
+    msg.innerHTML = 'Добавь хотя бы два атома и нажми «Собрать».';
+    return;
+  }
+  showLoose();
+  if (total === 1){
+    msg.className = 'expl is-on';
+    msg.innerHTML = 'Это <b>отдельный атом</b>, а не молекула. Молекула — это группа атомов, соединённых вместе.';
+  } else {
+    msg.className = 'expl is-on';
+    msg.innerHTML = 'Такой молекулы мы на этом уроке не изучаем. Из одних и тех же атомов можно собрать <b>много разных молекул</b> — попробуй другую комбинацию!';
+  }
+}
+function clearC(){
+  counts = { H: 0, O: 0, C: 0 };
+  setCounts();
+  document.getElementById('asMsg').className = 'expl';
+  document.getElementById('asMsg').innerHTML = '';
+  showMol('H2O');
+}
+
+document.querySelectorAll('.preset-mol').forEach(b => {
+  b.addEventListener('click', () => {
+    showMol(b.dataset.mol);
+    counts = { H: 0, O: 0, C: 0 };
+    setCounts();
+    document.getElementById('asMsg').className = 'expl';
+  });
+});
+document.getElementById('btnAddH').addEventListener('click', () => { counts.H++; setCounts(); });
+document.getElementById('btnAddO').addEventListener('click', () => { counts.O++; setCounts(); });
+document.getElementById('btnAddC').addEventListener('click', () => { counts.C++; setCounts(); });
+document.getElementById('btnAssemble').addEventListener('click', assemble);
+document.getElementById('btnClearC').addEventListener('click', clearC);
+
+/* Температура меняет только амплитуду колебаний: частота каждой связи
+   определяется её жёсткостью и массами атомов и от T не зависит. */
+document.getElementById('sTemp').addEventListener('input', e => {
+  vibT = 0.25 + 2.75 * (+e.target.value / 100);
+  document.getElementById('oTemp').textContent = fmt(vibT);
+});
+vibT = 0.25 + 2.75 * 0.5;
+showMol('H2O');
+
+/* ============================================================
+   2.2 Распад и слияние молекул (шаг 1)
+   ============================================================
+
+   Опыт идёт по-настоящему: две молекулы воды в закрытом сосуде,
+   ультрафиолет разрывает связи, атомы разлетаются по инерции и
+   упруго сталкиваются, а затем при сближении на длину связи
+   образуют новые молекулы. Ни один атом не «едет по рельсам» —
+   он летит туда, куда его направил последний удар. */
+
+const g1 = groups.g1;
+
+/* сосуд: каркас, чтобы было видно, от чего отскакивают атомы */
+const dzBox = { hx: 12, hy: 7.5, hz: 6 };
+(() => {
+  const g = new THREE.Group();
+  const { hx, hy, hz } = dzBox;
+  const pts = [];
+  const corner = (i) => [i & 1 ? hx : -hx, i & 2 ? hy : -hy, i & 4 ? hz : -hz];
+  for (let i = 0; i < 8; i++) for (const b of [1, 2, 4]) if (!(i & b)) pts.push(corner(i), corner(i | b));
+  const geo = new THREE.BufferGeometry().setFromPoints(pts.map(p => new THREE.Vector3(p[0], p[1], p[2])));
+  g.add(new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color: 0x5b6a86, transparent: true, opacity: 0.5 })));
+  /* полупрозрачные грани — видно, что сосуд закрыт со всех сторон */
+  g.add(new THREE.Mesh(
+    new THREE.BoxGeometry(hx * 2, hy * 2, hz * 2),
+    new THREE.MeshBasicMaterial({ color: 0x9fd0ff, transparent: true, opacity: 0.035, side: THREE.BackSide, depthWrite: false })
+  ));
+  g1.add(g);
+})();
+
+/* вспышка ультрафиолета */
+const dzFlash = makeAtom(1, 0xffe9a8, 0xffc53d);
+dzFlash.visible = false;
+g1.add(dzFlash);
+
+/* температура газа: энергия, полученная при облучении и при слиянии
+   атомов. Скорость растёт как √T — это и есть смысл температуры. */
+const kB = 1.38e-23, amu = 1.66e-27;
+function meanSpeedReal(T, mA){ return Math.sqrt(8 * kB * T / (Math.PI * mA * amu)); }
+
+const dz = { run: false, done: false, t: 0, time: 0, phase: 0, T: 300, parts: [], heat: 0, nWater: 4 };
+
+function dzAddPart(part){ dz.parts.push(part); }
+
+/* Свободный атом: свой шар, масса и скорость. */
+function dzFreeAtom(el, mesh, pos, vel){
+  const p = { el, atom: mesh, mol: null,
+              pos: pos.clone(), vel: vel.slice(),
+              m: MASS[el], r: RAD[el] };
+  p.pos.copy(pos);
+  g1.add(mesh);
+  dzAddPart(p);
+  return p;
+}
+/* Молекула как частица газа: летит целиком, а внутри колеблется. */
+function dzMolPart(mol, pos, vel){
+  const p = { el: null, atom: null, mol,
+              pos: pos.clone(), vel: vel.slice(),
+              m: mol.def.M, r: molRadius(mol) };
+  mol.g.position.copy(pos);
+  g1.add(mol.g);
+  dzAddPart(p);
+  return p;
+}
+/* габаритный радиус молекулы — для отскоков от стенок */
+function molRadius(mol){
+  let r = 0;
+  for (const a of mol.atoms) r = Math.max(r, a.position.length() + RAD[a.userData.el]);
+  return r;
+}
+
+/* Соединение двух свободных атомов: они «схватываются», если сблизились
+   до длины связи. Общий центр масс сохраняется, а выделившаяся энергия
+   связи идёт в нагрев молекулы — поэтому новая молекула дрожит сильнее. */
+function dzBind(a, b){
+  const mid = new THREE.Vector3().addVectors(a.pos, b.pos).multiplyScalar(0.5);
+  const key = bondKey(a.el, b.el);
+  const dEq = BOND_NM[key] / NM;   /* равновесная длина связи */
+  /* направление от a к b — вдоль него и «встанут» атомы на истинное
+     расстояние связи; центр масс при этом остаётся в точке захвата */
+  const dir = new THREE.Vector3().subVectors(b.pos, a.pos);
+  const dl = dir.length() || 1e-6;
+  dir.multiplyScalar(1 / dl);
+  const M = a.m + b.m;
+  const g = new THREE.Group();
+  const A = a.atom, B = b.atom;
+  /* локальные координаты — от центра группы; g.position станет за точку
+     захвата, поэтому мир = mid + local и никакого «удвоения» смещений */
+  A.position.copy(dir).multiplyScalar(-dEq * b.m / M);
+  B.position.copy(dir).multiplyScalar(dEq * a.m / M);
+  g.add(A); g.add(B);
+  A.userData.eq = A.position.clone();
+  B.userData.eq = B.position.clone();
+  A.userData.off = new THREE.Vector3();
+  B.userData.off = new THREE.Vector3();
+  const s = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.16, 0.16, 1, 12),
+    new THREE.MeshStandardMaterial({ color: 0xaeb6c4, roughness: 0.45, metalness: 0.2 })
+  );
+  g.add(s);
+  const nb = { a: A, b: B, s, ph: 1.1, on: true, key, heat: 2.4 };
+  fitBond(nb);
+  g.position.copy(mid);
+  g1.add(g);
+  const vel = [
+    (a.vel[0] * a.m + b.vel[0] * b.m) / M,
+    (a.vel[1] * a.m + b.vel[1] * b.m) / M,
+    (a.vel[2] * a.m + b.vel[2] * b.m) / M
+  ];
+  const mol = { g, atoms: [A, B], bonds: [nb], def: { el: [A.userData.el, B.userData.el], M },
+                phase: rnd() * 6, rot: new THREE.Vector3(0.12, 0.18, 0.08) };
+  /* убираем обе частицы из газа и заменяем одной молекулой */
+  dz.parts.splice(dz.parts.indexOf(a), 1);
+  dz.parts.splice(dz.parts.indexOf(b), 1);
+  const p = dzMolPart(mol, mid, vel);
+  dz.heat += 0;
+  return p;
+}
+/* Радиус захвата. Это не длина связи, а масштаб сил Ван-дер-Ваальса,
+   в котором атомы вообще чувствуют друг друга: 0,26 нм — около 3,5 диаметров
+   связи. Столкновения внутри этого радиуса приводят к соединению атомов —
+   ровно так и работает кинетика: соударений много, результативных единицы. */
+const CAPTURE = 0.3 / NM;
+/* реагируют только одинаковые атомы: 4 H дадут 2 H₂, 2 O — одну O₂ */
+function dzCanBind(a, b){
+  return a.atom && b.atom && a.el === b.el && BOND_NM[a.el + a.el];
+}
+function dzReact(){
+  for (let i = 0; i < dz.parts.length; i++){
+    const a = dz.parts[i];
+    if (!a.atom) continue;
+    for (let j = i + 1; j < dz.parts.length; j++){
+      const b = dz.parts[j];
+      if (!dzCanBind(a, b)) continue;
+      const d = a.pos.distanceTo(b.pos);
+      if (d > CAPTURE) continue;
+      const u = _va.subVectors(b.pos, a.pos).multiplyScalar(1 / (d || 1));
+      /* притяжение: сила направлена вдоль линии, соединяющей центры,
+         и тянет атомы друг к другу (u смотрит от a к b) */
+      const pull = (d - BOND_NM[a.el + a.el] / NM) * 0.7;
+      a.vel[0] += u.x * pull * 0.5; a.vel[1] += u.y * pull * 0.5; a.vel[2] += u.z * pull * 0.5;
+      b.vel[0] -= u.x * pull * 0.5; b.vel[1] -= u.y * pull * 0.5; b.vel[2] -= u.z * pull * 0.5;
+      /* сближающиеся атомы гасят относительную скорость — удар
+         становится неупругим, иначе они разлетаются и проносятся мимо */
+      const rvx = b.vel[0] - a.vel[0], rvy = b.vel[1] - a.vel[1], rvz = b.vel[2] - a.vel[2];
+      const rel = rvx * u.x + rvy * u.y + rvz * u.z;
+      if (rel < 0){
+        const k = 0.22;
+        a.vel[0] += rvx * k * 0.5; a.vel[1] += rvy * k * 0.5; a.vel[2] += rvz * k * 0.5;
+        b.vel[0] -= rvx * k * 0.5; b.vel[1] -= rvy * k * 0.5; b.vel[2] -= rvz * k * 0.5;
+      }
+      if (d < BOND_NM[a.el + a.el] / NM * 1.15){
+        const p = dzBind(a, b);
+        dz.heat += 40;   /* энергия связи перешла в нагрев газа */
+        return p;
+      }
+    }
+  }
+  return null;
+}
+
+function dzBuild(){
+  while (dz.parts.length){
+    const p = dz.parts.pop();
+    if (p.atom) g1.remove(p.atom);
+    if (p.mol){
+      g1.remove(p.mol.g);
+      p.mol.g.traverse(o => { if (o.isMesh) o.geometry.dispose(); });
+    }
+  }
+  const vSlow = () => [(rnd() - 0.5) * 0.5, (rnd() - 0.5) * 0.5, (rnd() - 0.5) * 0.5];
+  /* четыре молекулы воды: в настоящем опыте их миллиарды, но даже
+     двенадцати атомов хватает, чтобы газ стал настоящим газом —
+     атомы сталкиваются и находят друг друга */
+  dz.nWater = 4;
+  [[-6.5, 1.4, 0.5], [6.5, -1.4, -0.5], [-1.2, -2.6, 1.6], [1.2, 2.6, -1.6]].forEach(p => {
+    const pos = new THREE.Vector3(p[0], p[1], p[2]);
+    dzMolPart(makeMolecule(GEO.H2O, pos, g1), pos, vSlow());
+  });
+}
+function dzReset(first){
+  dz.run = false; dz.done = false; dz.t = 0; dz.time = 0; dz.phase = 0; dz.T = 300; dz.heat = 0;
+  dzFlash.visible = false;
+  dzFlash.material.emissiveIntensity = 0;
+  dzLastScale = 1;
+  GAS.box.set(dzBox.hx, dzBox.hy, dzBox.hz);
+  dzBuild();
+  dzReadout();
+  if (!first) document.getElementById('dzStatus').innerHTML = 'Опыт сброшен. Нажми «Облучить» ещё раз.';
+}
+function dzReadout(){
+  let free = 0, mols = 0;
+  for (const p of dz.parts){ if (p.atom) free++; else mols++; }
+  document.getElementById('dzT').textContent = Math.round(dz.T);
+  document.getElementById('dzV').textContent = Math.round(meanSpeedReal(Math.max(dz.T, 1), 16) / 10) * 10;
+  document.getElementById('dzFree').textContent = free;
+  document.getElementById('dzMol').textContent = mols;
+}
+/* Температура газа: облучение и слияние атомов её повышают, а стенки
+   сосуда охлаждают обратно до комнатной. */
+function dzCool(dt){
+  dz.T += (300 - dz.T) * 0.28 * dt;
+  dz.T += dz.heat;
+  dz.heat = 0;
+  if (dz.T < 300.5) dz.T = 300;
+  /* в опыте амплитуда колебаний тоже ∝ √T, как и в конструкторе */
+  vibT = dz.T / 300;
+}
+
+let dzLastScale = 1;
+function dzStep(dt){
+  /* своё время шага: физика не должна зависеть от кадров отрисовки —
+     иначе при остановленном рендерере колебания тоже замирают */
+  dz.time += dt;
+  if (dz.phase === 1) dz.t += dt;
+  dzCool(dt);
+  /* скорость атомов пропорциональна √T: нагрев ускоряет движение */
+  const want = Math.sqrt(dz.T / 300);
+  if (Math.abs(want - dzLastScale) > 0.002){
+    for (const p of dz.parts){
+      if (speedOf(p) > 1e-6){
+        const k = want / dzLastScale;
+        p.vel[0] *= k; p.vel[1] *= k; p.vel[2] *= k;
+      }
+    }
+    dzLastScale = want;
+  }
+  dzFlash.material.emissiveIntensity = Math.max(0, dzFlash.material.emissiveIntensity - dt * 2.2);
+
+  if (dz.phase === 0){
+    /* связанные молекулы: колеблются, вращаются и медленно дрейфуют */
+    for (const p of dz.parts){
+      p.pos.x += p.vel[0] * dt; p.pos.y += p.vel[1] * dt; p.pos.z += p.vel[2] * dt;
+      p.mol.g.position.copy(p.pos);
+      stepMolecule(p.mol, dz.time);
+    }
+  } else {
+    /* газ: по инерции, упругие удары, отскоки от стенок сосуда */
+    stepGas(dz.parts, dt);
+    if (dz.phase === 1 && dz.t > 0.3) dzReact();
+    for (const p of dz.parts){
+      if (p.atom){
+        p.atom.position.copy(p.pos);
+      } else {
+        p.mol.g.position.copy(p.pos);
+        for (const b of p.mol.bonds) if (b.heat > 1) b.heat += (1 - b.heat) * 1.6 * dt;
+        stepMolecule(p.mol, dz.time);
+      }
+    }
+    let free = 0;
+    for (const p of dz.parts) if (p.atom) free++;
+    if (dz.phase === 1 && free === 0){
+      dz.phase = 2;
+      /* по уравнению 2 H₂O → 2 H₂ + O₂: из 4 молекул выйдет 4 H₂ и 2 O₂ */
+      document.getElementById('dzStatus').innerHTML =
+        '<b>' + dz.nWater + ' H₂ + ' + (dz.nWater / 2) + ' O₂!</b> Из тех же атомов получилось ' +
+        '<b style="color:var(--g)">новое вещество</b> с новыми свойствами.';
+    }
+  }
+  dzReadout();
+}
+
+/* Облучение: связи рвутся, атомы разлетаются. Энергия фотонов идёт
+   на разрыв связей и на нагрев газа. */
+function dzFire(){
+  /* повторный запуск возвращает опыт к исходным двум молекулам воды */
+  if (dz.phase !== 0){ dzReset(false); dzFire(); return; }
+  const burst = [];
+  for (const p of dz.parts.slice()){
+    if (!p.mol) continue;
+    for (const a of p.mol.atoms){
+      const world = _vb.copy(a.position).add(p.pos);
+      const v = randomSpeed(dz.T);
+      /* лёгкие атомы отлетают быстрее — импульс связи у них общий */
+      const boost = 3.4 / Math.sqrt(a.userData.m / 16);
+      const dir = _va.copy(a.position).normalize();
+      if (dir.lengthSq() < 1e-6) dir.set(rnd() - 0.5, rnd() - 0.5, rnd() - 0.5).normalize();
+      burst.push({ el: a.userData.el, mesh: a, pos: world.clone(),
+                   vel: [v[0] + dir.x * boost, v[1] + dir.y * boost, v[2] + dir.z * boost] });
+    }
+    g1.remove(p.mol.g);
+    dz.parts.splice(dz.parts.indexOf(p), 1);
+  }
+  for (const b of burst) dzFreeAtom(b.el, b.mesh, b.pos, b.vel);
+  dz.phase = 1;
+  dz.t = 0;
+  dz.T = 1500;
+  dzFlash.position.set(0, 4, 0);
+  dzFlash.visible = true;
+  dzFlash.material.emissiveIntensity = 3;
+  document.getElementById('dzStatus').innerHTML =
+    'Связи разорвались: <b>' + (dz.nWater * 6) + ' свободных атомов</b> разлетаются по сосуду и отскакивают от стенок.';
+  dzReadout();
+}
+document.getElementById('btnRad').addEventListener('click', dzFire);
+dzReset(true);
+
+/* ============================================================
+   2.3 Рождение озона (шаг 2)
+   ============================================================ */
+
+const g2 = groups.g2;
+
+/* Кислород под ультрафиолетом — тот же честный газ, что и в опыте 1:
+   три молекулы O₂ летают в сосуде, ультрафиолет рвёт связи на отдельные
+   атомы, атомы упруго сталкиваются и при сближении собираются из себя.
+   Из шести атомов кислорода химия делает две молекулы озона O₃. */
+
+const ozBox = { hx: 12, hy: 9, hz: 7 };
+(() => {
+  const g = new THREE.Group();
+  const { hx, hy, hz } = ozBox;
+  const pts = [];
+  const corner = (i) => [i & 1 ? hx : -hx, i & 2 ? hy : -hy, i & 4 ? hz : -hz];
+  for (let i = 0; i < 8; i++) for (const b of [1, 2, 4]) if (!(i & b)) pts.push(corner(i), corner(i | b));
+  const geo = new THREE.BufferGeometry().setFromPoints(pts.map(p => new THREE.Vector3(p[0], p[1], p[2])));
+  g.add(new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color: 0x5b6a86, transparent: true, opacity: 0.5 })));
+  g.add(new THREE.Mesh(
+    new THREE.BoxGeometry(hx * 2, hy * 2, hz * 2),
+    new THREE.MeshBasicMaterial({ color: 0x9fd0ff, transparent: true, opacity: 0.035, side: THREE.BackSide, depthWrite: false })
+  ));
+  g2.add(g);
+})();
+
+const ozFlash = makeAtom(1, 0xffe9a8, 0xffc53d);
+ozFlash.visible = false;
+g2.add(ozFlash);
+
+const ozSun = makeAtom(2.2, 0xffc53d, 0xffa726);
+ozSun.material.emissiveIntensity = 0.8;
+ozSun.position.set(-14, 10, -8);
+g2.add(ozSun);
+
+const ozRays = [];
+[[-6, 4, -2], [0, 5, -2], [6, 4, -2]].forEach((p, i) => {
+  const r = stick(ozSun.position, new THREE.Vector3(p[0], p[1], p[2]), 0.05, 0xffc53d);
+  r.material.transparent = true; r.material.opacity = 0.35;
+  g2.add(r);
+  ozRays.push(r);
+});
+const ozBand = new THREE.Mesh(
+  new THREE.BoxGeometry(30, 0.22, 12),
+  new THREE.MeshStandardMaterial({ color: 0x8b5cf6, transparent: true, opacity: 0.12 })
+);
+ozBand.position.set(0, 9.6, -2);
+g2.add(ozBand);
+const ozBandLine = makeLine([new THREE.Vector3(-15, 9.6, -2), new THREE.Vector3(15, 9.6, -2)], 0x8b5cf6, 0.5);
+g2.add(ozBandLine);
+
+const oz = { run: false, done: false, t: 0, time: 0, phase: 0, T: 300, parts: [], scale: 1 };
+
+function ozFreeAtom(el, mesh, pos, vel){
+  const p = { el, atom: mesh, mol: null,
+              pos: pos.clone(), vel: vel.slice(),
+              m: MASS[el], r: RAD[el] };
+  g2.add(mesh);
+  oz.parts.push(p);
+  return p;
+}
+function ozMolAdd(mol, pos, vel){
+  const p = { el: null, atom: null, mol,
+              pos: pos.clone(), vel: vel.slice(),
+              m: mol.def.M, r: molRadius(mol) };
+  mol.g.position.copy(pos);
+  g2.add(mol.g);
+  oz.parts.push(p);
+  return p;
+}
+/* Три атома кислорода, собравшиеся рядом, связываются в озон. Центр масс
+   и импульс сохраняются; выделившаяся энергия связи греет газ. */
+function ozBindO3(a, b, c){
+  const mid = new THREE.Vector3().addVectors(a.pos, b.pos).add(c.pos).multiplyScalar(1 / 3);
+  const mol = makeMolecule(GEO.O3, new THREE.Vector3(), g2);
+  mol.atoms.forEach(at => at.material.color.setHex(C_OZ));
+  const M = a.m + b.m + c.m;
+  const vel = [
+    (a.vel[0] * a.m + b.vel[0] * b.m + c.vel[0] * c.m) / M,
+    (a.vel[1] * a.m + b.vel[1] * b.m + c.vel[1] * c.m) / M,
+    (a.vel[2] * a.m + b.vel[2] * b.m + c.vel[2] * c.m) / M
+  ];
+  oz.parts.splice(oz.parts.indexOf(a), 1);
+  oz.parts.splice(oz.parts.indexOf(b), 1);
+  oz.parts.splice(oz.parts.indexOf(c), 1);
+  const p = ozMolAdd(mol, mid, vel);
+  oz.T += 60;
+  return p;
+}
+/* Пара атомов без третьего партнёра собирается обратно в кислород —
+   без ультрафиолета озон не образуется, всё возвращается на круги своя. */
+function ozBindO2(a, b){
+  const mid = new THREE.Vector3().addVectors(a.pos, b.pos).multiplyScalar(0.5);
+  const mol = makeMolecule(GEO.O2, new THREE.Vector3(), g2);
+  const M = a.m + b.m;
+  const vel = [
+    (a.vel[0] * a.m + b.vel[0] * b.m) / M,
+    (a.vel[1] * a.m + b.vel[1] * b.m) / M,
+    (a.vel[2] * a.m + b.vel[2] * b.m) / M
+  ];
+  oz.parts.splice(oz.parts.indexOf(a), 1);
+  oz.parts.splice(oz.parts.indexOf(b), 1);
+  const p = ozMolAdd(mol, mid, vel);
+  oz.T += 20;
+  return p;
+}
+/* Радиусы захвата: озон собирается, когда атом кислорода прилипает
+   к молекуле O₂ (главный реальный канал O + O₂ → O₃), либо когда
+   три атома оказались совсем рядом сразу. */
+const O3_CAP = 0.42 / NM;
+const O2_CAP = 0.30 / NM;
+/* свободный атом прилипает к готовой молекуле кислорода */
+function ozAttach(atom, o2p){
+  const mol = makeMolecule(GEO.O3, new THREE.Vector3(), g2);
+  mol.atoms.forEach(at => at.material.color.setHex(C_OZ));
+  const mid = new THREE.Vector3().addVectors(o2p.pos, atom.pos).multiplyScalar(0.5);
+  const M = o2p.m + atom.m;
+  const vel = [
+    (o2p.vel[0] * o2p.m + atom.vel[0] * atom.m) / M,
+    (o2p.vel[1] * o2p.m + atom.vel[1] * atom.m) / M,
+    (o2p.vel[2] * o2p.m + atom.vel[2] * atom.m) / M
+  ];
+  oz.parts.splice(oz.parts.indexOf(atom), 1);
+  oz.parts.splice(oz.parts.indexOf(o2p), 1);
+  const p = ozMolAdd(mol, mid, vel);
+  oz.T += 60;
+  return p;
+}
+function ozReact(){
+  const O = [];
+  for (const p of oz.parts) if (p.atom) O.push(p);
+  if (O.length < 2) return;
+  /* сначала тройные встречи — три атома собираются в озон сами */
+  for (let i = 0; i < O.length; i++)
+    for (let j = i + 1; j < O.length; j++)
+      for (let k = j + 1; k < O.length; k++){
+        const a = O[i], b = O[j], c = O[k];
+        if (a.pos.distanceTo(b.pos) < O3_CAP &&
+            a.pos.distanceTo(c.pos) < O3_CAP &&
+            b.pos.distanceTo(c.pos) < O3_CAP){
+          ozBindO3(a, b, c);
+          return;
+        }
+      }
+  /* иначе свободный атом прилипает к O₂ — так и рождается озон */
+  for (const o of O){
+    for (const p of oz.parts){
+      if (!p.mol || p.mol.def.el.join('') !== 'OO') continue;
+      if (o.pos.distanceTo(p.pos) < O3_CAP + p.r){
+        ozAttach(o, p);
+        return;
+      }
+    }
+  }
+  /* и наконец — пара атомов собирается в кислород O₂ */
+  for (let i = 0; i < O.length; i++)
+    for (let j = i + 1; j < O.length; j++){
+      const a = O[i], b = O[j];
+      if (a.pos.distanceTo(b.pos) < O2_CAP){
+        ozBindO2(a, b);
+        return;
+      }
+    }
+}
+
+function ozBuild(){
+  while (oz.parts.length){
+    const p = oz.parts.pop();
+    if (p.atom) g2.remove(p.atom);
+    if (p.mol){
+      g2.remove(p.mol.g);
+      p.mol.g.traverse(o => { if (o.isMesh) o.geometry.dispose(); });
+    }
+  }
+  /* три молекулы кислорода — это шесть свободных атомов после облучения */
+  const vSlow = () => [(rnd() - 0.5) * 0.5, (rnd() - 0.5) * 0.5, (rnd() - 0.5) * 0.5];
+  [[-6.5, 1.5, 0.5], [6.5, -1.5, -0.5], [0, 0, 0]].forEach(p => {
+    const pos = new THREE.Vector3(p[0], p[1], p[2]);
+    ozMolAdd(makeMolecule(GEO.O2, pos, g2), pos, vSlow());
+  });
+}
+function ozReadout(){
+  let free = 0, o2 = 0, o3 = 0;
+  for (const p of oz.parts){
+    if (p.atom) free++;
+    else if (p.mol.def.el.join('') === 'OO') o2++;
+    else o3++;
+  }
+  if (document.getElementById('ozFree')) document.getElementById('ozFree').textContent = free;
+  if (document.getElementById('ozO2')) document.getElementById('ozO2').textContent = o2;
+  if (document.getElementById('ozO3')) document.getElementById('ozO3').textContent = o3;
+}
+let ozLastScale = 1;
+function ozReset(first){
+  oz.run = false; oz.done = false; oz.t = 0; oz.time = 0; oz.phase = 0; oz.T = 300; ozLastScale = 1;
+  GAS.box.set(ozBox.hx, ozBox.hy, ozBox.hz);
+  ozFlash.visible = false;
+  ozFlash.material.emissiveIntensity = 0;
+  ozRays.forEach(r => r.material.opacity = 0.35);
+  ozBuild();
+  ozReadout();
+  if (!first) document.getElementById('ozStatus').innerHTML = 'Нажми «Включить ультрафиолет», чтобы повторить.';
+}
+function ozStep(dt){
+  if (!oz.run) return;
+  oz.time += dt;
+  oz.t += dt;
+  oz.T += (300 - oz.T) * 0.28 * dt;
+  if (oz.T < 300.5) oz.T = 300;
+  const want = Math.sqrt(oz.T / 300);
+  if (Math.abs(want - ozLastScale) > 0.002){
+    const k = want / ozLastScale;
+    for (const p of oz.parts) if (speedOf(p) > 1e-6){
+      p.vel[0] *= k; p.vel[1] *= k; p.vel[2] *= k;
+    }
+    ozLastScale = want;
+  }
+  ozFlash.material.emissiveIntensity = Math.max(0, ozFlash.material.emissiveIntensity - dt * 2.2);
+  ozRays.forEach(r => { r.material.opacity = 0.35 + Math.min(0.65, ozFlash.material.emissiveIntensity * 0.2); });
+  const s = document.getElementById('ozStatus');
+  if (oz.phase === 0){
+    /* связанный кислород дрейфует и колеблется до удара ультрафиолета */
+    for (const p of oz.parts){
+      p.pos.x += p.vel[0] * dt; p.pos.y += p.vel[1] * dt; p.pos.z += p.vel[2] * dt;
+      p.mol.g.position.copy(p.pos);
+      stepMolecule(p.mol, oz.time);
+    }
+    ozReadout();
+    return;
+  }
+  /* газ: упругие удары, отскоки от стенок, сборка молекул */
+  stepGas(oz.parts, dt);
+  if (oz.t > 0.3) ozReact();
+  for (const p of oz.parts){
+    if (p.atom){
+      p.atom.position.copy(p.pos);
+    } else {
+      p.mol.g.position.copy(p.pos);
+      stepMolecule(p.mol, oz.time);
+    }
+  }
+  let free = 0;
+  for (const p of oz.parts) if (p.atom) free++;
+  if (oz.phase === 1 && free === 0){
+    oz.phase = 2;
+    const nO3 = oz.parts.filter(p => p.mol && p.mol.def.el.join('') === 'OOO').length;
+    if (nO3 > 0){
+      s.innerHTML = '<b>' + nO3 + ' O₃!</b> Из тех же атомов собрался <b style="color:#8b5cf6">озон</b> — новое вещество.';
+    } else {
+      s.innerHTML = '<b>3 O₂.</b> Атомы собрались снова в кислород — без энергии ультрафиолета озон не образуется.';
+    }
+    document.getElementById('ozHelp').classList.add('is-on');
+  }
+  ozReadout();
+}
+/* Облучение: ультрафиолет рвёт связи O=O на отдельные атомы */
+function ozFire(){
+  if (oz.phase !== 0){ ozReset(false); ozFire(); return; }
+  oz.run = true;
+  const burst = [];
+  for (const p of oz.parts.slice()){
+    if (!p.mol) continue;
+    for (const a of p.mol.atoms){
+      const world = _vb.copy(a.position).add(p.pos);
+      const v = randomSpeed(oz.T);
+      const boost = 3.0;
+      const dir = _va.copy(a.position).normalize();
+      if (dir.lengthSq() < 1e-6) dir.set(rnd() - 0.5, rnd() - 0.5, rnd() - 0.5).normalize();
+      burst.push({ el: a.userData.el, mesh: a, pos: world.clone(),
+                   vel: [v[0] + dir.x * boost, v[1] + dir.y * boost, v[2] + dir.z * boost] });
+    }
+    g2.remove(p.mol.g);
+    oz.parts.splice(oz.parts.indexOf(p), 1);
+  }
+  for (const b of burst) ozFreeAtom(b.el, b.mesh, b.pos, b.vel);
+  oz.phase = 1; oz.t = 0; oz.T = 1500; ozLastScale = Math.sqrt(5);
+  ozFlash.position.set(0, 5, -2);
+  ozFlash.visible = true;
+  ozFlash.material.emissiveIntensity = 3;
+  document.getElementById('ozStatus').innerHTML =
+    'Связи разорвались: <b>6 атомов кислорода</b> разлетелись по сосуду.';
+  document.getElementById('ozHelp').classList.remove('is-on');
+  ozReadout();
+}
+document.getElementById('btnUV').addEventListener('click', ozFire);
+ozReset(true);
+window.__ozState = () => ({
+  phase: oz.phase, t: +oz.t.toFixed(2), run: oz.run, done: oz.done, T: Math.round(oz.T),
+  free: oz.parts.filter(p => p.atom).length,
+  o2: oz.parts.filter(p => p.mol && p.mol.def.el.join('') === 'OO').length,
+  o3: oz.parts.filter(p => p.mol && p.mol.def.el.join('') === 'OOO').length
+});
+
+/* ============================================================
+   2.4 Масляная плёнка (шаг 3)
+   ============================================================ */
+
+const g3 = groups.g3;
+const waterPlane = new THREE.Mesh(
+  new THREE.PlaneGeometry(42, 30),
+  new THREE.MeshStandardMaterial({ color: 0x1e4a6e, transparent: true, opacity: 0.55, roughness: 0.25, metalness: 0.35 })
+);
+waterPlane.rotation.x = -Math.PI / 2;
+waterPlane.position.set(0, 0.35, 0);
+g3.add(waterPlane);
+
+/* капля — это скопление ~130 молекул масла. Молекула — короткая
+   углеродная цепочка; такие же цепочки и разлетаются по поверхности
+   воды, когда капля падает. Плёнка не может быть тоньше одной такой
+   цепочки: d = V/S ≈ 10⁻⁹ м. */
+const OIL_N = 132;
+const OIL_DEF = { el: ['C','C','C'], M: 44, d: 0.15, bonds: [[0,1],[1,2]],
+                  p: [[-0.029,0,0],[0,0,0],[0.029,0,0]], note: '' };
+const OIL_SCALE = 0.35;
+const DROP_V = 1e-9;          /* м³ — капля объёмом 1 мм³ */
+const UNITS_M = 0.042;        /* сцена → метры: лоток ~0,9 м шириной */
+
+function makeOilMolecule(){
+  const mol = makeMolecule(OIL_DEF, new THREE.Vector3(), g3);
+  mol.g.scale.setScalar(OIL_SCALE);
+  mol.atoms.forEach(a => a.material.color.setHex(C_OIL));
+  return mol;
+}
+
+const fl = { run: false, done: false, t: -1, phase: 0,
+             parts: [],
+             r: 0, dnm: 9.9 };
+/* конечный радиус плёнки: задаём такой, чтобы из капли 1 мм³ плёнка
+   вышла толщиной ~1 нм, то есть ровно в одну молекулу (V/S = d) */
+const FL_RF = 12.3;
+function flReset(first){
+  fl.run = false; fl.done = false; fl.t = -1; fl.phase = 0;
+  while (fl.parts.length){
+    const p = fl.parts.pop();
+    g3.remove(p.g);
+    p.g.traverse(o => { if (o.isMesh) o.geometry.dispose(); });
+  }
+  for (let i = 0; i < OIL_N; i++){
+    const mol = makeOilMolecule();
+    const th = rnd() * Math.PI * 2;
+    const rad = Math.sqrt(rnd()) * 1.45;
+    mol.g.position.set(Math.cos(th) * rad, 6.4, Math.sin(th) * rad);
+    mol.g.rotation.y = rnd() * Math.PI;
+    /* «место» в готовой плёнке: молекулы распределяются по диску
+       равномерно — радиус от радиуса диска, угол случаен */
+    const f = Math.sqrt((i + 0.5) / OIL_N);
+    fl.parts.push({ g: mol.g,
+                    x: mol.g.position.x, y: mol.g.position.y, z: mol.g.position.z,
+                    vx: 0, vy: 0, vz: 0,
+                    ang: th, f });
+  }
+  if (!first){
+    document.getElementById('flStatus').innerHTML = 'Нажми «Капнуть масло», чтобы повторить опыт.';
+  }
+  flMeasure();
+}
+function flMeasure(){
+  /* радиус плёнки — по самому краю (среднее по 8 самым дальним); 
+     толщина d = V/S отвечает настоящей физике опыта */
+  const r2 = fl.parts.map(p => Math.hypot(p.x, p.z)).sort((a, b) => b - a);
+  const top = r2.slice(0, Math.min(8, r2.length));
+  fl.r = top.reduce((s, v) => s + v, 0) / top.length;
+  const S = Math.PI * Math.pow(fl.r * UNITS_M, 2);
+  fl.dnm = (DROP_V / S) / 1e-9;
+}
+function flStep(dt){
+  const s = document.getElementById('flStatus');
+  if (fl.run || fl.done) fl.t += dt;
+  if (fl.done){
+    /* финиш: лёгкое «дыхание» каждой цепочки, чтобы плёнка жила,
+       и стабильный текст с готовым расчётом */
+    for (const p of fl.parts){
+      p.x += (rnd() - 0.5) * 0.01 * dt;
+      p.z += (rnd() - 0.5) * 0.01 * dt;
+      p.g.position.set(p.x, p.y, p.z);
+      p.g.rotation.y += 0.06 * dt;
+    }
+    s.innerHTML = 'Плёнка остановилась слоем <b>в одну молекулу</b>:<br>V = 1 мм³, S ≈ <b>' +
+      Math.round(Math.PI * Math.pow(fl.r * UNITS_M, 2) * 10000) + ' см²</b> ⇒ толщина d = V/S ≈ <b>10⁻⁹ м</b> — и это размер молекулы!';
+    return;
+  }
+  if (!fl.run) return;
+  if (fl.phase === 0){
+    /* падение: вся капля ускоряется вниз, молекулы подрагивают */
+    for (const p of fl.parts){
+      p.vy -= 9.8 * dt;
+      p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
+    }
+    const low = Math.min.apply(null, fl.parts.map(p => p.y));
+    if (low <= 0.45){
+      /* касание воды: молекулы ложатся на поверхность и разлетаются */
+      for (const p of fl.parts){
+        p.y = 0.42 + rnd() * 0.06;
+        let tx = p.x, tz = p.z;
+        const tl = Math.hypot(tx, tz) || 1e-3;
+        const spr = 4.5 + rnd() * 3;
+        p.vx = tx / tl * spr + (rnd() - 0.5) * 2;
+        p.vz = tz / tl * spr + (rnd() - 0.5) * 2;
+        p.vy = 0;
+      }
+      fl.phase = 1;
+      fl.t = 0;
+    }
+} else if (fl.phase === 1){
+    /* растекание: поверхностное натяжение тянет каждую цепочку к её
+       месту в мономолекулярном диске; мягкое расталкивание не даёт
+       молекулам слипнуться, трение о водицу гасит ускорение.
+       Слой не может стать толще одной молекулы: y зафиксирован. */
+    for (const p of fl.parts){
+      const tx = Math.cos(p.ang) * FL_RF * p.f;
+      const tz = Math.sin(p.ang) * FL_RF * p.f;
+      p.vx += (tx - p.x) * 1.6 * dt;
+      p.vz += (tz - p.z) * 1.6 * dt;
+    }
+    const D = 2.0;
+    for (let i = 0; i < fl.parts.length; i++)
+      for (let j = i + 1; j < fl.parts.length; j++){
+        const a = fl.parts[i], b = fl.parts[j];
+        let dx = b.x - a.x, dz = b.z - a.z;
+        let d2 = dx * dx + dz * dz;
+        if (d2 > 1e-6 && d2 < D * D){
+          const d = Math.sqrt(d2);
+          const f = (D - d) * 0.9 * dt;
+          dx /= d; dz /= d;
+          a.vx -= dx * f; a.vz -= dz * f;
+          b.vx += dx * f; b.vz += dz * f;
+        }
+      }
+    for (const p of fl.parts){
+      const fr = Math.exp(-0.8 * dt);
+      p.vx *= fr; p.vz *= fr; p.vy *= fr;
+      /* плёнка не выходит за край лотка */
+      const mx = 19.5, mz = 13.5;
+      if (Math.abs(p.x) > mx) p.x = Math.sign(p.x) * mx;
+      if (Math.abs(p.z) > mz) p.z = Math.sign(p.z) * mz;
+      p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
+      if (p.y < 0.40) p.y = 0.40;
+    }
+    flMeasure();
+    const Rcm = Math.round(fl.r * UNITS_M * 100);
+    if (fl.dnm > 1.6){
+      s.innerHTML = 'Плёнка растёт: R ≈ <b>' + Rcm + ' см</b>, толщина ≈ <b>' + fl.dnm.toFixed(1) +
+        '·10⁻⁹ м</b> ← всё ещё толще молекулы';
+    } else {
+      fl.phase = 2; fl.run = false; fl.done = true;
+    }
+  }
+  for (const p of fl.parts){
+    p.g.position.set(p.x, p.y, p.z);
+    p.g.rotation.y += 0.06 * dt;
+  }
+}
+document.getElementById('btnDrop').addEventListener('click', () => { flReset(false); fl.run = true; });
+flReset(true);
+
+/* ============================================================
+   2.5 Туннельный микроскоп (шаг 4)
+   ============================================================ */
+
+const g4 = groups.g4;
+const SC = { run: false, done: false, x: -9 };
+const ptAtoms = [];
+for (let r = 0; r < 6; r++){
+  for (let c = 0; c < 9; c++){
+    const m = makeAtom(0.46, 0x2f3560, 0x3b82f6);
+    m.position.set(-6 + c * 1.5, 1.1 + r * 1.45, 0);
+    g4.add(m);
+    ptAtoms.push({ m, light: c });
+  }
+}
+const scanBar = new THREE.Mesh(
+  new THREE.BoxGeometry(0.22, 12, 0.3),
+  new THREE.MeshBasicMaterial({ color: 0x33ccff, transparent: true, opacity: 0.6 })
+);
+scanBar.position.set(-9, 4.5, -0.2);
+g4.add(scanBar);
+const scFrame = new THREE.LineSegments(
+  new THREE.EdgesGeometry(new THREE.PlaneGeometry(15, 10.5)),
+  new THREE.LineBasicMaterial({ color: 0x33ccff, transparent: true, opacity: 0.5 })
+);
+scFrame.rotation.x = -Math.PI / 2;
+scFrame.position.set(0, 4.5, -0.1);
+g4.add(scFrame);
+
+function scReset(first){
+  SC.run = false; SC.done = false; SC.x = -9;
+  scanBar.position.x = -9;
+  ptAtoms.forEach(p => {
+    p.m.material.emissiveIntensity = 0;
+    p.m.material.color.setHex(0x2f3560);
+  });
+  if (!first){
+    document.getElementById('scStatus').innerHTML = 'Нажми «Сканировать образец», чтобы увидеть атомы платины.';
+  }
+}
+function scStep(dt){
+  if (!SC.run) return;
+  SC.x += dt * 7;
+  scanBar.position.x = SC.x;
+  ptAtoms.forEach(p => {
+    const zone = (SC.x - p.m.position.x);
+    const glow = Math.max(0, Math.min(1, 1 - zone * 0.15));
+    p.m.material.emissiveIntensity = glow;
+    const base = 0x2f3560 + glow * 0x33;
+    p.m.material.color.setHex(base | (glow > 0.5 ? 0x6644ff : 0));
+  });
+  const s = document.getElementById('scStatus');
+  if (SC.x > 9){
+    SC.run = false; SC.done = true;
+    scanBar.position.x = 9.4;
+    ptAtoms.forEach(p => { p.m.material.emissiveIntensity = 1; p.m.material.color.setHex(0x6366f1); });
+    s.innerHTML = '<b>Атомы платины!</b> Их «сфотографировал» туннельный микроскоп.';
+  } else {
+    s.innerHTML = 'Сканер бежит по образцу — и «проявляет» атомы…';
+  }
+}
+document.getElementById('btnScan').addEventListener('click', () => { scReset(false); SC.run = true; });
+scReset(true);
+
+/* ============================================================
+   3. Шаги (навигация)
+   ============================================================ */
+
+const STEPS_NOTE = [
+  'Молекулы разных веществ состоят из <b>атомов</b>. Собери молекулу из «деталей»!',
+  'Молекулы могут делиться на атомы и образовываться из них. <b>Запусти опыт!</b>',
+  'Под действием ультрафиолета из кислорода рождается <b>озон</b> — новое вещество.',
+  'Капля масла растекается плёнкой — по её толщине учёные оценили <b>размер молекулы</b>.',
+  'Туннельный микроскоп «увидел» <b>отдельные атомы</b> (увеличение до 10⁶ раз).',
+  'Проверь себя: покажи, что ты запомнил о молекулах и атомах.'
+];
+const STEP_EQU = [
+  '<em>молекула — мельчайшая частица вещества</em>Молекулы состоят из атомов',
+  '<em>опыт 1 · рис. 23</em>2 H₂O → 2 H₂ + O₂',
+  '<em>опыт 2 · озон</em>3 O₂ → 2 O₃',
+  '<em>опыт 3 · рис. 25</em>толщина плёнки d ≈ 10⁻⁹ м',
+  '<em>опыт 4 · рис. 24</em>одиночные атомы — реальность!',
+  '<em>§8 · вопросы для самопроверки</em>Молекула · атом · элемент'
+];
+let mode = 0;
+let camTween = null;
+function camSmooth(yaw, pitch, dist, tx, ty, tz){
+  camTween = { yaw, pitch, dist, tx, ty, tz };
+  cam.sy = yaw; cam.sp = pitch; cam.sd = dist; cam.stx = tx; cam.sty = ty; cam.stz = tz;
+}
+function setMode(m){
+  mode = m;
+  document.querySelectorAll('#steps .step').forEach(s => s.classList.toggle('is-on', +s.dataset.step === m));
+  document.querySelectorAll('.panel .sec').forEach(s => s.classList.toggle('is-on', s.id === 'sec' + m));
+
+  groups.g0.visible = (m === 0 || m === 5);
+  groups.g1.visible = (m === 1);
+  groups.g2.visible = (m === 2);
+  groups.g3.visible = (m === 3);
+  groups.g4.visible = (m === 4);
+
+  const note = document.getElementById('note');
+  note.innerHTML = STEPS_NOTE[m];
+  note.classList.add('is-on');
+
+  document.getElementById('chartEqu').innerHTML = STEP_EQU[m];
+
+  const lg = document.getElementById('legend');
+  const legend = {
+    0: '<div><i style="background:#ff6b6b"></i>Кислород O</div><div><i style="background:#f1f5f9"></i>Водород H</div><div><i style="background:#9097a3"></i>Углерод C</div>',
+    1: '<div><i style="background:#ff6b6b"></i>Кислород O</div><div><i style="background:#f1f5f9"></i>Водород H</div>',
+    2: '<div><i style="background:#ff6b6b"></i>Кислород O₂</div><div><i style="background:#8b5cf6"></i>Озон O₃</div>',
+    3: '<div><i style="background:#fbbf24"></i>Капля / плёнка масла</div>',
+    4: '<div><i style="background:#6366f1"></i>Атомы платины</div>'
+  };
+  lg.style.display = legend[m] ? '' : 'none';
+  if (legend[m]) lg.innerHTML = legend[m];
+
+  const chip = (id, txt) => { const el = document.getElementById(id); el.style.display = txt ? '' : 'none'; el.innerHTML = txt; };
+  if (m === 0) chip('chip1', 'Собери молекулу<br><b style="color:#33ccff">атомы → молекула</b>');
+  else chip('chip1', '');
+  if (m === 4) chip('chip2', 'Увеличение <b style="color:#33ccff">до 10⁶×</b>');
+  else chip('chip2', '');
+
+  /* пол виден только там, где есть настоящая поверхность */
+  setFloor(m === 3 || m === 4);
+
+  /* камера: молекулы выросли в 4 раза вместе с настоящим масштабом,
+     поэтому и расстояния стали больше */
+  if (m === 0) camSmooth(-0.6, 0.3, 17, 0, 0, 0);
+  else if (m === 1) camSmooth(-0.35, 0.4, 34, 0, 0, 0);
+  else if (m === 2) camSmooth(-0.55, 0.5, 30, 0, 0, 0);
+  else if (m === 3) camSmooth(-0.4, 0.55, 16, 0, 1.2, 0);
+  else if (m === 4) camSmooth(-0.15, 0.1, 13, 0, 2.2, 0);
+  else camSmooth(-0.6, 0.3, 9, 0, 0.5, 0);
+}
+document.getElementById('steps').addEventListener('click', e => {
+  const b = e.target.closest('.step');
+  if (!b) return;
+  setMode(+b.dataset.step);
+});
+setMode(0);
+
+/* ============================================================
+   4. Проверка (шаг 5)
+   ============================================================ */
+
+const QUIZ = [
+  {
+    q: 'Что такое молекула?',
+    opt: ['мельчайшая частица данного вещества, сохраняющая его свойства', 'атом таблицы Менделеева', 'любое твёрдое тело', 'мельчайшая частица воздуха'],
+    right: 0,
+    expl: 'Молекула вещества — это мельчайшая частица данного вещества. Каждому веществу соответствует свой тип молекул.'
+  },
+  {
+    q: 'Из чего состоит молекула воды?',
+    opt: ['1 атом кислорода и 2 атома водорода', '2 атома кислорода и 1 атом водорода', '3 атома кислорода', '1 атом углерода и 2 атома кислорода'],
+    right: 0,
+    expl: 'Молекула воды H₂O — один атом кислорода и два атома водорода.'
+  },
+  {
+    q: 'Сколько атомов в молекуле углекислого газа CO₂?',
+    opt: ['два', 'три', 'четыре', 'шесть'],
+    right: 1,
+    expl: 'Молекула CO₂ состоит из трёх атомов: двух атомов кислорода и одного атома углерода.'
+  },
+  {
+    q: 'Что образуется из молекул кислорода под действием ультрафиолета Солнца?',
+    opt: ['озон', 'неон', 'гелий', 'кремний'],
+    right: 0,
+    expl: 'Из кислорода O₂ образуется озон O₃ — новое вещество, молекулы которого содержат по три атома кислорода. Основная масса озона — на высоте 20—25 км.'
+  },
+  {
+    q: 'Толщина масляной плёнки в опыте Рентгена и Рэлея оказалась порядка…',
+    opt: ['10⁻⁹ м', '1 см', '1 мм', '10 км'],
+    right: 0,
+    expl: 'Плёнка растекается слоем в одну молекулу, поэтому её толщина ≈ диаметр молекулы ≈ 10⁻⁹ м. Молекулы и атомы очень малы!'
+  },
+  {
+    q: 'Какие вещества состоят не из молекул, а из атомов?',
+    opt: ['кремний, сера, неон', 'вода и углекислый газ', 'озон и кислород', 'все вещества без исключения'],
+    right: 0,
+    expl: 'Кремний, сера, мышьяк, некоторые газы (неон, гелий) состоят из атомов, а не из молекул.'
+  },
+  {
+    q: 'Каким прибором удалось «увидеть» и сфотографировать отдельные атомы?',
+    opt: ['туннельным микроскопом', 'лупой', 'телескопом', 'обычным фотоаппаратом'],
+    right: 0,
+    expl: 'Электронные и туннельные микроскопы дают увеличение до 10⁶ раз — на изображениях различимы отдельные молекулы и атомы.'
+  }
+];
+let quizIndex = -1, kRight = 0, kTotal = 0;
+function nextQuiz(){
+  if (QUIZ.length > 1) {
+    let nx = Math.floor(Math.random() * QUIZ.length);
+    while (nx === quizIndex % QUIZ.length) nx = Math.floor(Math.random() * QUIZ.length);
+    quizIndex = nx;
+  } else quizIndex = 0;
+  const t = QUIZ[quizIndex];
+  document.getElementById('taskQ').innerHTML = t.q;
+  document.getElementById('taskOpts').innerHTML = t.opt.map((o, i) =>
+    '<button class="opt" data-i="' + i + '">' + String.fromCharCode(65 + i) + ') ' + o + '</button>').join('');
+  const ex = document.getElementById('taskExpl');
+  ex.className = 'expl';
+  ex.innerHTML = '';
+}
+document.getElementById('taskOpts').addEventListener('click', e => {
+  const b = e.target.closest('.opt');
+  if (!b) return;
+  const t = QUIZ[quizIndex];
+  const i = +b.dataset.i;
+  if (b.classList.contains('is-right')) return;
+  kTotal++;
+  document.getElementById('kTotal').textContent = kTotal;
+  const btns = [...document.querySelectorAll('#taskOpts .opt')];
+  if (i === t.right){
+    b.classList.add('is-right');
+    kRight++;
+    document.getElementById('kRight').textContent = kRight;
+    const ex = document.getElementById('taskExpl');
+    ex.innerHTML = '<b>Верно!</b> ' + t.expl;
+    ex.classList.add('is-on');
+  } else {
+    b.classList.add('is-wrong');
+    btns[t.right].classList.add('is-right');
+    const ex = document.getElementById('taskExpl');
+    ex.innerHTML = 'Правильный ответ — <b>' + String.fromCharCode(65 + t.right) + ')</b>. ' + t.expl;
+    ex.classList.add('is-on');
+  }
+});
+document.getElementById('bNext').addEventListener('click', nextQuiz);
+nextQuiz();
+
+/* ============================================================
+   5. Цикл
+   ============================================================ */
+
+function resize(){
+  const w = host.clientWidth, h = host.clientHeight;
+  if (!w || !h) return;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+}
+window.addEventListener('resize', resize);
+
+let lastT = performance.now();
+let clock = 0;    /* общее время сцены: им живут колебания молекул */
+function fpsLoop(now){
+  const dt = Math.min((now - lastT) / 1000, 0.05);
+  lastT = now;
+  clock += dt;
+
+  if (mode === 1) dzStep(dt);
+  if (mode === 2) ozStep(dt);
+  if (mode === 3) flStep(dt);
+  if (mode === 4) scStep(dt);
+
+  if (mode === 0 || mode === 5){
+    if (curMol){ spinMol(curMol, clock); stepMolecule(curMol, clock); }
+    stepLoose(clock);
+  }
+
+  if (camTween){
+    cam.yaw += (camTween.yaw - cam.yaw) * 0.07;
+    cam.pitch += (camTween.pitch - cam.pitch) * 0.07;
+    cam.dist += (camTween.dist - cam.dist) * 0.07;
+    cam.tx += (camTween.tx - cam.tx) * 0.07;
+    cam.ty += (camTween.ty - cam.ty) * 0.07;
+    cam.tz += (camTween.tz - cam.tz) * 0.07;
+  } else {
+    cam.yaw += (cam.sy - cam.yaw) * 0.07;
+    cam.pitch += (cam.sp - cam.pitch) * 0.07;
+    cam.dist += (cam.sd - cam.dist) * 0.07;
+    cam.tx += (cam.stx - cam.tx) * 0.07;
+    cam.ty += (cam.sty - cam.ty) * 0.07;
+    cam.tz += (cam.stz - cam.tz) * 0.07;
+  }
+  applyCamera();
+
+  if (mode === 1){
+    placeLabel('a', 0, 5.6, -2, 'O₂', dz.phase >= 2, 'lab--a');
+    placeLabel('b', -7.4, -4.2, 0, 'H₂', dz.phase >= 2, 'lab--g');
+    placeLabel('c', 7.4, 4.2, 0, 'H₂', dz.phase >= 2, 'lab--g');
+  } else if (mode === 2){
+    placeLabel('c', 0, 4.15, -2, 'слой озона · 20—25 км', true, 'lab--a');
+  } else if (mode === 3){
+    placeLabel('d', 5.6, 3.1, 0, 'd ≈ 10⁻⁹ м', fl.done, 'lab--a');
+  } else if (mode === 4){
+    placeLabel('d', 0, 9.2, 0, 'атомы платины · туннельный микроскоп', true, 'lab--a');
+  } else {
+    ['a','b','c','d','e','f','g','h'].forEach(k => placeLabel(k, 0, 0, 0, '', false));
+  }
+
+  projectLabels(host.clientWidth, host.clientHeight);
+  renderer.render(scene, camera);
+  requestAnimationFrame(fpsLoop);
+}
+
+window.__camState = () => ({
+  x: camera.position.x, y: camera.position.y, z: camera.position.z,
+  yaw: cam.yaw, pitch: cam.pitch, dist: cam.dist, tween: camTween !== null
+});
+setMode(0);
+resize();
+requestAnimationFrame(fpsLoop);
+
+})();
+</script>
+</body>
+</html>

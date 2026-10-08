@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Баллистика — движение тела, брошенного под углом</title>
+<meta name="description" content="Интерактивный урок по баллистике: 3D-модель полёта тела, брошенного под углом к горизонту, графики, таблица значений и проверка задач.">
+<meta name="keywords" content="баллистика, физика, движение тела, брошенного под углом, дальность полёта, парабола, 3D, урок">
+<style>
+:root{
+  --bg:#08080b; --panel:rgba(19,19,25,.86); --panel-2:#14141a;
+  --border:rgba(255,255,255,.1); --border-2:rgba(255,255,255,.2);
+  --text:#eceff4; --dim:#8b90a0;
+  --accent:#33ccff; --v:#ffb347; --h:#ff5fa2; --g:#7ee081; --warn:#ff6b6b;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--bg); color:var(--text); overflow:hidden;
+  font-family:'Segoe UI',Inter,system-ui,-apple-system,sans-serif; font-size:14px;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'JetBrains Mono','SF Mono',Consolas,ui-monospace,monospace}
+button,input,select{font:inherit;color:inherit}
+
+/* ---------- Каркас ---------- */
+.app{
+  height:100%; display:grid;
+  grid-template-columns:1fr 360px;
+  grid-template-rows:56px 1fr 210px;
+  grid-template-areas:"top top" "stage panel" "chart panel";
+}
+.top{grid-area:top;display:flex;align-items:center;gap:16px;padding:0 18px;border-bottom:1px solid var(--border);background:var(--panel-2);z-index:5}
+.brand{display:flex;flex-direction:column;line-height:1.15;min-width:170px}
+.brand b{font-size:15px;letter-spacing:.2px}
+.brand span{font-size:11px;color:var(--dim)}
+.steps{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.step{
+  border:1px solid var(--border);background:transparent;color:var(--dim);
+  padding:7px 13px;border-radius:10px;cursor:pointer;transition:.16s;white-space:nowrap;
+}
+.step:hover{color:var(--text);border-color:var(--border-2)}
+.step.is-on{color:var(--accent);border-color:rgba(51,204,255,.45);background:rgba(51,204,255,.12)}
+.top__hint{font-size:11px;color:var(--dim);white-space:nowrap}
+
+.stage{grid-area:stage;position:relative;overflow:hidden}
+#scene{position:absolute;inset:0}
+#scene canvas{display:block}
+
+/* ---------- Метки в 3D ---------- */
+.labels{position:absolute;inset:0;pointer-events:none}
+.lab{
+  position:absolute;transform:translate(-50%,-50%);
+  background:rgba(10,10,14,.82);border:1px solid var(--border);
+  padding:2px 8px;border-radius:8px;font-size:12px;white-space:nowrap;
+  backdrop-filter:blur(6px);
+}
+.lab--v{color:var(--v);border-color:rgba(255,179,71,.4)}
+.lab--h{color:var(--h);border-color:rgba(255,101,162,.4)}
+.lab--g{color:var(--g);border-color:rgba(126,224,129,.4)}
+.lab--a{color:var(--accent);border-color:rgba(51,204,255,.4)}
+
+.hud{position:absolute;left:16px;top:14px;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.chip{
+  background:rgba(10,10,14,.7);border:1px solid var(--border);border-radius:10px;
+  padding:6px 11px;font-size:12px;backdrop-filter:blur(6px);
+}
+.chip b{color:var(--accent);font-weight:600}
+.legend{position:absolute;right:16px;top:14px;display:flex;flex-direction:column;gap:7px;
+  background:rgba(10,10,14,.7);border:1px solid var(--border);border-radius:10px;padding:10px 13px;
+  font-size:12px;backdrop-filter:blur(6px)}
+.legend i{display:inline-block;width:16px;height:2px;vertical-align:middle;margin-right:8px;border-radius:2px}
+
+/* ---------- Панель ---------- */
+.panel{grid-area:panel;border-left:1px solid var(--border);background:var(--panel-2);
+  overflow-y:auto;display:flex;flex-direction:column;gap:0}
+.sec{padding:14px 16px;border-bottom:1px solid var(--border)}
+.sec__t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.row:last-child{margin-bottom:0}
+.row label{font-size:13px;color:var(--text)}
+.row output{font-size:13px;color:var(--accent);min-width:74px;text-align:right}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;
+  background:rgba(255,255,255,.14);outline:none;margin:6px 0 14px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--accent);cursor:pointer;box-shadow:0 0 0 4px rgba(51,204,255,.18)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:var(--accent);cursor:pointer}
+
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi div{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:9px 11px}
+.kpi span{display:block;font-size:10px;color:var(--dim);letter-spacing:.05em;margin-bottom:3px}
+.kpi b{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.kpi .u{font-size:11px;color:var(--dim);margin-left:3px}
+
+.btn{
+  width:100%;padding:10px;border-radius:11px;cursor:pointer;
+  border:1px solid var(--border);background:rgba(255,255,255,.05);transition:.16s;
+}
+.btn:hover{border-color:var(--border-2);background:rgba(255,255,255,.09)}
+.btn--main{background:rgba(51,204,255,.14);border-color:rgba(51,204,255,.4);color:var(--accent)}
+.btn--main:hover{background:rgba(51,204,255,.22)}
+.btn--go{background:rgba(126,224,129,.14);border-color:rgba(126,224,129,.4);color:var(--g)}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+.problem{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:11px;padding:12px}
+.problem__q{font-size:13.5px;line-height:1.55;margin-bottom:12px}
+.problem__q b{color:var(--accent)}
+.inp{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.inp input{
+  flex:1;padding:9px 11px;border-radius:9px;border:1px solid var(--border);
+  background:rgba(0,0,0,.35);font-variant-numeric:tabular-nums;
+}
+.inp input:focus{outline:none;border-color:rgba(51,204,255,.5)}
+.inp .u{color:var(--dim);font-size:12px;min-width:34px}
+.res{font-size:12.5px;line-height:1.5;display:none}
+.res.is-on{display:block}
+.res.ok{color:var(--g)} .res.no{color:var(--warn)}
+
+.formula{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:10px;
+  padding:10px 12px;margin-bottom:9px;font-size:13.5px;text-align:center;line-height:1.7}
+.formula span{color:var(--dim);font-size:11px;display:block;margin-top:2px}
+table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:5px 4px;text-align:right;border-bottom:1px solid rgba(255,255,255,.06)}
+th{color:var(--dim);font-weight:500;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase}
+th:first-child,td:first-child{text-align:left}
+tr.now td{color:var(--accent)}
+
+/* ---------- График ---------- */
+.chart{grid-area:chart;border-top:1px solid var(--border);background:var(--panel-2);
+  position:relative;display:flex;flex-direction:column;min-height:0}
+.chart__bar{display:flex;align-items:center;gap:12px;padding:9px 16px 0}
+.chart__bar h3{margin:0;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:500}
+.tabs{display:flex;gap:5px;margin-left:auto}
+.tab{padding:4px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;
+  color:var(--dim);cursor:pointer;font-size:11.5px;transition:.15s}
+.tab:hover{color:var(--text)}
+.tab.is-on{color:var(--accent);border-color:rgba(51,204,255,.4);background:rgba(51,204,255,.12)}
+.chart canvas{flex:1;width:100%;min-height:0;display:block}
+
+.note{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);
+  background:rgba(10,10,14,.9);border:1px solid var(--border);border-radius:11px;
+  padding:9px 15px;font-size:12.5px;max-width:80%;text-align:center;backdrop-filter:blur(8px);
+  opacity:0;transition:.25s;pointer-events:none}
+.note.is-on{opacity:1}
+.note b{color:var(--accent)}
+
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:5px}
+::-webkit-scrollbar-track{background:transparent}
+
+.stage,.panel,.chart{min-width:0;min-height:0}
+.app{min-width:0}
+
+@media(max-width:1000px){
+  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 42dvh 180px auto;
+       grid-template-areas:"top" "stage" "chart" "panel"}
+  .panel{border-left:0;border-top:1px solid var(--border)}
+  .legend{display:none}
+  .top__hint{display:none}
+  .top{flex-wrap:wrap;padding:9px 14px}
+  .brand{min-width:0}
+  .steps{margin-left:0;width:100%}
+  .step{flex:1;text-align:center;padding:7px 4px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="brand">
+      <b>Баллистика</b>
+      <span>Движение тела, брошенного под углом</span>
+    </div>
+    <div class="steps" id="steps">
+      <button class="step is-on" data-step="0">1 · Разложение скорости</button>
+      <button class="step" data-step="1">2 · Полёт</button>
+      <button class="step" data-step="2">3 · График</button>
+      <button class="step" data-step="3">4 · Задача</button>
+    </div>
+    <div class="top__hint">Мышь — поворот · Колесо — масштаб</div>
+  </header>
+
+  <section class="stage">
+    <div id="scene"></div>
+    <div class="labels" id="labels"></div>
+
+    <div class="hud">
+      <div class="chip">Дальность <b id="hRange">—</b></div>
+      <div class="chip">Высота <b id="hHeight">—</b></div>
+      <div class="chip">Время <b id="hTime">—</b></div>
+    </div>
+
+    <div class="legend">
+      <div><i style="background:#ffb347"></i>Горизонтальная v<sub>x</sub></div>
+      <div><i style="background:#ff5fa2"></i>Вертикальная v<sub>y</sub></div>
+      <div><i style="background:#33ccff"></i>Траектория</div>
+    </div>
+
+    <div class="note" id="note"></div>
+  </section>
+
+  <aside class="panel">
+
+    <div class="sec">
+      <h3 class="sec__t">Условия броска</h3>
+
+      <div class="row"><label for="sSpeed">Начальная скорость, м/с</label><output id="oSpeed">20</output></div>
+      <input type="range" id="sSpeed" min="5" max="45" step="1" value="20">
+
+      <div class="row"><label for="sAngle">Угол броска, °</label><output id="oAngle">45</output></div>
+      <input type="range" id="sAngle" min="5" max="85" step="1" value="45">
+
+      <div class="row"><label for="sGrav">Ускорение g, м/с²</label><output id="oGrav">9,8</output></div>
+      <input type="range" id="sGrav" min="1.6" max="24.8" step="0.1" value="9.8">
+
+      <div class="row"><label for="sDrag">Сопротивление воздуха</label><output id="oDrag">0</output></div>
+      <input type="range" id="sDrag" min="0" max="0.02" step="0.001" value="0">
+
+      <div class="btns">
+        <button class="btn btn--go" id="bPlay">▶ Запустить</button>
+        <button class="btn" id="bReset">Сброс</button>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h3 class="sec__t">Результат полёта</h3>
+      <div class="kpi">
+        <div><span>ДАЛЬНОСТЬ</span><b id="rRange">—</b><span class="u" id="rRangeU"></span></div>
+        <div><span>МАКС. ВЫСОТА</span><b id="rHeight">—</b><span class="u" id="rHeightU"></span></div>
+        <div><span>ВРЕМЯ ПОЛЁТА</span><b id="rTime">—</b><span class="u">с</span></div>
+        <div><span>УГОЛ ПАДЕНИЯ</span><b id="rAngle">—</b><span class="u">°</span></div>
+      </div>
+      <div class="formula" id="fTheory" style="margin-top:12px"></div>
+    </div>
+
+    <div class="sec" id="secFormulas">
+      <h3 class="sec__t">Формулы (без сопротивления)</h3>
+      <div class="formula">L = v₀² · sin 2α / g<span>дальность полёта</span></div>
+      <div class="formula">H = v₀² · sin²α / (2g)<span>максимальная высота</span></div>
+      <div class="formula">T = 2v₀ · sin α / g<span>время полёта</span></div>
+      <div class="formula">y = x · tan α − gx² / (2v₀²cos²α)<span>уравнение траектории</span></div>
+    </div>
+
+    <div class="sec">
+      <h3 class="sec__t">Таблица значений</h3>
+      <table id="tbl">
+        <thead><tr><th>t, с</th><th>x, м</th><th>y, м</th><th>v<sub>x</sub></th><th>v<sub>y</sub></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="sec" id="secTask">
+      <h3 class="sec__t">Проверь себя</h3>
+      <div class="problem">
+        <div class="problem__q" id="taskQ"></div>
+        <div class="inp">
+          <input type="text" inputmode="decimal" id="taskInp" placeholder="?" autocomplete="off">
+          <span class="u" id="taskUnit"></span>
+          <button class="btn btn--main" id="bCheck" style="width:auto;padding:9px 16px">Проверить</button>
+        </div>
+        <div class="res" id="taskRes"></div>
+        <div class="btns" style="margin-top:10px">
+          <button class="btn" id="bNext">Другая задача</button>
+          <button class="btn" id="bHint">Подсказка</button>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <section class="chart">
+    <div class="chart__bar">
+      <h3 id="chartTitle">Высота над горизонтом</h3>
+      <div class="tabs" id="chartTabs">
+        <button class="tab is-on" data-chart="0">y (x)</button>
+        <button class="tab" data-chart="1">Скорость</button>
+        <button class="tab" data-chart="2">Обе</button>
+      </div>
+    </div>
+    <canvas id="cv"></canvas>
+  </section>
+
+</div>
+
+<script src="../assets/vendor/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+if (!window.THREE) {
+  document.body.insertAdjacentHTML('beforeend',
+    '<div style="position:fixed;inset:0;display:grid;place-items:center;background:#08080b">' +
+    '<div style="text-align:center;color:#8b90a0;padding:30px">Не удалось загрузить библиотеку 3D: three.min.js не найден.<br>' +
+    'Проверьте, что файл assets/vendor/three.min.js существует.</div></div>');
+  return;
+}
+const THREE = window.THREE;
+
+/* ============================================================
+   1. Параметры и модель
+   ============================================================ */
+
+const P = { v0: 20, alpha: 45, g: 9.8, k: 0 };
+
+/** Численное решение: dv/dt = -g·ŷ − k·|v|·v, полускрытый метод Эйлера. */
+function simulate(p){
+  const a = p.alpha * Math.PI / 180;
+  const dt = 1 / 2000;
+
+  let x = 0, y = 0;
+  let vx = p.v0 * Math.cos(a), vy = p.v0 * Math.sin(a);
+  let t = 0, px = 0, py = 0, pt = 0;
+
+  const path = [0, 0, 0, 0];
+  let maxH = 0, apexX = 0, apexT = 0;
+  let steps = 0;
+  let ivx = vx, ivy = vy;
+
+  while (t < 90 && steps < 200000){
+    const s = Math.hypot(vx, vy);
+    vx += -p.k * s * vx * dt;
+    vy += (-p.g - p.k * s * vy) * dt;
+    x += vx * dt; y += vy * dt; t += dt; steps++;
+    ivx = vx; ivy = vy;
+
+    if (y > maxH){ maxH = y; apexX = x; apexT = t; }
+    if ((steps & 7) === 0) path.push(x, y, vx, vy);
+
+    if (y < 0 && t > 0.05){
+      const f = py / (py - y);
+      x = px + (x - px) * f;
+      t = pt + dt * f;
+      ivx += (vx - ivx) * f;
+      ivy += (vy - ivy) * f;
+      break;
+    }
+    px = x; py = y; pt = t;
+  }
+
+  return {
+    path, range: x, height: maxH, apexX, apexT, flightTime: t,
+    impactVy: -ivy, impactVx: ivx,
+    impactAngle: Math.atan2(-ivy, Math.abs(ivx)) * 180 / Math.PI,
+    impactSpeed: Math.hypot(ivx, ivy)
+  };
+}
+
+/** Аналитические значения для модели без сопротивления. */
+function theory(p){
+  const a = p.alpha * Math.PI / 180;
+  return {
+    range: p.v0 * p.v0 * Math.sin(2 * a) / p.g,
+    height: p.v0 * p.v0 * Math.pow(Math.sin(a), 2) / (2 * p.g),
+    time: 2 * p.v0 * Math.sin(a) / p.g
+  };
+}
+
+/* ============================================================
+   2. Форматирование
+   ============================================================ */
+
+const n = (v, d) => {
+  if (v == null || !isFinite(v)) return '—';
+  return v.toFixed(d).replace('.', ',').replace(/,0+$/, '').replace(/(\d),$/, '$1');
+};
+
+/* ============================================================
+   3. Three.js — сцена
+   ============================================================ */
+
+const host = document.getElementById('scene');
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x08080b);
+scene.fog = new THREE.Fog(0x08080b, 90, 340);
+
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(host.clientWidth, host.clientHeight);
+host.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+const sun = new THREE.DirectionalLight(0xffffff, 1.15);
+sun.position.set(30, 50, 40);
+scene.add(sun);
+const rim = new THREE.DirectionalLight(0x66ccff, 0.5);
+rim.position.set(-30, 20, -30);
+scene.add(rim);
+
+/* --- Собственные орбитальные камеры (Three.js без примеров, всё офлайн) --- */
+const cam = { yaw: -0.72, pitch: 0.32, dist: 60, tx: 0, ty: 6, tz: 0, sy: -0.72, sp: 0.32, sd: 60, stx: 0, sty: 6, stz: 0 };
+let follow = true;
+
+function applyCamera(){
+  const target = new THREE.Vector3(cam.tx, cam.ty, cam.tz);
+  camera.position.set(
+    target.x + cam.dist * Math.cos(cam.pitch) * Math.sin(cam.yaw),
+    target.y + cam.dist * Math.sin(cam.pitch),
+    target.z + cam.dist * Math.cos(cam.pitch) * Math.cos(cam.yaw)
+  );
+  camera.lookAt(target);
+}
+
+let drag = null;
+renderer.domElement.addEventListener('pointerdown', e => {
+  drag = { x: e.clientX, y: e.clientY, yaw: cam.yaw, pitch: cam.pitch };
+  renderer.domElement.setPointerCapture(e.pointerId);
+  follow = false;
+});
+renderer.domElement.addEventListener('pointermove', e => {
+  if (!drag) return;
+  cam.yaw = drag.yaw - (e.clientX - drag.x) * 0.005;
+  cam.pitch = Math.max(-0.15, Math.min(1.45, drag.pitch + (e.clientY - drag.y) * 0.004));
+  cam.sy = cam.yaw; cam.sp = cam.pitch;
+});
+const endDrag = () => {
+  if (drag){
+    cam.sy = cam.yaw; cam.sp = cam.pitch;
+    drag = null;
+  }
+};
+renderer.domElement.addEventListener('pointerup', endDrag);
+renderer.domElement.addEventListener('pointercancel', endDrag);
+renderer.domElement.addEventListener('wheel', e => {
+  e.preventDefault();
+  cam.dist = Math.max(8, Math.min(260, cam.sd * Math.pow(1.0015, e.deltaY)));
+  cam.sd = cam.dist;
+}, { passive: false });
+
+/* --- Земля и разметка --- */
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(600, 400),
+  new THREE.MeshStandardMaterial({ color: 0x0e0e13, roughness: 0.95 })
+);
+ground.rotation.x = -Math.PI / 2;
+scene.add(ground);
+
+const grid = new THREE.GridHelper(300, 60, 0x33ccff, 0x1e1e28);
+grid.material.transparent = true;
+grid.material.opacity = 0.16;
+scene.add(grid);
+
+const grid2 = new THREE.GridHelper(300, 12, 0xffffff, 0xffffff);
+grid2.material.transparent = true;
+grid2.material.opacity = 0.05;
+scene.add(grid2);
+
+/* --- Объекты сцены --- */
+const ball = new THREE.Mesh(
+  new THREE.SphereGeometry(0.55, 32, 24),
+  new THREE.MeshStandardMaterial({ color: 0xffb347, roughness: 0.35, metalness: 0.25 })
+);
+scene.add(ball);
+
+const ballGlow = new THREE.PointLight(0xffb347, 1.2, 14);
+scene.add(ballGlow);
+
+const trailGeo = new THREE.BufferGeometry();
+trailGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(1200 * 3), 3));
+const trail = new THREE.Line(trailGeo, new THREE.LineBasicMaterial({ color: 0x33ccff, transparent: true, opacity: 0.95 }));
+trail.frustumCulled = false;
+scene.add(trail);
+
+const lineMat = c => new THREE.LineBasicMaterial({ color: c, transparent: true, opacity: 0.75 });
+const line = (color) => { const l = new THREE.Line(new THREE.BufferGeometry(), lineMat(color)); l.frustumCulled = false; scene.add(l); return l; };
+
+const lVx = line(0xffb347);
+const lVy = line(0xff5fa2);
+const lDrop = line(0x7ee081);
+const lRange = line(0x33ccff);
+const lArc = line(0x8b90a0);
+
+function setLine(obj, pts){
+  obj.geometry.dispose();
+  obj.geometry = new THREE.BufferGeometry().setFromPoints(pts.map(p => new THREE.Vector3(p[0], p[1], p[2] || 0)));
+}
+
+const arcPts = [];
+for (let i = 0; i <= 40; i++){
+  const a = i / 40 * Math.PI / 2;
+  arcPts.push([Math.cos(a), Math.sin(a), 0]);
+}
+setLine(lArc, arcPts);
+
+const target = new THREE.Mesh(
+  new THREE.RingGeometry(1.1, 1.45, 48),
+  new THREE.MeshBasicMaterial({ color: 0x33ccff, side: THREE.DoubleSide, transparent: true, opacity: 0.9 })
+);
+target.rotation.x = -Math.PI / 2;
+scene.add(target);
+
+const apexDot = new THREE.Mesh(
+  new THREE.SphereGeometry(0.34, 20, 14),
+  new THREE.MeshBasicMaterial({ color: 0xff5fa2 })
+);
+scene.add(apexDot);
+
+/* --- Метки --- */
+const labelsHost = document.getElementById('labels');
+const LABELS = {};
+['v0', 'vx', 'vy', 'h', 'l', 't', 'apex'].forEach(k => {
+  const d = document.createElement('div');
+  d.className = 'lab lab--' + (k === 'vx' ? 'v' : k === 'vy' || k === 'h' ? 'h' : 'a');
+  labelsHost.appendChild(d);
+  LABELS[k] = { el: d, pos: new THREE.Vector3(), on: false };
+});
+const _p = new THREE.Vector3();
+function placeLabel(key, x, y, z, text, on){
+  const L = LABELS[key];
+  L.on = on !== false;
+  L.pos.set(x, y, z || 0);
+  L.el.textContent = text;
+}
+function projectLabels(w, h){
+  for (const k in LABELS){
+    const L = LABELS[k];
+    if (!L.on || L.el.textContent === ''){ L.el.style.display = 'none'; continue; }
+    _p.copy(L.pos).project(camera);
+    if (_p.z > 1){ L.el.style.display = 'none'; continue; }
+    L.el.style.display = '';
+    L.el.style.left = ((_p.x * 0.5 + 0.5) * w) + 'px';
+    L.el.style.top = ((-_p.y * 0.5 + 0.5) * h) + 'px';
+  }
+}
+
+/* ============================================================
+   4. Состояние
+   ============================================================ */
+
+let sim = null;
+let playing = false;
+let clock = 0;      // текущее время полёта, с
+let step = 0;
+let chartMode = 0;
+let dragT = null;   // позиция курсора на графике
+const SPEEDS = [0.15, 0.3, 0.6, 1];
+
+/* ============================================================
+   5. Пересчёт и отрисовка данных
+   ============================================================ */
+
+function sample(t){
+  const p = sim.path;
+  if (t <= 0) return { x: 0, y: 0, vx: p[2], vy: p[3] };
+  const n2 = p.length / 4 - 1;
+  const f = Math.min(t / sim.flightTime, 1) * n2;
+  const i = Math.floor(f), u = f - i;
+  const a = Math.min(i, n2 - 1) * 4, b = Math.min(i + 1, n2) * 4;
+  return {
+    x: p[a] + (p[b] - p[a]) * u,
+    y: p[a + 1] + (p[b + 1] - p[a + 1]) * u,
+    vx: p[a + 2] + (p[b + 2] - p[a + 2]) * u,
+    vy: p[a + 3] + (p[b + 3] - p[a + 3]) * u
+  };
+}
+
+function recalc(){
+  sim = simulate(P);
+  clock = Math.min(clock, sim.flightTime);
+
+  const th = theory(P);
+  const dragOn = P.k > 0;
+
+  setLine(trail, pathToPoints(sim.path));
+  target.position.set(sim.range, 0.02, 0);
+  apexDot.position.set(sim.apexX, sim.height, 0);
+  lArc.scale.set(3.2, 3.2, 1);
+  lArc.position.set(0, 0, 0);
+
+  setLine(lDrop, [[sim.apexX, 0, 0], [sim.apexX, sim.height, 0]]);
+  setLine(lRange, [[0, 0.02, 0], [sim.range, 0.02, 0]]);
+
+  const a = P.alpha * Math.PI / 180;
+  setLine(lVx, [[0, 0, 0], [P.v0 * Math.cos(a), 0, 0]]);
+  setLine(lVy, [[0, 0, 0], [0, P.v0 * Math.sin(a), 0]]);
+
+  const s = sample(clock);
+  ball.position.set(s.x, Math.max(s.y, 0), 0);
+  ballGlow.position.copy(ball.position);
+
+  if (!dragT){ cam.sd = Math.max(sim.range * 1.15, 26); cam.sx = sim.range * 0.42; }
+  cam.stx = Math.max(sim.range * 0.42, 6);
+  cam.sty = Math.max(sim.height * 0.6, 4);
+  cam.sy = -0.72; cam.sp = 0.32;
+
+  document.getElementById('hRange').textContent = n(sim.range, 1) + ' м';
+  document.getElementById('hHeight').textContent = n(sim.height, 1) + ' м';
+  document.getElementById('hTime').textContent = n(sim.flightTime, 2) + ' с';
+  document.getElementById('rRange').textContent = n(sim.range, 1);
+  document.getElementById('rRangeU').textContent = 'м';
+  document.getElementById('rHeight').textContent = n(sim.height, 1);
+  document.getElementById('rHeightU').textContent = 'м';
+  document.getElementById('rTime').textContent = n(sim.flightTime, 2);
+  document.getElementById('rAngle').textContent = n(sim.impactAngle, 0);
+
+  const err = Math.abs(sim.range - th.range) / (th.range || 1) * 100;
+  document.getElementById('fTheory').innerHTML = dragOn
+    ? 'Модель учитывает сопротивление воздуха — формулы без сопротивления дают <b style="color:#ff5fa2">' + n(th.range, 1) + ' м</b>. Разница <b>' + n(err, 1) + '%</b>.'
+    : 'Расчёт по формуле: <b style="color:#7ee081">' + n(th.range, 1) + ' м</b> · модель даёт <b style="color:#7ee081">' + n(sim.range, 1) + ' м</b> · расхождение <b>' + n(err, 2) + '%</b>';
+
+  buildTable();
+  applyStep();
+  drawChart();
+}
+
+function pathToPoints(p){
+  const out = [];
+  for (let i = 0; i < p.length; i += 4) out.push([p[i], p[i + 1], 0]);
+  return out;
+}
+
+function buildTable(){
+  const tb = document.querySelector('#tbl tbody');
+  const rows = [];
+  const T = sim.flightTime;
+  const count = 7;
+  for (let i = 0; i <= count; i++){
+    const t = T * i / count;
+    const s = sample(t);
+    rows.push('<tr data-t="' + t + '"><td>' + n(t, 2) + '</td><td>' + n(s.x, 1) + '</td><td>' + n(s.y, 1) + '</td><td>' + n(s.vx, 1) + '</td><td>' + n(s.vy, 1) + '</td></tr>');
+  }
+  tb.innerHTML = rows.join('');
+}
+
+document.querySelector('#tbl tbody').addEventListener('click', e => {
+  const tr = e.target.closest('tr');
+  if (!tr) return;
+  clock = +tr.dataset.t;
+  dragT = true;
+  playing = false;
+  syncPlayBtn();
+  recalc();
+});
+
+/* ============================================================
+   6. График
+   ============================================================ */
+
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+
+function drawChart(){
+  const r = cv.parentElement.getBoundingClientRect();
+  const W = Math.max(r.width, 10), H = Math.max(cv.clientHeight, 10);
+  const dpr = Math.min(devicePixelRatio, 2);
+  if (cv.width !== W * dpr || cv.height !== H * dpr){ cv.width = W * dpr; cv.height = H * dpr; }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+
+  const pad = { l: 46, r: W > 700 ? W / 2 - 30 : 14, t: 16, b: 26 };
+  const showV = chartMode >= 1, showY = chartMode !== 1;
+  const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+  const half = showY && showV ? pw / 2 : pw;
+
+  const maxX = sim.range * 1.06;
+  const maxY = sim.height * 1.18;
+  let maxV = 0;
+  for (let i = 0; i < sim.path.length; i += 4) maxV = Math.max(maxV, Math.abs(sim.path[i + 2]), Math.abs(sim.path[i + 3]));
+  maxV = Math.max(maxV, P.v0) * 1.2;
+
+  function frame(x0, w, maxVal, unit, title){
+    ctx.strokeStyle = 'rgba(255,255,255,.09)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++){
+      const gy = pad.t + ph * i / 4;
+      ctx.beginPath(); ctx.moveTo(x0, gy); ctx.lineTo(x0 + w, gy); ctx.stroke();
+      ctx.fillStyle = '#6b7080'; ctx.font = '10px Consolas,monospace'; ctx.textAlign = 'right';
+      ctx.fillText(n(maxVal * (1 - i / 4), 1), x0 - 7, gy + 3);
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,.3)';
+    ctx.beginPath(); ctx.moveTo(x0, pad.t + ph); ctx.lineTo(x0 + w, pad.t + ph); ctx.stroke();
+    ctx.fillStyle = '#8b90a0'; ctx.font = '11px system-ui'; ctx.textAlign = 'center';
+    ctx.fillText('x, м', x0 + w / 2, H - 8);
+    ctx.textAlign = 'left';
+    ctx.fillText(title + (unit ? ' (' + unit + ')' : ''), x0, 10);
+  }
+
+  const X = x => pad.l + (x / maxX) * (showY && showV ? half : pw);
+  const Y = y => pad.t + ph - (y / maxY) * ph;
+  const V = v => pad.t + ph - (v / maxV) * ph;
+
+  if (showY){
+    frame(pad.l, showV ? half : pw, maxY, 'м', 'Высота y(x)');
+    ctx.strokeStyle = '#33ccff'; ctx.lineWidth = 2; ctx.beginPath();
+    for (let i = 0; i < sim.path.length; i += 4){
+      const x = sim.path[i], y = sim.path[i + 1];
+      if (i === 0) ctx.moveTo(X(x), Y(Math.max(y, 0))); else ctx.lineTo(X(x), Y(Math.max(y, 0)));
+    }
+    ctx.stroke();
+    const s = sample(clock);
+    ctx.fillStyle = '#ffb347';
+    ctx.beginPath(); ctx.arc(X(s.x), Y(Math.max(s.y, 0)), 4.5, 0, 7); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,179,71,.35)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(X(s.x), Y(Math.max(s.y, 0))); ctx.lineTo(X(s.x), pad.t + ph); ctx.stroke();
+  }
+
+  if (showV){
+    const x0 = showY ? pad.l + half + 26 : pad.l;
+    const w = showY ? half - 16 : pw;
+    frame(x0, w, maxV, 'м/с', 'Компоненты скорости');
+    const px = x => x0 + (x / maxX) * w;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#ffb347'; ctx.beginPath();
+    for (let i = 0; i < sim.path.length; i += 4){ const X0 = sim.path[i]; if (i === 0) ctx.moveTo(px(X0), V(sim.path[i + 2])); else ctx.lineTo(px(X0), V(sim.path[i + 2])); }
+    ctx.stroke();
+    ctx.strokeStyle = '#ff5fa2'; ctx.beginPath();
+    for (let i = 0; i < sim.path.length; i += 4){ const X0 = sim.path[i]; if (i === 0) ctx.moveTo(px(X0), V(sim.path[i + 3])); else ctx.lineTo(px(X0), V(sim.path[i + 3])); }
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,.14)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x0, V(0)); ctx.lineTo(x0 + w, V(0)); ctx.stroke();
+    const s = sample(clock);
+    ctx.fillStyle = '#ffb347'; ctx.beginPath(); ctx.arc(px(s.x), V(s.vx), 4, 0, 7); ctx.fill();
+    ctx.fillStyle = '#ff5fa2'; ctx.beginPath(); ctx.arc(px(s.x), V(s.vy), 4, 0, 7); ctx.fill();
+  }
+}
+
+cv.addEventListener('pointerdown', e => {
+  const move = ev => {
+    const r = cv.getBoundingClientRect();
+    const pad = { l: 46, r: r.width > 700 ? r.width / 2 - 30 : 14 };
+    const pw = r.width - pad.l - pad.r;
+    const half = chartMode >= 2 ? pw / 2 : pw;
+    const f = Math.max(0, Math.min(1, (ev.clientX - r.left - pad.l) / half));
+    clock = f * sim.flightTime;
+    playing = false; dragT = true; syncPlayBtn(); recalc();
+  };
+  move(e);
+  const up = () => { dragT = null; window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', up);
+});
+
+document.getElementById('chartTabs').addEventListener('click', e => {
+  const b = e.target.closest('.tab');
+  if (!b) return;
+  chartMode = +b.dataset.chart;
+  document.querySelectorAll('#chartTabs .tab').forEach(t => t.classList.toggle('is-on', t === b));
+  document.getElementById('chartTitle').textContent = chartMode === 0 ? 'Высота над горизонтом' : chartMode === 1 ? 'Скорость по компонентам' : 'Траектория и скорость';
+  drawChart();
+});
+
+/* ============================================================
+   7. Этапы урока
+   ============================================================ */
+
+const NOTES = [
+  '<b>Разложение скорости.</b> В начальный момент горизонтальная и вертикальная составляющие равны v₀·cos α и v₀·sin α. Горизонтальная скорость не меняется — на неё не действует сила тяжести.',
+  '<b>Полёт.</b> Вертикальная скорость равномерно убывает: v<sub>y</sub> = v₀·sin α − gt. Тело поднимется до вершины, где v<sub>y</sub> = 0, а затем ускорится вниз.',
+  '<b>График y(x).</b> Траектория — парабола. Исходная и конечная точки находятся на одной высоте, значит угол падения равен углу броска.',
+  '<b>Задача.</b> Дальность максимальна при α = 45°: L<sub>max</sub> = v₀²/g. Убери сопротивление воздуха и найди угол для заданной дальности.'
+];
+
+function applyStep(){
+  const vis = { vx: step === 0, vy: step === 0, arc: step === 0, apex: step >= 1, drop: step >= 1, range: step >= 1, ball: true };
+  lVx.visible = vis.vx; lVy.visible = vis.vy; lArc.visible = vis.arc;
+  lDrop.visible = vis.drop; lRange.visible = vis.range;
+  apexDot.visible = vis.apex;
+
+  if (step === 0){
+    cam.stx = P.v0 * Math.cos(P.alpha * Math.PI / 180) * 0.45;
+    cam.sty = P.v0 * Math.sin(P.alpha * Math.PI / 180) * 0.45;
+    cam.sd = P.v0 * 1.15; cam.sy = -0.55; cam.sp = 0.18;
+  } else if (step === 1){
+    cam.stx = sim.range * 0.45; cam.sty = sim.height * 0.75;
+    cam.sd = Math.max(sim.range * 1.05, 30); cam.sy = -0.75; cam.sp = 0.3;
+  } else if (step === 2){
+    cam.stx = sim.range * 0.45; cam.sty = sim.height * 0.5;
+    cam.sd = Math.max(sim.range * 0.95, 26); cam.sy = -0.1; cam.sp = 0.5;
+  } else {
+    cam.stx = sim.range * 0.5; cam.sty = sim.height * 0.4;
+    cam.sd = Math.max(sim.range * 1.25, 40); cam.sy = -1.15; cam.sp = 0.22;
+  }
+
+  const note = document.getElementById('note');
+  note.innerHTML = NOTES[step];
+  note.classList.add('is-on');
+
+  document.getElementById('secFormulas').style.display = step === 2 ? '' : 'none';
+  if (step === 3){
+    document.getElementById('secFormulas').style.display = '';
+    document.getElementById('secTask').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+document.getElementById('steps').addEventListener('click', e => {
+  const b = e.target.closest('.step');
+  if (!b) return;
+  step = +b.dataset.step;
+  document.querySelectorAll('#steps .step').forEach(s => s.classList.toggle('is-on', s === b));
+  applyStep();
+  drawChart();
+});
+
+/* ============================================================
+   8. Задачи
+   ============================================================ */
+
+const TASKS = [
+  () => {
+    const v0 = 15 + Math.floor(Math.random() * 20);
+    const R = Math.round(v0 * v0 / P.g / 5) * 5;
+    return {
+      q: 'Снаряд выпущен со скоростью <b>' + v0 + ' м/с</b> под углом 45° к горизонту. Сопротивлением воздуха пренебречь. <b>Какова дальность полёта?</b> (g = ' + n(P.g, 1) + ' м/с²)',
+      ans: v0 * v0 / P.g, unit: 'м', tol: 0.03,
+      hint: 'При α = 45° имеем sin 2α = 1, значит L = v₀² / g. Подставь числа: ' + v0 + '² / ' + n(P.g, 1) + '.',
+      sol: 'L = v₀² / g = ' + v0 + '² / ' + n(P.g, 1) + ' = ' + n(v0 * v0 / P.g, 1) + ' м'
+    };
+  },
+  () => {
+    const R = 120 + Math.floor(Math.random() * 120) * 5;
+    const v0 = Math.ceil(Math.sqrt(P.g * R) / 5) * 5;
+    const a = 0.5 * Math.asin(Math.min(1, P.g * R / (v0 * v0))) * 180 / Math.PI;
+    return {
+      q: 'Из пушки стреляют со скоростью <b>' + v0 + ' м/с</b> и хотят попасть в цель на расстоянии <b>' + R + ' м</b>. Сопротивление воздуха отсутствует. <b>Под каким углом к горизонту нужно стрелять?</b>',
+      ans: a, unit: '°', tol: 0.06,
+      hint: 'Из L = v₀² sin 2α / g получаем sin 2α = gL / v₀². Значит 2α = arcsin(gL / v₀²), α = ½ arcsin(...).',
+      sol: 'sin 2α = ' + n(P.g, 1) + '·' + R + ' / ' + v0 + '² = ' + n(P.g * R / (v0 * v0), 3) + ' → 2α ≈ ' + n(2 * a, 1) + '° → α ≈ ' + n(a, 1) + '°'
+    };
+  },
+  () => {
+    const v0 = 20 + Math.floor(Math.random() * 25);
+    return {
+      q: 'Камень брошен со скоростью <b>' + v0 + ' м/с</b> под углом 30° к горизонту. <b>На какую максимальную высоту он поднимется?</b> (g = ' + n(P.g, 1) + ' м/с²)',
+      ans: v0 * v0 * Math.pow(Math.sin(30 * Math.PI / 180), 2) / (2 * P.g), unit: 'м', tol: 0.03,
+      hint: 'H = v₀² sin²α / (2g). Учти, что sin 30° = 0,5, значит sin²30° = 0,25.',
+      sol: 'H = ' + v0 + '² · 0,25 / (2·' + n(P.g, 1) + ') = ' + n(v0 * v0 * 0.25 / (2 * P.g), 1) + ' м'
+    };
+  }
+];
+
+let task = null;
+
+function newTask(){
+  task = TASKS[Math.floor(Math.random() * TASKS.length)]();
+  document.getElementById('taskQ').innerHTML = task.q;
+  document.getElementById('taskUnit').textContent = task.unit;
+  document.getElementById('taskInp').value = '';
+  const res = document.getElementById('taskRes');
+  res.className = 'res';
+  res.textContent = '';
+}
+
+document.getElementById('bNext').addEventListener('click', newTask);
+document.getElementById('bHint').addEventListener('click', () => {
+  const r = document.getElementById('taskRes');
+  r.className = 'res is-on';
+  r.style.color = '';
+  r.innerHTML = 'Подсказка: ' + task.hint;
+});
+document.getElementById('bCheck').addEventListener('click', () => {
+  const v = parseFloat(document.getElementById('taskInp').value.replace(',', '.'));
+  const r = document.getElementById('taskRes');
+  if (!isFinite(v)){ r.className = 'res is-on no'; r.textContent = 'Введите число.'; return; }
+  const err = Math.abs(v - task.ans) / (Math.abs(task.ans) || 1);
+  if (err <= task.tol){
+    r.className = 'res is-on ok';
+    r.innerHTML = 'Верно! ' + task.sol;
+  } else {
+    r.className = 'res is-on no';
+    r.innerHTML = 'Не совсем. Отношение вашего ответа к верному: ' + n(v / task.ans, 2) + '. Попробуйте ещё раз.';
+  }
+});
+
+/* ============================================================
+   9. Управление
+   ============================================================ */
+
+const BIND = [
+  ['sSpeed', 'oSpeed', 'v0', 0],
+  ['sAngle', 'oAngle', 'alpha', 0],
+  ['sGrav', 'oGrav', 'g', 1],
+  ['sDrag', 'oDrag', 'k', 3]
+];
+BIND.forEach(([sid, oid, key, dig]) => {
+  const s = document.getElementById(sid);
+  s.addEventListener('input', () => {
+    P[key] = +s.value;
+    document.getElementById(oid).textContent = n(P[key], dig);
+    clock = 0; playing = false; syncPlayBtn();
+    recalc();
+  });
+});
+
+function syncPlayBtn(){
+  const b = document.getElementById('bPlay');
+  b.textContent = playing ? '❚❚ Пауза' : (clock >= sim.flightTime - 0.01 ? '↻ Повторить' : '▶ Запустить');
+  b.classList.toggle('btn--go', !playing);
+}
+
+document.getElementById('bPlay').addEventListener('click', () => {
+  if (clock >= sim.flightTime - 0.01) clock = 0;
+  playing = !playing;
+  syncPlayBtn();
+});
+
+document.getElementById('bReset').addEventListener('click', () => {
+  clock = 0; playing = false; follow = true; syncPlayBtn(); recalc();
+});
+
+/* ============================================================
+   10. Цикл
+   ============================================================ */
+
+function resize(){
+  const w = host.clientWidth, h = host.clientHeight;
+  if (!w || !h) return;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+  drawChart();
+}
+window.addEventListener('resize', resize);
+
+let last = performance.now();
+function frame(now){
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+
+  if (playing){
+    clock += dt * 0.9;
+    if (clock >= sim.flightTime){ clock = sim.flightTime; playing = false; syncPlayBtn(); }
+    const s = sample(clock);
+    ball.position.set(s.x, Math.max(s.y, 0), 0);
+    ballGlow.position.copy(ball.position);
+    drawChart();
+    markRow();
+  }
+
+  /* шлейф: отрезок траектории, пройденный за последние 0,9 полёта */
+  const pos = trail.geometry.attributes.position;
+  const cnt = pos.count;
+  const back = Math.min(clock, sim.flightTime * 0.9);
+  for (let i = 0; i < cnt; i++){
+    const t = clock - back + (back * i) / (cnt - 1);
+    const s = sample(Math.max(t, 0));
+    pos.setXYZ(i, s.x, Math.max(s.y, 0), 0);
+  }
+  pos.needsUpdate = true;
+
+  if (follow){ cam.tx = ball.position.x * 0.8; cam.ty = ball.position.y * 0.6 + 2; cam.tz = 0; }
+  cam.x = cam.tx; cam.y = cam.ty; cam.z = cam.tz;
+  cam.yaw += (cam.sy - cam.yaw) * 0.09;
+  cam.pitch += (cam.sp - cam.pitch) * 0.09;
+  cam.dist += (cam.sd - cam.dist) * 0.07;
+  applyCamera();
+
+  /* метки */
+  const a = P.alpha * Math.PI / 180;
+  const showComp = step === 0;
+  placeLabel('v0', P.v0 * Math.cos(a) * 0.5, P.v0 * Math.sin(a) * 0.5, 0, 'v₀ = ' + n(P.v0, 0) + ' м/с', showComp);
+  placeLabel('vx', P.v0 * Math.cos(a) * 0.5, -1.1, 0, 'v₀cos α = ' + n(P.v0 * Math.cos(a), 1), showComp);
+  placeLabel('vy', 0.9, P.v0 * Math.sin(a) * 0.5, 0, 'v₀sin α = ' + n(P.v0 * Math.sin(a), 1), showComp);
+  placeLabel('h', sim.apexX + 1.6, sim.height * 0.55, 0, 'H = ' + n(sim.height, 1) + ' м', step >= 1);
+  placeLabel('l', sim.range * 0.5, 1.4, 0, 'L = ' + n(sim.range, 1) + ' м', step >= 1);
+  placeLabel('apex', sim.apexX, sim.height + 1.6, 0, 'вершина t = ' + n(sim.apexT, 2) + ' с', step === 1);
+  placeLabel('t', ball.position.x, ball.position.y + 1.5, 0, 't = ' + n(clock, 2) + ' с', playing);
+
+  projectLabels(host.clientWidth, host.clientHeight);
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+function markRow(){
+  const rows = document.querySelectorAll('#tbl tbody tr');
+  let best = null, bd = 1e9;
+  rows.forEach(r => {
+    const d = Math.abs(+r.dataset.t - clock);
+    if (d < bd){ bd = d; best = r; }
+  });
+  rows.forEach(r => r.classList.toggle('now', r === best));
+}
+
+/* ============================================================
+   11. Старт
+   ============================================================ */
+
+newTask();
+recalc();
+resize();
+syncPlayBtn();
+window.__camState = () => ({
+  x: camera.position.x, y: camera.position.y, z: camera.position.z,
+  yaw: cam.yaw, pitch: cam.pitch, dist: cam.dist
+});
+requestAnimationFrame(frame);
+
+})();
+</script>
+</body>
+</html>
