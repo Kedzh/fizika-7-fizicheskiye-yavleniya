@@ -160,11 +160,14 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .topic-card .tc-icon{font-size:2.2rem;margin-bottom:6px}
 .topic-card .tc-title{font-size:1.05rem;font-weight:800;color:var(--text);margin-bottom:4px}
 .topic-card .tc-desc{font-size:.8rem;color:var(--text-secondary);line-height:1.4}
-.arch-head{margin:18px 0 8px;padding:12px 14px;border-radius:var(--radius);background:var(--card);border:2px dashed var(--border);font-weight:800;font-size:1rem;color:var(--text-secondary)}
-.arch-head .arch-sub{display:block;font-weight:400;font-size:.78rem;margin-top:4px;color:var(--text-secondary)}
-.topic-card.is-arch{opacity:.72;border:2px dashed var(--border)}
-.tc-badge{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:700;background:rgba(148,163,184,.18);color:var(--text-secondary)}
-.arch-note{margin:10px 0 0;padding:10px 12px;border-radius:10px;font-size:.78rem;line-height:1.45;color:var(--text-secondary);background:rgba(148,163,184,.08)}
+.archive-btn{border-color:rgba(255,255,255,.9);background:linear-gradient(135deg,rgba(249,115,22,.55),rgba(59,130,246,.45))}
+.archive-hero{text-align:center;padding:18px 0 6px}
+.archive-open{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:999px;font-family:inherit;font-weight:700;font-size:.95rem;background:linear-gradient(135deg,rgba(249,115,22,.22),rgba(59,130,246,.22));border:2px solid var(--border);color:var(--text);cursor:pointer;transition:.2s}
+.archive-open:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(59,130,246,.25)}
+.archive-open:active{transform:scale(.97)}
+.archive-sub{color:var(--text-secondary);font-size:.82rem;margin-top:10px;line-height:1.5;padding:0 12px}
+.topics-sep{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin:6px 0 2px;font-size:.75rem;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--text-secondary)}
+.topics-sep::after{content:'';flex:1;height:2px;background:var(--border);border-radius:2px}
 .homework-content{display:flex;flex-direction:column;gap:10px}
 .hw-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px;border:2px solid var(--border)}
 .hw-card h3{font-size:1rem;font-weight:800;margin-bottom:8px;color:var(--primary)}
@@ -210,6 +213,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
   <button class="theme-btn" onclick="toggleTheme()">🌙</button>
   <button class="hw-btn" onclick="openHWList()">📚 Домашнее задание</button>
   <button class="sheet-btn" id="sheetBtn" onclick="openSheetPanel()">📊 Таблица</button>
+  <button class="sheet-btn archive-btn" id="archiveBtn" onclick="goArchive()">🗂️ Архив</button>
   <span class="sheet-state off" id="sheetState">таблица не подключена</span>
 </div>
 
@@ -218,8 +222,20 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
   <div class="screen" id="screenTopics">
     <div class="stats-row" id="topicStats"></div>
     <div class="menu" id="topicGrid"></div>
-    <div class="arch-head" id="archHead">📦 Архив — пройденные темы<span class="arch-sub">Темы пройденных уроков. Задания можно выполнять для повторения, но результаты не отправляются в таблицу и не учитываются в статистике.</span></div>
-    <div class="menu" id="archGrid"></div>
+  </div>
+
+  <!-- ===== АРХИВ ===== -->
+  <div class="screen" id="screenArchive">
+    <div class="nav-bar">
+      <button class="nav-btn" onclick="goTopics()">← К темам</button>
+      <span class="nav-title">🗂️ Архив</span>
+    </div>
+    <div class="archive-hero">
+      <button class="archive-open" id="archiveOpenBtn" onclick="toggleArchiveGrid()">📚 Задания до Урока 11</button>
+      <div class="archive-sub">Учебные задания по физике за прошлые уроки (уроки 1–11) и домашняя работа. Результаты из архива не отправляются в таблицу и не учитываются в статистике.</div>
+    </div>
+    <div class="stats-row" id="archiveStats"></div>
+    <div class="menu" id="archiveGrid" style="display:none"></div>
   </div>
 
   <!-- МЕНЮ -->
@@ -489,8 +505,8 @@ function flushReports(){
   const q0=getQueue();
   if(q0.length){
     const keep=q0.filter(p=>{
-      const t=TOPICS.find(x=>x.label===p.topic);
-      return !(t&&t.arch);
+      const t=[...TOPICS,...ARCHIVE_TOPICS].find(x=>x.label===p.topic);
+      return !(t&&isArchived(t.id));
     });
     if(keep.length!==q0.length)setQueue(keep);
   }
@@ -556,23 +572,21 @@ function toggleTheme(){const h=document.documentElement;const d=h.getAttribute('
 // ===== ВЫБОР ТЕМЫ =====
 let currentTopic='';
 const TOPICS=[
-  {id:'phenomena',arch:true,label:'Физические явления',icon:'⚛️',desc:'Механические, тепловые, электрические, магнитные, световые и звуковые явления'},
-  {id:'measure',arch:true,label:'Физические величины и их измерение',icon:'📏',desc:'Длина, масса, время, температура, скорость, приборы измерения'},
-  {id:'temp',arch:true,label:'Измерение температуры (Урок 4)',icon:'🌡️',desc:'Термометры, шкала Цельсия, цена деления, датчики температуры'},
-  {id:'tech',arch:true,label:'Физика и техника (Урок 6)',icon:'🚀',desc:'Вклад великих учёных, физика и техника, достижения отечественной космонавтики'},
-  {id:'matter',arch:true,label:'Строение вещества (Урок 7)',icon:'⚛️',desc:'Гипотеза Демокрита, атомы и молекулы, опыты о строении вещества, промежутки между частицами'},
-  {id:'molecules',arch:true,label:'Молекулы (Урок 8)',icon:'🔬',desc:'Молекула вещества, строение молекул, озон, вещества без молекул, размеры молекул'},
-  {id:'diffusion',arch:true,label:'Броуновское движение. Диффузия (Урок 9)',icon:'🌊',desc:'Броуновское движение, диффузия в газах, жидкостях и твёрдых телах, притяжение и отталкивание молекул'},
-  {id:'states',arch:true,label:'Агрегатные состояния вещества (Урок 10)',icon:'🧊',desc:'Твёрдое, жидкое и газообразное состояния, свойства вещества, кристаллы, переходы между состояниями'},
-  {id:'structure',arch:true,label:'Молекулярное строение состояний (Урок 11)',icon:'🔬',desc:'Различие в молекулярном строении твёрдых тел, жидкостей и газов, расстояние между молекулами, сила притяжения'}
-  ,{id:'motion',label:'Механическое движение (Урок 12)',icon:'🚗',desc:'Механическое движение, тело отсчёта, траектория и путь, прямолинейное и криволинейное движение'}
+  {id:'motion',label:'Механическое движение (Урок 12)',icon:'🚗',desc:'Механическое движение, тело отсчёта, траектория и путь, прямолинейное и криволинейное движение'}
 ];
-/* Тема помечена как пройденная (архив): результаты не сохраняем
-   и не отправляем в таблицу. */
-function isArchived(id){
-  const t=TOPICS.find(x=>x.id===id);
-  return !!(t&&t.arch);
-}
+// Пройденные темы: результаты не сохраняем и не отправляем в таблицу.
+const ARCHIVE_TOPICS = [
+  {id:'phenomena',label:'Физические явления',icon:'⚛️',desc:'Механические, тепловые, электрические, магнитные, световые и звуковые явления'},
+  {id:'measure',label:'Физические величины и их измерение',icon:'📏',desc:'Длина, масса, время, температура, скорость, приборы измерения'},
+  {id:'temp',label:'Измерение температуры (Урок 4)',icon:'🌡️',desc:'Термометры, шкала Цельсия, цена деления, датчики температуры'},
+  {id:'tech',label:'Физика и техника (Урок 6)',icon:'🚀',desc:'Вклад великих учёных, физика и техника, достижения отечественной космонавтики'},
+  {id:'matter',label:'Строение вещества (Урок 7)',icon:'⚛️',desc:'Гипотеза Демокрита, атомы и молекулы, опыты о строении вещества, промежутки между частицами'},
+  {id:'molecules',label:'Молекулы (Урок 8)',icon:'🔬',desc:'Молекула вещества, строение молекул, озон, вещества без молекул, размеры молекул'},
+  {id:'diffusion',label:'Броуновское движение. Диффузия (Урок 9)',icon:'🌊',desc:'Броуновское движение, диффузия в газах, жидкостях и твёрдых телах, притяжение и отталкивание молекул'},
+  {id:'states',label:'Агрегатные состояния вещества (Урок 10)',icon:'🧊',desc:'Твёрдое, жидкое и газообразное состояния, свойства вещества, кристаллы, переходы между состояниями'},
+  {id:'structure',label:'Молекулярное строение состояний (Урок 11)',icon:'🔬',desc:'Различие в молекулярном строении твёрдых тел, жидкостей и газов, расстояние между молекулами, сила притяжения'}
+];
+function isArchived(id){return ARCHIVE_TOPICS.some(x=>x.id===id)}
 /* Единственная точка записи статистики по теме */
 function bumpStats(topic,mode,key,delta){
   if(isArchived(topic))return;
@@ -585,27 +599,49 @@ function bumpStats(topic,mode,key,delta){
 function goTopics(){showScreen('screenTopics');renderTopics()}
 function renderTopics(){
   const g=document.getElementById('topicGrid');g.innerHTML='';
-  const ag=document.getElementById('archGrid');ag.innerHTML='';
   let totalOk=0,totalAll=0;
-  TOPICS.forEach(t=>{
-    if(t.arch)return;                      // архивные темы в итоги не входят
+  TOPICS.forEach(t=>{                        // архивные темы в итоги не входят
     const s=JSON.parse(localStorage.getItem('physStats_'+t.id)||'{}');
     Object.values(s).forEach(v=>{totalOk+=v.ok;totalAll+=v.ok+v.fail});
   });
   document.getElementById('topicStats').innerHTML=`
     <div class="stat-box green"><div class="stat-val">${totalOk}</div><div class="stat-label">Всего верно</div></div>
     <div class="stat-box"><div class="stat-val">${totalAll}</div><div class="stat-label">Всего решено</div></div>`;
-  const card=document.getElementById('archHead');
-  const archived=TOPICS.filter(t=>t.arch);
-  if(card)card.style.display=archived.length?'':'none';
   TOPICS.forEach(t=>{
-    const c=document.createElement('div');
-    c.className='topic-card'+(t.arch?' is-arch':'');
-    c.innerHTML=`<div class="tc-icon">${t.icon}</div><div class="tc-title">${t.label}</div>`
-      +`<div class="tc-desc">${t.desc}</div>`
-      +(t.arch?'<span class="tc-badge">Архив · без отправки в таблицу</span>':'');
-    c.onclick=()=>selectTopic(t.id);
-    (t.arch?ag:g).appendChild(c);
+    const card=document.createElement('div');card.className='topic-card';
+    card.innerHTML=`<div class="tc-icon">${t.icon}</div><div class="tc-title">${t.label}</div><div class="tc-desc">${t.desc}</div>`;
+    card.onclick=()=>selectTopic(t.id);
+    g.appendChild(card);
+  });
+}
+
+// ===== АРХИВ =====
+let archiveGridOpen=false;
+function goArchive(){showScreen('screenArchive');renderArchive()}
+function toggleArchiveGrid(){
+  archiveGridOpen=!archiveGridOpen;
+  const grid=document.getElementById('archiveGrid');
+  grid.style.display=archiveGridOpen?'grid':'none';
+}
+function renderArchive(){
+  const g=document.getElementById('archiveGrid');g.innerHTML='';
+  let totalOk=0,totalAll=0;
+  ARCHIVE_TOPICS.forEach(t=>{
+    const s=JSON.parse(localStorage.getItem('physStats_'+t.id)||'{}');
+    Object.values(s).forEach(v=>{totalOk+=v.ok;totalAll+=v.ok+v.fail});
+  });
+  document.getElementById('archiveStats').innerHTML=`
+    <div class="stat-box green"><div class="stat-val">${totalOk}</div><div class="stat-label">Всего верно</div></div>
+    <div class="stat-box"><div class="stat-val">${totalAll}</div><div class="stat-label">Всего решено</div></div>`;
+  ARCHIVE_TOPICS.forEach(t=>{
+    if(t.id==='phenomena'){
+      const sep=document.createElement('div');sep.className='topics-sep';
+      sep.textContent='Уроки по физике';g.appendChild(sep);
+    }
+    const card=document.createElement('div');card.className='topic-card';
+    card.innerHTML=`<div class="tc-icon">${t.icon}</div><div class="tc-title">${t.label}</div><div class="tc-desc">${t.desc}</div>`;
+    card.onclick=()=>selectTopic(t.id);
+    g.appendChild(card);
   });
 }
 function selectTopic(id){currentTopic=id;goMenu()}
@@ -830,7 +866,7 @@ function openTheory(){
   const topic=TOPICS.find(t=>t.id===currentTopic);
   document.getElementById('theoryTitle').textContent=(topic?topic.icon+' ':'')+'Теория';
   const nav=document.getElementById('theoryNav');nav.innerHTML='';
-  TOPICS.forEach(t=>{
+  [...TOPICS,...ARCHIVE_TOPICS].forEach(t=>{
     const ch=document.createElement('button');ch.className='th-chip'+(t.id===currentTopic?' on':'');
     ch.textContent=t.icon+' '+t.label;
     ch.onclick=()=>{currentTopic=t.id;openTheory()};
