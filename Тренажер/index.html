@@ -160,6 +160,11 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .topic-card .tc-icon{font-size:2.2rem;margin-bottom:6px}
 .topic-card .tc-title{font-size:1.05rem;font-weight:800;color:var(--text);margin-bottom:4px}
 .topic-card .tc-desc{font-size:.8rem;color:var(--text-secondary);line-height:1.4}
+.arch-head{margin:18px 0 8px;padding:12px 14px;border-radius:var(--radius);background:var(--card);border:2px dashed var(--border);font-weight:800;font-size:1rem;color:var(--text-secondary)}
+.arch-head .arch-sub{display:block;font-weight:400;font-size:.78rem;margin-top:4px;color:var(--text-secondary)}
+.topic-card.is-arch{opacity:.72;border:2px dashed var(--border)}
+.tc-badge{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:700;background:rgba(148,163,184,.18);color:var(--text-secondary)}
+.arch-note{margin:10px 0 0;padding:10px 12px;border-radius:10px;font-size:.78rem;line-height:1.45;color:var(--text-secondary);background:rgba(148,163,184,.08)}
 .homework-content{display:flex;flex-direction:column;gap:10px}
 .hw-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px;border:2px solid var(--border)}
 .hw-card h3{font-size:1rem;font-weight:800;margin-bottom:8px;color:var(--primary)}
@@ -213,6 +218,8 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
   <div class="screen" id="screenTopics">
     <div class="stats-row" id="topicStats"></div>
     <div class="menu" id="topicGrid"></div>
+    <div class="arch-head" id="archHead">📦 Архив — пройденные темы<span class="arch-sub">Темы пройденных уроков. Задания можно выполнять для повторения, но результаты не отправляются в таблицу и не учитываются в статистике.</span></div>
+    <div class="menu" id="archGrid"></div>
   </div>
 
   <!-- МЕНЮ -->
@@ -478,6 +485,15 @@ function sendReport(p){
 }
 
 function flushReports(){
+  // архивные результаты не отправляем — выбрасываем из очереди
+  const q0=getQueue();
+  if(q0.length){
+    const keep=q0.filter(p=>{
+      const t=TOPICS.find(x=>x.label===p.topic);
+      return !(t&&t.arch);
+    });
+    if(keep.length!==q0.length)setQueue(keep);
+  }
   const q=getQueue();
   if(!q.length){updateSheetBadge();return}
   if(!sheetUrl()||!studentReady()){updateSheetBadge();return}
@@ -507,6 +523,11 @@ function reportResult(typeName,ok,total,sec){
     ok:ok,total:total,pct:pct,sec:sec
   };
   reportNote('');
+  if(isArchived(currentTopic)){
+    reportNote('📦 Это архивная тема. Результат не отправляется в таблицу и не учитывается в статистике.');
+    updateSheetBadge();
+    return;
+  }
   if(!sheetUrl()){
     reportNote('📊 Таблица не подключена. Нажми «📊 Таблица» в шапке, чтобы собирать результаты.');
     updateSheetBadge();
@@ -535,33 +556,56 @@ function toggleTheme(){const h=document.documentElement;const d=h.getAttribute('
 // ===== ВЫБОР ТЕМЫ =====
 let currentTopic='';
 const TOPICS=[
-  {id:'phenomena',label:'Физические явления',icon:'⚛️',desc:'Механические, тепловые, электрические, магнитные, световые и звуковые явления'},
-  {id:'measure',label:'Физические величины и их измерение',icon:'📏',desc:'Длина, масса, время, температура, скорость, приборы измерения'},
-  {id:'temp',label:'Измерение температуры (Урок 4)',icon:'🌡️',desc:'Термометры, шкала Цельсия, цена деления, датчики температуры'},
-  {id:'tech',label:'Физика и техника (Урок 6)',icon:'🚀',desc:'Вклад великих учёных, физика и техника, достижения отечественной космонавтики'},
-  {id:'matter',label:'Строение вещества (Урок 7)',icon:'⚛️',desc:'Гипотеза Демокрита, атомы и молекулы, опыты о строении вещества, промежутки между частицами'},
-  {id:'molecules',label:'Молекулы (Урок 8)',icon:'🔬',desc:'Молекула вещества, строение молекул, озон, вещества без молекул, размеры молекул'},
-  {id:'diffusion',label:'Броуновское движение. Диффузия (Урок 9)',icon:'🌊',desc:'Броуновское движение, диффузия в газах, жидкостях и твёрдых телах, притяжение и отталкивание молекул'},
-  {id:'states',label:'Агрегатные состояния вещества (Урок 10)',icon:'🧊',desc:'Твёрдое, жидкое и газообразное состояния, свойства вещества, кристаллы, переходы между состояниями'},
-  {id:'structure',label:'Молекулярное строение состояний (Урок 11)',icon:'🔬',desc:'Различие в молекулярном строении твёрдых тел, жидкостей и газов, расстояние между молекулами, сила притяжения'}
+  {id:'phenomena',arch:true,label:'Физические явления',icon:'⚛️',desc:'Механические, тепловые, электрические, магнитные, световые и звуковые явления'},
+  {id:'measure',arch:true,label:'Физические величины и их измерение',icon:'📏',desc:'Длина, масса, время, температура, скорость, приборы измерения'},
+  {id:'temp',arch:true,label:'Измерение температуры (Урок 4)',icon:'🌡️',desc:'Термометры, шкала Цельсия, цена деления, датчики температуры'},
+  {id:'tech',arch:true,label:'Физика и техника (Урок 6)',icon:'🚀',desc:'Вклад великих учёных, физика и техника, достижения отечественной космонавтики'},
+  {id:'matter',arch:true,label:'Строение вещества (Урок 7)',icon:'⚛️',desc:'Гипотеза Демокрита, атомы и молекулы, опыты о строении вещества, промежутки между частицами'},
+  {id:'molecules',arch:true,label:'Молекулы (Урок 8)',icon:'🔬',desc:'Молекула вещества, строение молекул, озон, вещества без молекул, размеры молекул'},
+  {id:'diffusion',arch:true,label:'Броуновское движение. Диффузия (Урок 9)',icon:'🌊',desc:'Броуновское движение, диффузия в газах, жидкостях и твёрдых телах, притяжение и отталкивание молекул'},
+  {id:'states',arch:true,label:'Агрегатные состояния вещества (Урок 10)',icon:'🧊',desc:'Твёрдое, жидкое и газообразное состояния, свойства вещества, кристаллы, переходы между состояниями'},
+  {id:'structure',arch:true,label:'Молекулярное строение состояний (Урок 11)',icon:'🔬',desc:'Различие в молекулярном строении твёрдых тел, жидкостей и газов, расстояние между молекулами, сила притяжения'}
   ,{id:'motion',label:'Механическое движение (Урок 12)',icon:'🚗',desc:'Механическое движение, тело отсчёта, траектория и путь, прямолинейное и криволинейное движение'}
 ];
+/* Тема помечена как пройденная (архив): результаты не сохраняем
+   и не отправляем в таблицу. */
+function isArchived(id){
+  const t=TOPICS.find(x=>x.id===id);
+  return !!(t&&t.arch);
+}
+/* Единственная точка записи статистики по теме */
+function bumpStats(topic,mode,key,delta){
+  if(isArchived(topic))return;
+  const k='physStats_'+topic;
+  const stats=JSON.parse(localStorage.getItem(k)||'{}');
+  if(!stats[mode])stats[mode]={ok:0,fail:0};
+  stats[mode][key]=(stats[mode][key]||0)+(delta||1);
+  localStorage.setItem(k,JSON.stringify(stats));
+}
 function goTopics(){showScreen('screenTopics');renderTopics()}
 function renderTopics(){
   const g=document.getElementById('topicGrid');g.innerHTML='';
+  const ag=document.getElementById('archGrid');ag.innerHTML='';
   let totalOk=0,totalAll=0;
   TOPICS.forEach(t=>{
+    if(t.arch)return;                      // архивные темы в итоги не входят
     const s=JSON.parse(localStorage.getItem('physStats_'+t.id)||'{}');
     Object.values(s).forEach(v=>{totalOk+=v.ok;totalAll+=v.ok+v.fail});
   });
   document.getElementById('topicStats').innerHTML=`
     <div class="stat-box green"><div class="stat-val">${totalOk}</div><div class="stat-label">Всего верно</div></div>
     <div class="stat-box"><div class="stat-val">${totalAll}</div><div class="stat-label">Всего решено</div></div>`;
+  const card=document.getElementById('archHead');
+  const archived=TOPICS.filter(t=>t.arch);
+  if(card)card.style.display=archived.length?'':'none';
   TOPICS.forEach(t=>{
-    const card=document.createElement('div');card.className='topic-card';
-    card.innerHTML=`<div class="tc-icon">${t.icon}</div><div class="tc-title">${t.label}</div><div class="tc-desc">${t.desc}</div>`;
-    card.onclick=()=>selectTopic(t.id);
-    g.appendChild(card);
+    const c=document.createElement('div');
+    c.className='topic-card'+(t.arch?' is-arch':'');
+    c.innerHTML=`<div class="tc-icon">${t.icon}</div><div class="tc-title">${t.label}</div>`
+      +`<div class="tc-desc">${t.desc}</div>`
+      +(t.arch?'<span class="tc-badge">Архив · без отправки в таблицу</span>':'');
+    c.onclick=()=>selectTopic(t.id);
+    (t.arch?ag:g).appendChild(c);
   });
 }
 function selectTopic(id){currentTopic=id;goMenu()}
@@ -2067,7 +2111,7 @@ function timeUpOdd(){
   oddFail++;
   document.getElementById('statFail').textContent=oddFail;
   updateRoundBar(oddIdx,oddDeck.length);
-  const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.odd)stats.odd={ok:0,fail:0};stats.odd.fail++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
+  bumpStats(currentTopic,'odd','fail');
   scheduleAdvance(()=>showOddRound(),2000);
 }
 function timeUpTF(){
@@ -2082,7 +2126,7 @@ function timeUpTF(){
   tfFail++;
   document.getElementById('statFail').textContent=tfFail;
   updateRoundBar(tfIdx,tfDeck.length);
-  const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.tf)stats.tf={ok:0,fail:0};stats.tf.fail++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
+  bumpStats(currentTopic,'tf','fail');
   scheduleAdvance(()=>showTFRound(),2000);
 }
 
@@ -2256,10 +2300,8 @@ function finish(){
     <div class="stat-box green"><div class="stat-val">${state.ok}</div><div class="stat-label">Верно</div></div>
     <div class="stat-box red"><div class="stat-val">${state.fail}</div><div class="stat-label">Ошибки</div></div>
     <div class="stat-box"><div class="stat-val">${m}:${String(s).padStart(2,'0')}</div><div class="stat-label">Время</div></div>`;
-  const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');
-  if(!stats[state.mode])stats[state.mode]={ok:0,fail:0};
-  stats[state.mode].ok+=state.ok;stats[state.mode].fail+=state.fail;
-  localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
+  bumpStats(currentTopic,state.mode,'ok',state.ok);
+  bumpStats(currentTopic,state.mode,'fail',state.fail);
   const tName=state.mode==='mix'?'Микс':(TYPES.find(t=>t.id===state.mode)||{}).name||state.mode;
   reportResult(tName,state.ok,state.total,sec);
   showScreen('screenResult');if(pct>=85)launchConfetti();
@@ -2344,7 +2386,7 @@ function handleOddPick(i,btn,r,rndC){
   if(i===rndC){oddOk++;btn.classList.add('correct');fb.className='feedback show ok';fb.textContent='✅ Верно! '+r.note;
     const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.odd)stats.odd={ok:0,fail:0};stats.odd.ok++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
   }else{oddFail++;btn.classList.add('wrong');grid.querySelectorAll('.odd-card')[rndC].classList.add('odd-out');fb.className='feedback show fail';fb.textContent='🤔 '+r.note;
-    const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.odd)stats.odd={ok:0,fail:0};stats.odd.fail++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
+    bumpStats(currentTopic,'odd','fail');
   }
   document.getElementById('statOk').textContent=oddOk;document.getElementById('statFail').textContent=oddFail;
   updateRoundBar(oddIdx,oddDeck.length);
@@ -2395,7 +2437,7 @@ function handleTFPick(pick,b1,b2,r){
   const fb=document.getElementById('feedback');
   const correct=pick===r.a;
   if(correct){tfOk++;(pick?b1:b2).classList.add('correct');fb.className='feedback show ok';fb.textContent='✅ '+r.e;
-    const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.tf)stats.tf={ok:0,fail:0};stats.tf.ok++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
+    bumpStats(currentTopic,'tf','ok');
   }else{tfFail++;(pick?b1:b2).classList.add('wrong');(r.a?b1:b2).classList.add('correct');fb.className='feedback show fail';fb.textContent='❌ '+r.e;
     const stats=JSON.parse(localStorage.getItem('physStats_'+currentTopic)||'{}');if(!stats.tf)stats.tf={ok:0,fail:0};stats.tf.fail++;localStorage.setItem('physStats_'+currentTopic,JSON.stringify(stats));
   }
