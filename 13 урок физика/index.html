@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§15. Равномерное и неравномерное движение — 7 класс</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg: #f0f4f8;
+  --card: #ffffff;
+  --primary: #3b82f6;
+  --primary-light: #dbeafe;
+  --accent: #f97316;
+  --green: #22c55e;
+  --red: #ef4444;
+  --yellow: #eab308;
+  --text: #1e293b;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --card: #1e293b; --primary: #60a5fa; --primary-light: #1e3a5f;
+  --accent: #fb923c; --green: #4ade80; --red: #f87171; --yellow: #facc15;
+  --text: #f1f5f9; --text-secondary: #94a3b8; --border: #334155;
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.6;
+  transition: background 0.3s, color 0.3s; overflow-x: hidden;
+}
+.container { max-width: 1600px; margin: 0 auto; padding: 24px 48px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+
+header {
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  color: white; padding: 32px 40px; border-radius: var(--radius);
+  margin-bottom: 24px; text-align: center; position: relative;
+  box-shadow: var(--shadow); overflow: hidden;
+}
+header::before {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+  animation: headerPulse 8s ease-in-out infinite;
+}
+@keyframes headerPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+header h1 { font-size: clamp(2.2rem, 4.5vw, 3.4rem); font-weight: 800; position: relative; }
+header .subtitle { font-size: 1.8rem; opacity: 0.9; margin-top: 6px; position: relative; }
+header .source { font-size: 1.3rem; opacity: 0.7; margin-top: 4px; position: relative; }
+.theme-toggle {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(255,255,255,0.2); border: none; color: white;
+  font-size: 2.2rem; width: 56px; height: 56px; border-radius: 50%;
+  cursor: pointer; z-index: 2; display: flex; align-items: center; justify-content: center;
+}
+.theme-toggle:hover { background: rgba(255,255,255,0.35); transform: scale(1.1); }
+
+nav {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px;
+  position: sticky; top: 0; background: var(--bg);
+  padding: 12px 0; z-index: 100; border-bottom: 2px solid var(--border);
+}
+nav button {
+  flex: 1; min-width: 140px; padding: 16px 20px;
+  border: 2px solid var(--border); background: var(--card); color: var(--text);
+  border-radius: var(--radius-sm); font-family: inherit; font-size: 1.3rem;
+  font-weight: 700; cursor: pointer; transition: all 0.3s;
+}
+nav button:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+nav button.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 16px rgba(59,130,246,0.3); }
+nav button .nav-emoji { display: block; font-size: 2rem; margin-bottom: 2px; }
+
+.section { display: none; animation: fadeIn 0.4s ease; }
+.section.active { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+.card {
+  background: var(--card); border-radius: var(--radius); padding: 32px;
+  margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--border);
+  transition: background 0.3s, border 0.3s;
+}
+.card h2 { font-size: 2.2rem; margin-bottom: 6px; color: var(--primary); }
+.card h2 .emoji { margin-right: 10px; }
+.card .card-desc { color: var(--text-secondary); font-size: 1.5rem; margin-bottom: 18px; }
+
+.theory-box {
+  background: var(--primary-light); border-radius: var(--radius-sm); padding: 24px;
+  margin-bottom: 20px; border-left: 4px solid var(--primary);
+}
+.theory-box h3 { font-size: 1.8rem; margin-bottom: 12px; color: var(--primary); }
+.theory-box p { font-size: 1.5rem; margin-bottom: 10px; }
+.theory-box .formula {
+  background: var(--card); border: 2px solid var(--primary); border-radius: 8px;
+  padding: 16px 24px; font-size: 1.8rem; font-weight: 700; text-align: center;
+  margin: 16px 0; color: var(--primary);
+}
+.theory-box .example {
+  background: var(--card); border-radius: 8px; padding: 16px;
+  margin-top: 12px; font-size: 1.4rem;
+}
+.theory-box .example-title { font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+
+.units-table {
+  width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 1.4rem;
+}
+.units-table th {
+  background: var(--primary); color: white; padding: 12px 16px;
+  text-align: left; font-weight: 700;
+}
+.units-table td {
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+}
+.units-table tr:nth-child(even) { background: rgba(59,130,246,0.05); }
+
+.instruments-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px; margin: 16px 0;
+}
+.instrument-card {
+  background: var(--bg); border-radius: var(--radius-sm); padding: 16px;
+  text-align: center; border: 2px solid var(--border); transition: all 0.3s;
+}
+.instrument-card:hover { border-color: var(--primary); box-shadow: 0 4px 16px rgba(59,130,246,0.2); }
+.instrument-card .inst-emoji { font-size: 3rem; margin-bottom: 6px; }
+.instrument-card .inst-name { font-size: 1.4rem; font-weight: 700; margin-bottom: 2px; }
+.instrument-card .inst-measures { font-size: 1.2rem; color: var(--text-secondary); }
+
+.tf-item {
+  background: var(--bg); border-radius: var(--radius-sm); padding: 18px 24px;
+  margin-bottom: 12px; border-left: 4px solid var(--primary);
+  animation: slideIn 0.4s ease backwards;
+}
+@keyframes slideIn { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+.tf-statement { font-weight: 600; font-size: 1.65rem; margin-bottom: 10px; }
+.tf-buttons { display: flex; gap: 12px; }
+.tf-buttons button {
+  padding: 10px 24px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-weight: 700; font-size: 1.5rem;
+  cursor: pointer; transition: all 0.3s; background: var(--card); color: var(--text);
+}
+.tf-buttons button.true-btn:hover { border-color: var(--green); color: var(--green); }
+.tf-buttons button.false-btn:hover { border-color: var(--red); color: var(--red); }
+.tf-buttons button.selected-true { background: var(--green); color: white; border-color: var(--green); box-shadow: 0 2px 12px rgba(34,197,94,0.4); }
+.tf-buttons button.selected-false { background: var(--red); color: white; border-color: var(--red); box-shadow: 0 2px 12px rgba(239,68,68,0.4); }
+.tf-buttons button:disabled { cursor: default; opacity: 0.5; }
+.tf-comment { margin-top: 10px; padding: 10px 16px; border-radius: 8px; font-size: 1.4rem; font-weight: 600; display: none; }
+.tf-comment.correct { background: #dcfce7; color: #166534; display: block; }
+.tf-comment.wrong { background: #fee2e2; color: #991b1b; display: block; }
+[data-theme="dark"] .tf-comment.correct { background: #14532d; color: #bbf7d0; }
+[data-theme="dark"] .tf-comment.wrong { background: #7f1d1d; color: #fecaca; }
+
+.progress-bar-wrap { margin-top: 20px; background: var(--bg); border-radius: 20px; overflow: hidden; height: 34px; }
+.progress-bar {
+  height: 100%; background: linear-gradient(90deg, var(--green), #34d399);
+  border-radius: 20px; transition: width 0.6s ease; display: flex;
+  align-items: center; justify-content: center; color: white;
+  font-weight: 700; font-size: 1.35rem; min-width: 65px;
+}
+
+.match-game { max-width: 900px; margin: 0 auto; }
+.match-row {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 12px;
+  background: var(--bg); border-radius: var(--radius-sm); padding: 14px 18px;
+  border-left: 4px solid var(--primary);
+}
+.match-qty { flex: 1; font-weight: 700; font-size: 1.5rem; }
+.match-select {
+  flex: 1.4; padding: 12px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-size: 1.5rem; font-weight: 700;
+  background: var(--card); color: var(--text); cursor: pointer; transition: border 0.3s;
+}
+.match-select:focus { border-color: var(--primary); outline: none; }
+.match-select.correct { border-color: var(--green); background: #dcfce7; }
+.match-select.wrong { border-color: var(--red); background: #fee2e2; }
+[data-theme="dark"] .match-select.correct { background: #14532d; }
+[data-theme="dark"] .match-select.wrong { background: #7f1d1d; }
+
+.labyrinth-visual { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+.labyrinth-step {
+  width: 60px; height: 60px; border-radius: 50%; background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.35rem; color: var(--text-secondary); transition: all 0.4s;
+}
+.labyrinth-step.completed { background: var(--green); color: white; box-shadow: 0 2px 12px rgba(34,197,94,0.4); }
+.labyrinth-step.current { background: var(--primary); color: white; box-shadow: 0 2px 12px rgba(59,130,246,0.4); transform: scale(1.15); }
+.labyrinth-step.future { background: var(--border); color: var(--text-secondary); }
+.labyrinth-arrow { color: var(--text-secondary); font-size: 1.8rem; }
+.lab-task { background: var(--primary-light); border-radius: var(--radius-sm); padding: 24px; text-align: center; margin-bottom: 18px; }
+.lab-task .lab-question { font-size: 1.9rem; font-weight: 700; margin-bottom: 18px; }
+.lab-input-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.lab-input {
+  width: 240px; padding: 14px 18px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-size: 1.75rem; text-align: center; font-weight: 700;
+  background: var(--card); color: var(--text);
+}
+.lab-input:focus { border-color: var(--primary); outline: none; }
+.btn-lab {
+  padding: 14px 32px; background: var(--primary); color: white; border: none;
+  border-radius: 8px; font-family: inherit; font-weight: 700; font-size: 1.6rem;
+  cursor: pointer; transition: all 0.3s;
+}
+.btn-lab:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
+.lab-hint { margin-top: 12px; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 1.5rem; display: none; animation: fadeIn 0.3s ease; }
+.lab-hint.show { display: block; }
+.lab-hint.wrong { background: #fee2e2; color: #991b1b; }
+.lab-hint.correct { background: #dcfce7; color: #166534; }
+[data-theme="dark"] .lab-hint.wrong { background: #7f1d1d; color: #fecaca; }
+[data-theme="dark"] .lab-hint.correct { background: #14532d; color: #bbf7d0; }
+.btn-lab-hint {
+  padding: 14px 26px; background: transparent; color: var(--accent); border: 2px solid var(--accent);
+  border-radius: 8px; font-family: inherit; font-weight: 700; font-size: 1.4rem;
+  cursor: pointer; transition: all 0.3s; flex-shrink: 0;
+}
+.btn-lab-hint:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(249,115,26,0.35); }
+.btn-lab-hint.active { background: var(--accent); color: white; }
+.lab-answer {
+  display: none; margin-top: 12px; padding: 10px 14px; border-radius: 8px;
+  background: #dcfce7; color: #166534; font-size: 1.6rem; font-weight: 700; animation: fadeIn 0.3s ease;
+}
+.lab-answer.show { display: block; }
+[data-theme="dark"] .lab-answer { background: #14532d; color: #bbf7d0; }
+.lab-complete { text-align: center; padding: 32px; display: none; }
+.lab-complete.show { display: block; animation: fadeIn 0.5s ease; }
+.lab-complete h3 { font-size: 2.4rem; color: var(--green); margin-bottom: 10px; }
+.lab-complete p { font-size: 1.75rem; color: var(--text-secondary); }
+
+.variant-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+.variant-tab {
+  flex: 1; padding: 14px; border: 2px solid var(--border); background: var(--card);
+  border-radius: var(--radius-sm); font-family: inherit; font-weight: 700;
+  font-size: 1.6rem; cursor: pointer; transition: all 0.3s; color: var(--text);
+}
+.variant-tab.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 16px rgba(249,115,22,0.3); }
+.variant-content { display: none; }
+.variant-content.active { display: block; animation: fadeIn 0.4s ease; }
+.exercise {
+  display: flex; align-items: center; gap: 14px; padding: 16px 20px;
+  background: var(--bg); border-radius: var(--radius-sm); margin-bottom: 10px; flex-wrap: wrap;
+}
+.exercise .ex-num {
+  width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.35rem; flex-shrink: 0;
+}
+.exercise .ex-text { flex: 1; font-weight: 600; font-size: 1.45rem; }
+.exercise .ex-input {
+  width: 150px; padding: 10px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-size: 1.6rem; text-align: center; font-weight: 700;
+  background: var(--card); color: var(--text);
+}
+.exercise .ex-input:focus { border-color: var(--primary); outline: none; }
+.exercise .ex-input.correct { border-color: var(--green); background: #dcfce7; }
+.exercise .ex-input.wrong { border-color: var(--red); background: #fee2e2; }
+[data-theme="dark"] .exercise .ex-input.correct { background: #14532d; }
+[data-theme="dark"] .exercise .ex-input.wrong { background: #7f1d1d; }
+.btn-check-all {
+  margin-top: 16px; padding: 14px 36px; background: linear-gradient(135deg, var(--accent), #ea580c);
+  color: white; border: none; border-radius: var(--radius-sm); font-family: inherit;
+  font-weight: 700; font-size: 1.65rem; cursor: pointer; transition: all 0.3s;
+  display: block; margin-left: auto; margin-right: auto;
+}
+.btn-check-all:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(249,115,22,0.4); }
+.score-display { text-align: center; margin-top: 16px; font-size: 1.9rem; font-weight: 700; display: none; animation: fadeIn 0.4s ease; }
+.btn-check { padding: 14px 36px; background: var(--primary); color: white; border: none; border-radius: var(--radius-sm); font-family: inherit; font-weight: 700; font-size: 1.65rem; cursor: pointer; transition: all 0.3s; }
+.btn-check:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
+.btn-check:disabled { opacity: 0.6; cursor: default; transform: none; box-shadow: none; }
+.btn-download {
+  display: inline-block; margin: 0 auto; padding: 14px 36px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white; border: none; border-radius: var(--radius-sm);
+  font-family: inherit; font-weight: 700; font-size: 1.65rem;
+  cursor: pointer; transition: all 0.3s;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.3);
+}
+.btn-download:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34,197,94,0.4); }
+.ex-answer { margin-top: 6px; padding: 6px 12px; border-radius: 8px; background: #dcfce7; color: #166534; font-size: 1.3rem; font-weight: 700; display: none; animation: fadeIn 0.3s ease; }
+[data-theme="dark"] .ex-answer { background: #14532d; color: #bbf7d0; }
+.ex-hint-btn { margin-left: 8px; padding: 8px 14px; border: 2px solid var(--accent); background: transparent; color: var(--accent); border-radius: 8px; font-family: inherit; font-weight: 700; font-size: 1.2rem; cursor: pointer; transition: all 0.3s; flex-shrink: 0; }
+.ex-hint-btn:hover { background: var(--accent); color: white; }
+.ex-hint-btn:disabled { opacity: 0.5; cursor: default; }
+
+.hw-answer {
+  margin-top: 12px; padding: 16px; border-radius: 8px;
+  background: #dcfce7; color: #166534; font-size: 1.4rem; font-weight: 600;
+  animation: fadeIn 0.4s ease;
+}
+[data-theme="dark"] .hw-answer { background: #14532d; color: #bbf7d0; }
+
+.confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: hidden; }
+.confetti-piece { position: absolute; width: 10px; height: 10px; top: -20px; animation: confettiFall linear forwards; }
+@keyframes confettiFall { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+
+@media (max-width: 1100px) { .two-col { grid-template-columns: 1fr; } }
+@media (max-width: 600px) {
+  .container { padding: 12px; } .card { padding: 18px; } header { padding: 20px 14px; }
+  nav button { min-width: 100px; padding: 10px 6px; font-size: 1.1rem; }
+  .exercise { flex-direction: column; align-items: stretch; text-align: center; }
+  .exercise .ex-input { width: 100%; }
+  .lab-input-group { flex-direction: column; align-items: center; }
+  .lab-input { width: 100%; max-width: 280px; }
+  .labyrinth-step { width: 44px; height: 44px; font-size: 1.1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Переключить тему">🌓</button>
+  <h1>§15. Равномерное и неравномерное движение</h1>
+  <div class="subtitle">7 класс · Урок 13 · Глава 2. Взаимодействие тел</div>
+  <div class="source">По учебнику Перышкин А.В. и др. (Просвещение, 2023)</div>
+</header>
+
+<nav id="mainNav">
+  <button class="active" onclick="showSection(0)"><span class="nav-emoji">📖</span>Теория</button>
+  <button onclick="showSection(1)"><span class="nav-emoji">🔥</span>Разминка</button>
+  <button onclick="showSection(2)"><span class="nav-emoji">🔗</span>Соответствие</button>
+  <button onclick="showSection(3)"><span class="nav-emoji">🧩</span>Лабиринт</button>
+  <button onclick="showSection(4)"><span class="nav-emoji">📝</span>Практика</button>
+  <button onclick="showSection(5)"><span class="nav-emoji">📚</span>Домашняя</button>
+</nav>
+
+<!-- ===== SECTION 0: THEORY ===== -->
+<div class="section active" id="sec0">
+  <div class="card">
+<h2><span class="emoji">📖</span>Теория. §15. Равномерное и неравномерное движение</h2>
+    <p class="card-desc">Узнай, как отличить равномерное движение от неравномерного — и почему за один час пути нельзя сказать, что автобус двигался равномерно.</p>
+
+    <div class="theory-box">
+      <h3>Главный вопрос параграфа</h3>
+      <p>В прошлом параграфе мы научились описывать движение: траектория, путь, тело отсчёта. Но один и тот же путь можно пройти по-разному.</p>
+      <p>Например, поезд может идти с одной и той же скоростью, а может разгоняться, а потом тормозить. Как же это различить и что для этого нужно знать?</p>
+      <div class="formula">Сравнивать движение можно только по промежуткам времени: за равные промежутки времени путь либо одинаков, либо разный.</div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Опыт в поезде (пример из учебника)</h3>
+      <p>Представьте, что вы находитесь в поезде, движущемся по длинному ровному железнодорожному перегону.</p>
+      <ul>
+        <li><strong>Километровые столбы</strong> проходят мимо окна через <strong>равные промежутки времени</strong>.</li>
+        <li><strong>Звуки от ударов колёс</strong> о места соединения рельсов слышны тоже через <strong>равные промежутки времени</strong>.</li>
+      </ul>
+      <p>И то, и другое — вместе говорит нам: столбы стоят на одинаковом расстоянии друг от друга, а рельсы имеют одинаковую длину. Значит, за любые равные промежутки времени поезд проходит равные пути.</p>
+      <div class="formula">Движение поезда на ровном перегоне близко к равномерному.</div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Равномерное движение</h3>
+      <div class="formula">Равномерным называют движение, при котором тело за любые равные промежутки времени проходит равные пути.</div>
+      <p>Слово <strong>«любые»</strong> здесь принципиально. Не «за какую-то секунду», а <strong>за любые равные промежутки</strong> — хоть за минуту, хоть за час, хоть за две.</p>
+      <div class="example">
+        <div class="example-title">Примеры из учебника:</div>
+        <p>• <strong>Движение ленты транспортёра</strong> можно считать равномерным.<br>
+        • <strong>Ступени эскалатора</strong> — тоже.<br>
+        • В космическом пространстве равномерно движутся тела, <strong>находящиеся вдали от небесных тел</strong>.</p>
+      </div>
+      <div class="formula">Равномерное движение в природе встречается очень редко.</div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Ловушка с автобусом</h3>
+      <p>Мы знаем, что междугородний автобус каждый час проходит <strong>60 км</strong>. Можем ли мы сказать, что его движение равномерное?</p>
+      <p><strong>Для ответа не хватает информации.</strong> Ведь автобус мог проехать за первые полчаса <strong>40 км</strong>, а за вторые — <strong>20 км</strong>. Тогда движение равномерным не назовём.</p>
+      <div class="formula">Равномерное движение — это не «за час одно и то же расстояние». Это «за любые равные промежутки времени — одинаково», вплоть до самых малых.</div>
+      <div class="example">
+        <div class="example-title">Когда движение равномерное:</div>
+        <p>А вот если бы автобус, двигаясь по трассе, за каждый час проходил 60 км, за каждые полчаса — 30 км, за каждые 15 мин — 15 км и так далее, <strong>вплоть до самых малых промежутков времени</strong> — вот тогда он двигался равномерно.</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Неравномерное движение</h3>
+      <p>Гораздо чаще движение бывает <strong>неравномерным</strong>. Рассмотрим поезд.</p>
+      <div class="example">
+        <div class="example-title">Поезд на станции:</div>
+        <p>• В начале движения, <strong>набирая скорость</strong>, поезд за равные промежутки времени проходит <strong>всё большее</strong> расстояние.<br>
+        • Перед остановкой на станции — наоборот: расстояние, которое он проходит за равные промежутки времени, <strong>всё меньше и меньше</strong>.</p>
+      </div>
+      <div class="formula">Движение, при котором тело за равные промежутки времени проходит разные пути, называют неравномерным.</div>
+      <p>То есть при разгоне, торможении, повороте, когда самолёт набирает высоту, когда лифт поднимается и останавливается — движение неравномерное.</p>
+    </div>
+
+    <div class="theory-box">
+      <h3>Две классификации движения</h3>
+      <p>Механическое движение можно разделять по <strong>двум разным признакам</strong>. Не путайте их.</p>
+      <table class="units-table">
+        <tr><th>Признак</th><th>Виды движения</th><th>По чему различаются</th></tr>
+        <tr><td>По форме траектории</td><td>Прямолинейное и криволинейное</td><td>Траектория — прямая линия или кривая</td></tr>
+        <tr><td>По характеру движения</td><td>Равномерное и неравномерное</td><td>Проходит ли тело за равные промежутки времени равные пути</td></tr>
+      </table>
+      <div class="example">
+        <div class="example-title">Эти признаки независимы:</div>
+        <p>Движение может быть одновременно <strong>прямолинейным и неравномерным</strong> — например, автобус, который едет по прямой дороге, но разгоняется и тормозит. А может быть <strong>криволинейным и равномерным</strong> — если камень на верёвке описывает окружность с постоянной скоростью.</p>
+      </div>
+      <div class="formula">Равномерность не зависит от формы траектории: важны только промежутки времени и путь.</div>
+    </div>
+
+    <div class="theory-box">
+      <h3>С какой скоростью шёл автобус?</h3>
+      <div class="example">
+        <div class="example-title">Задачка-ловушка:</div>
+        <p>Автобус прошёл 20 км за первый час и 40 км за второй. Какая средняя скорость за два часа? А какая скорость была на каждом участке отдельно?</p>
+        <p><strong>Ответ:</strong> средняя за два часа — 30 км/ч. Но это <strong>не значит</strong>, что автобус всё время ехал со скоростью 30 км/ч. На первом часе он шёл 20 км/ч, на втором — 40 км/ч. Движение <strong>неравномерное</strong>, несмотря на ровное число километров в среднем.</p>
+      </div>
+      <div class="formula">Равные средние значения не делают движение равномерным.</div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Опыт для дома: шарик в бутылке</h3>
+      <div class="example">
+        <div class="example-title">ЗАДАНИЕ 13 (опыт выполнять вдвоём):</div>
+        <p>Определите характер движения шарика в жидкости. Налейте в кастрюлю 1,5 л воды, растворите в ней <strong>8–10 столовых ложек сахарного песка</strong>. Перелейте раствор в 1,5-литровую пластиковую бутылку, заполнив её доверху.</p>
+        <p>Сделайте <strong>шарик из фольги диаметром примерно 5 мм</strong> и опустите его в бутылку. Перевернув бутылку, наблюдайте за движением шарика и измерьте секундомером телефона время его движения. Проделайте опыт несколько раз, чтобы научиться совмещать начало движения шарика с пуском секундомера.</p>
+        <p><strong>Главное:</strong> отметьте фломастером на бутылке положение шарика через равные промежутки времени. Старайтесь выбрать промежуток так, чтобы получилось 3–4 участка.</p>
+      </div>
+      <div class="formula">Смотри, на равные ли расстояния шарик проходит за равные промежутки времени. Если да — движение равномерное.</div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Вопросы для самопроверки</h3>
+      <div class="example">
+        <div class="example-title">Ответь устно (вопросы из учебника):</div>
+        <p>1. Чем отличаются равномерное и неравномерное движение?<br>
+        2. Дайте определение равномерного движения.<br>
+        3. Приведите примеры равномерного и неравномерного движения. Обоснуйте свой выбор.<br>
+        4. За каждую секунду тело проходит 2 мм. Можно ли считать его движение равномерным?</p>
+      </div>
+      <div class="example">
+        <div class="example-title">Вопрос 4 — самый интересный:</div>
+        <p><strong>Ответ:</strong> строго говоря — <strong>нельзя</strong>. Мы знаем только про секунду, а нужно знать путь за <em>любые</em> равные промежутки времени. За полсекунды шарик мог пройти 1 мм, а за две секунды — 5 мм. Это тот же случай, что и с автобусом: <strong>информации не хватает</strong>.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 1: WARM-UP ===== -->
+<div class="section" id="sec1">
+  <div class="card">
+    <h2><span class="emoji">🔥</span>Разминка. Проверь знания!</h2>
+    <p class="card-desc">Определи, верно ли утверждение.</p>
+
+<div class="slide active" id="sec1-s0">
+      <div class="two-col">
+        <div>
+          <div class="tf-item" id="tf0">
+            <div class="tf-statement">1. Равномерным называют движение, при котором тело за равные промежутки времени проходит равные пути.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(0, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(0, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-0"></div>
+          </div>
+          <div class="tf-item" id="tf1">
+            <div class="tf-statement">2. Слово «любые» в определении равномерного движения принципиально.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(1, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(1, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-1"></div>
+          </div>
+          <div class="tf-item" id="tf2">
+            <div class="tf-statement">3. Если автобус каждый час проходит 60 км, его движение можно считать равномерным.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(2, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(2, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-2"></div>
+          </div>
+          <div class="tf-item" id="tf3">
+            <div class="tf-statement">4. При разгоне поезда движение неравномерное: за равные промежутки времени он проходит всё большее расстояние.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(3, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(3, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-3"></div>
+          </div>
+        </div>
+        <div>
+          <div class="tf-item" id="tf4">
+            <div class="tf-statement">5. Движение ленты транспортёра можно считать равномерным.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(4, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(4, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-4"></div>
+          </div>
+          <div class="tf-item" id="tf5">
+            <div class="tf-statement">6. Прямолинейное движение всегда равномерное.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(5, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(5, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-5"></div>
+          </div>
+          <div class="tf-item" id="tf6">
+            <div class="tf-statement">7. Движение по кругу с постоянной скоростью является неравномерным.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(6, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(6, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-6"></div>
+          </div>
+          <div class="tf-item" id="tf7">
+            <div class="tf-statement">8. Если тело проходит 2 мм за каждую секунду, этого достаточно, чтобы назвать движение равномерным.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(7, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(7, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-7"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="tfProgress" style="width:0%">0 / 8</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 2: MATCH ===== -->
+<div class="section" id="sec2">
+  <div class="card">
+    <h2><span class="emoji">🔗</span>Соответствие. Вид движения</h2>
+    <p class="card-desc">Соедини описание движения с его правильным названием.</p>
+
+    <div class="match-game" id="matchGame"></div>
+
+    <div style="text-align:center">
+      <button class="btn-check-all" onclick="checkMatch()">Проверить всё ✔️</button>
+    </div>
+    <div class="score-display" id="matchScore"></div>
+  </div>
+</div>
+
+<div class="section" id="sec3">
+  <div class="card">
+    <h2><span class="emoji">🧩</span>Физический лабиринт</h2>
+    <p class="card-desc">Ответь на все вопросы, чтобы пройти лабиринт!</p>
+    <div class="labyrinth-visual" id="labVisual"></div>
+    <div class="lab-task" id="labTask">
+      <div class="lab-question" id="labQuestion"></div>
+      <div class="lab-input-group">
+        <input type="text" class="lab-input" id="labInput" placeholder="Ответ">
+        <button class="btn-lab" id="labBtn" onclick="checkLabStep()">Далее ➡️</button>
+        <button class="btn-lab-hint" id="labAnswerBtn" onclick="showLabAnswer(this)">Правильный ответ</button>
+      </div>
+      <div class="lab-answer" id="labAnswer"></div>
+      <div class="lab-hint" id="labHint"></div>
+    </div>
+    <div class="lab-complete" id="labComplete">
+      <h3>🎉 Поздравляем!</h3>
+      <p>Ты успешно прошёл физический лабиринт!</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 4: PRACTICE ===== -->
+<div class="section" id="sec4">
+  <div class="card">
+    <h2><span class="emoji">📝</span>Практика. Самостоятельная работа</h2>
+    <p class="card-desc">Выбери вариант и ответь на все вопросы.</p>
+
+    <div class="variant-tabs">
+      <button class="variant-tab active" onclick="switchVariant(0)">Вариант 1</button>
+      <button class="variant-tab" onclick="switchVariant(1)">Вариант 2</button>
+      <button class="variant-tab" onclick="switchVariant(2)">Вариант 3</button>
+    </div>
+
+    <div class="variant-content active" id="var0">
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">1</span><span class="ex-text">За какие промежутки времени тело проходит равные пути при равномерном движении? (два слова)</span><input type="text" class="ex-input" id="v0e0" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v0e0ans',this)">Ответ</button></div><div class="ex-answer" id="v0e0ans">равные промежутки</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">2</span><span class="ex-text">Поезд тормозит перед станцией. Его движение (равномерное/неравномерное)?</span><input type="text" class="ex-input" id="v0e1" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v0e1ans',this)">Ответ</button></div><div class="ex-answer" id="v0e1ans">неравномерное</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">3</span><span class="ex-text">Движение делят на прямолинейное и криволинейное по признаку … (одно слово)</span><input type="text" class="ex-input" id="v0e2" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v0e2ans',this)">Ответ</button></div><div class="ex-answer" id="v0e2ans">траектории</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">4</span><span class="ex-text">Равномерное движение в природе встречается (часто/редко)?</span><input type="text" class="ex-input" id="v0e3" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v0e3ans',this)">Ответ</button></div><div class="ex-answer" id="v0e3ans">редко</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">5</span><span class="ex-text">Известно, что автобус проезжает 60 км за час. Можно ли считать движение равномерным? (коротко)</span><input type="text" class="ex-input" id="v0e4" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v0e4ans',this)">Ответ</button></div><div class="ex-answer" id="v0e4ans">данных недостаточно</div></div>
+    </div>
+
+    <div class="variant-content" id="var1">
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">1</span><span class="ex-text">Какой признак отличает равномерное движение от неравномерного? (одно слово)</span><input type="text" class="ex-input" id="v1e0" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v1e0ans',this)">Ответ</button></div><div class="ex-answer" id="v1e0ans">характеру</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">2</span><span class="ex-text">Движение ступеней эскалатора считается … (равномерным/неравномерным)?</span><input type="text" class="ex-input" id="v1e1" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v1e1ans',this)">Ответ</button></div><div class="ex-answer" id="v1e1ans">равномерное</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">3</span><span class="ex-text">При неравномерном движении за равные промежутки времени тело проходит … (один-два слова)</span><input type="text" class="ex-input" id="v1e2" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v1e2ans',this)">Ответ</button></div><div class="ex-answer" id="v1e2ans">разные пути</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">4</span><span class="ex-text">Что ближе всего к равномерному движению в технике?</span><input type="text" class="ex-input" id="v1e3" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v1e3ans',this)">Ответ</button></div><div class="ex-answer" id="v1e3ans">эскалатора</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">5</span><span class="ex-text">В определении равномерного движения важно слово … (одно слово)</span><input type="text" class="ex-input" id="v1e4" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v1e4ans',this)">Ответ</button></div><div class="ex-answer" id="v1e4ans">любые</div></div>
+    </div>
+
+    <div class="variant-content" id="var2">
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">1</span><span class="ex-text">Движение по прямой дороге, когда автобус разгоняется и тормозит, — это движение … (два слова)</span><input type="text" class="ex-input" id="v2e0" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e0ans',this)">Ответ</button></div><div class="ex-answer" id="v2e0ans">прямолинейное</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">2</span><span class="ex-text">Траектория в виде окружности — движение … (одно слово)</span><input type="text" class="ex-input" id="v2e1" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e1ans',this)">Ответ</button></div><div class="ex-answer" id="v2e1ans">криволинейное</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">3</span><span class="ex-text">При разгоне поезда за равные промежутки времени путь (растёт/уменьшается)?</span><input type="text" class="ex-input" id="v2e2" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e2ans',this)">Ответ</button></div><div class="ex-answer" id="v2e2ans">растёт</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">4</span><span class="ex-text">Проверить равномерность движения нужно по (одному промежутку времени / любым равным промежуткам)?</span><input type="text" class="ex-input" id="v2e3" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e3ans',this)">Ответ</button></div><div class="ex-answer" id="v2e3ans">любым</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">5</span><span class="ex-text">Почему по одному часу пути нельзя судить о равномерности? (два слова)</span><input type="text" class="ex-input" id="v2e4" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e4ans',this)">Ответ</button></div><div class="ex-answer" id="v2e4ans">не хватает</div></div>
+    </div>
+
+    <button class="btn-check-all" onclick="checkAllExercises()">Проверить всё ✔️</button>
+    <div class="score-display" id="varScore"></div>
+  </div>
+</div>
+
+<div class="section" id="sec5">
+  <div class="card">
+    <h2><span class="emoji">📚</span>Домашняя работа</h2>
+    <p class="card-desc">Повтори изученный материал и отработай его в тренажёре.</p>
+
+    <div style="text-align:center; margin-bottom: 24px;">
+      <button class="btn-download" onclick="downloadHWDocx()">📄 Скачать домашнее задание (.docx)</button>
+    </div>
+
+    <div class="theory-box">
+      <h3>1. Повтори теорию</h3>
+      <div class="example">
+        <p>1. Чем отличаются равномерное и неравномерное движение?<br>
+        2. Дайте определение равномерного движения.<br>
+        3. Приведите примеры равномерного и неравномерного движения.<br>
+        4. По какому признаку движение делят на равномерное и неравномерное?</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>2. Отработай в тренажёре</h3>
+      <div class="example">
+        <div class="example-title">Решить задания:</div>
+        <p>• Разминка (вопросы True/False) — 8 вопросов<br>
+        • Соответствие — соедини описания с видами движения<br>
+        • Лабиринт — пройди все 8 шагов<br>
+        • Практика — реши все 3 варианта</p>
+      </div>
+      <div class="example">
+        <div class="example-title">Цель:</div>
+        <p>Набери <strong>100%</strong> хотя бы в одном из разделов тренажёра. Если не получается сразу — повтори теорию и попробуй снова!</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>3. Запиши в тетрадь</h3>
+      <div class="example">
+        <div class="example-title">Две классификации движения:</div>
+        <table class="units-table">
+          <tr><th>Признак</th><th>Виды движения</th><th>По чему различаются</th></tr>
+          <tr><td>По форме траектории</td><td>Прямолинейное и криволинейное</td><td>Траектория — прямая или кривая линия</td></tr>
+          <tr><td>По характеру движения</td><td>Равномерное и неравномерное</td><td>За равные промежутки времени равные или разные пути</td></tr>
+        </table>
+      </div>
+      <div class="example">
+        <div class="example-title">Главный вывод:</div>
+        <p>Равномерность определяется не формой траектории, а тем, проходит ли тело <strong>за любые равные промежутки времени равные пути</strong>. Знать движение «за час» или «за минуту» недостаточно — нужно знать путь за <strong>все</strong> равные промежутки.</p>
+      </div>
+      <div class="example">
+        <div class="example-title">Примеры для таблички:</div>
+        <p><strong>Равномерное:</strong> лента транспортёра, ступени эскалатора, тела вдали от небесных тел.<br>
+        <strong>Неравномерное:</strong> разгон и торможение поезда, поворот автомобиля, взлёт самолёта, движение лифта.</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>4. Вопросы из учебника (§15)</h3>
+
+      <div class="example">
+        <div class="example-title">Ответь письменно</div>
+        <p><strong>1.</strong> Чем отличаются равномерное и неравномерное движение?<br>
+        <strong>2.</strong> Дайте определение равномерного движения.<br>
+        <strong>3.</strong> Приведите примеры равномерного и неравномерного движения. Обоснуйте свой выбор.</p>
+      </div>
+      <div class="hw-answer" id="hw1" style="display:none">
+        <p><strong>Примерные ответы:</strong><br>
+        1) При равномерном движении тело за любые равные промежутки времени проходит равные пути, а при неравномерном — разные пути.<br>
+        2) Равномерным называют движение, при котором тело за любые равные промежутки времени проходит равные пути.<br>
+        3) <strong>Равномерное движение:</strong> лента транспортёра, ступени эскалатора, тела, движущиеся в космосе вдали от небесных тел. <strong>Неравномерное движение:</strong> поезд при разгоне (за равные промежутки времени проходит всё большее расстояние) и при торможении (всё меньшее), поворот автомобиля, взлёт самолёта, движение лифта.</p>
+      </div>
+      <button class="btn-check" onclick="document.getElementById('hw1').style.display='block'; this.disabled=true;">Показать ответы</button>
+    </div>
+
+    <div class="theory-box">
+      <h3>5. Реши задачу</h3>
+      <div class="example">
+        <div class="example-title">ЗАДАНИЕ 13 (из учебника):</div>
+        <p>Определите характер движения шарика в жидкости. Налейте в кастрюлю 1,5 л воды, растворите в ней 8–10 столовых ложек сахарного песка. Перелейте раствор в 1,5-литровую пластиковую бутылку, заполнив её доверху. Сделайте шарик из фольги диаметром примерно 5 мм и опустите его в бутылку.</p>
+        <p>Перевернув бутылку, наблюдайте за движением шарика. Измерьте секундомером телефона время его движения. Проделайте опыт несколько раз, чтобы научиться совмещать начало движения шарика с пуском секундомера. Для определения характера движения переверните бутылку и отметьте на ней фломастером положение шарика через равные промежутки времени — так, чтобы получилось 3–4 участка.</p>
+      </div>
+      <div class="hw-answer" id="hwAnswer" style="display:none">
+        <p><strong>Решение:</strong> Главное в этом опыте — отмечать положение шарика не по времени, а через <strong>равные промежутки времени</strong>. Смотрим: проходит ли шарик за эти промежутки одинаковое расстояние. Если расстояния между метками заметно увеличиваются (шарик разгоняется), движение <strong>неравномерное</strong>. Если метки расположены почти на равных расстояниях друг от друга — движение равномерное. Обычно в сиропе шарик сначала разгоняется, потом замедляется, а у самого дна может остановиться совсем — движение получается <strong>неравномерным</strong>. Опыт рекомендуется выполнять вдвоём.</p>
+      </div>
+      <button class="btn-check" onclick="document.getElementById('hwAnswer').style.display='block'; this.disabled=true;">Показать решение</button>
+    </div>
+
+    <div class="theory-box">
+      <h3>6. Подумай (по желанию)</h3>
+      <div class="example">
+        <div class="example-title">Вопрос 4 из учебника:</div>
+        <p>За каждую секунду тело проходит 2 мм. Можно ли считать его движение равномерным?</p>
+        <p><strong>Подсказка:</strong> вспомни пример с автобусом, который проезжает 60 км за час.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? '' : 'dark');
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+}
+(function() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+})();
+
+function showSection(idx) {
+  document.querySelectorAll('.section').forEach((s, i) => s.classList.toggle('active', i === idx));
+  document.querySelectorAll('#mainNav button').forEach((b, i) => b.classList.toggle('active', i === idx));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== TRUE / FALSE =====================
+const tfData = [
+  { correctAnswer: true, explanation: 'Верно! Ключевое слово в определении — «за равные промежутки времени проходит равные пути».' },
+  { correctAnswer: true, explanation: 'Верно! Важно знать путь за любые равные промежутки времени, а не только за какую-то одну секунду.' },
+  { correctAnswer: false, explanation: 'Неверно! Одного часа мало: за первые полчаса автобус мог пройти 40 км, а за вторые — 20 км. Информации не хватает.' },
+  { correctAnswer: true, explanation: 'Верно! При набирании скорости путь за равные промежутки времени растёт — значит, движение неравномерное.' },
+  { correctAnswer: true, explanation: 'Верно! Лента транспортёра проходит равные пути за равные промежутки времени.' },
+  { correctAnswer: false, explanation: 'Неверно! Эти признаки независимы: автобус может ехать по прямой дороге, но разгоняться и тормозить — движение прямолинейное и неравномерное.' },
+  { correctAnswer: false, explanation: 'Неверно! Если камень на верёвке описывает окружность с постоянной скоростью, движение криволинейное и равномерное.' },
+  { correctAnswer: false, explanation: 'Неверно! Как и с автобусом: данных про секунду недостаточно. За полсекунды тело могло пройти 1 мм, а за две секунды — 5 мм.' }
+];
+let tfAnswered = 0, tfCorrect = 0;
+
+function checkTF(idx, userAnswer) {
+  const item = document.getElementById('tf' + idx);
+  const buttons = item.querySelectorAll('.tf-buttons button');
+  if (buttons[0].disabled) return;
+  buttons.forEach(b => b.disabled = true);
+  const isCorrect = userAnswer === tfData[idx].correctAnswer;
+  tfAnswered++; if (isCorrect) tfCorrect++;
+  buttons[userAnswer ? 0 : 1].classList.add(isCorrect ? 'selected-true' : 'selected-false');
+  const comment = document.getElementById('tf-comment-' + idx);
+  comment.className = 'tf-comment ' + (isCorrect ? 'correct' : 'wrong');
+  comment.innerHTML = (isCorrect ? '✅ Правильно! ' : '❌ Неправильно. ') + tfData[idx].explanation;
+  updateTFProgress();
+}
+
+function updateTFProgress() {
+  const bar = document.getElementById('tfProgress');
+  bar.style.width = (tfAnswered / 8 * 100) + '%';
+  bar.textContent = tfCorrect + ' / 8';
+  if (tfAnswered === 8) {
+    bar.style.background = tfCorrect === 8 ? 'linear-gradient(90deg,#22c55e,#34d399)' : 'linear-gradient(90deg,#eab308,#facc15)';
+    if (tfCorrect === 8) launchConfetti();
+  }
+}
+
+// ===================== MATCH GAME =====================
+const matchData = [
+  { qty: 'Признак классификации «по форме траектории»', correct: 'Прямолинейное и криволинейное' },
+  { qty: 'Признак классификации «по характеру движения»', correct: 'Равномерное и неравномерное' },
+  { qty: 'Автобус едет по прямой дороге, но разгоняется', correct: 'Прямолинейное и неравномерное' },
+  { qty: 'Камень на верёвке описывает окружность с постоянной скоростью', correct: 'Криволинейное и равномерное' },
+  { qty: 'Лента транспортёра', correct: 'Равномерное' },
+  { qty: 'Поезд тормозит перед станцией', correct: 'Неравномерное' }
+];
+const allUnits = [
+  'Прямолинейное и криволинейное',
+  'Равномерное и неравномерное',
+  'Прямолинейное и неравномерное',
+  'Криволинейное и равномерное',
+  'Равномерное',
+  'Неравномерное',
+  'Криволинейное',
+  'Прямолинейное'];
+
+function initMatch() {
+  const game = document.getElementById('matchGame');
+  game.innerHTML = '';
+  matchData.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'match-row';
+    const shuffled = [...allUnits].sort(() => Math.random() - 0.5);
+    const options = shuffled.map(u => `<option value="${u}">${u}</option>`).join('');
+    row.innerHTML = `
+      <div class="match-qty">${item.qty}</div>
+      <select class="match-select" id="match${i}">
+        <option value="">— Выбери —</option>
+        ${options}
+      </select>
+    `;
+    game.appendChild(row);
+  });
+}
+
+function checkMatch() {
+  let correct = 0;
+  matchData.forEach((item, i) => {
+    const sel = document.getElementById('match' + i);
+    sel.classList.remove('correct', 'wrong');
+    if (sel.value === item.correct) { sel.classList.add('correct'); correct++; }
+    else if (sel.value) { sel.classList.add('wrong'); }
+  });
+  const scoreEl = document.getElementById('matchScore');
+  scoreEl.style.display = 'block';
+  const pct = Math.round((correct / matchData.length) * 100);
+  const color = pct === 100 ? 'var(--green)' : pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+  scoreEl.innerHTML = 'Результат: <span style="color:' + color + '">' + correct + ' из ' + matchData.length + '</span> (' + pct + '%)';
+  if (correct === matchData.length) launchConfetti();
+}
+
+// ===================== LABYRINTH =====================
+const labSteps = [
+  { q: 'Как называют движение, при котором тело за равные промежутки времени проходит равные пути? (одно слово)', a: 'равномерным' },
+  { q: 'Как называют движение, при котором тело за равные промежутки времени проходит разные пути? (одно слово)', a: 'неравномерным' },
+  { q: 'По какому признаку движение делят на равномерное и неравномерное? (одно слово)', a: 'характеру' },
+  { q: 'По какому признаку движение делят на прямолинейное и криволинейное? (одно слово)', a: 'траектории' },
+  { q: 'Движение ленты транспортёра считается … (равномерным/неравномерным)?', a: 'равномерным' },
+  { q: 'Разгон поезда — это движение … (равномерное/неравномерное)?', a: 'неравномерное' },
+  { q: 'Если известно только, что автобус проходит 60 км за час, равномерно ли он движется? (коротко)', a: 'нельзя сказать' },
+  { q: 'При каком движении за равные промежутки времени путь становится всё меньше? (два слова)', a: 'при торможении' }
+];
+let labCurrent = 0, labCorrectCount = 0;
+
+function initLabyrinth() {
+  const visual = document.getElementById('labVisual');
+  visual.innerHTML = '';
+  labSteps.forEach((_, i) => {
+    if (i > 0) { const a = document.createElement('span'); a.className = 'labyrinth-arrow'; a.textContent = '→'; visual.appendChild(a); }
+    const s = document.createElement('div'); s.className = 'labyrinth-step future'; s.textContent = i + 1; s.id = 'labStep' + i; visual.appendChild(s);
+  });
+  updateLabVisual();
+  document.getElementById('labQuestion').textContent = labSteps[0].q;
+  document.getElementById('labInput').value = '';
+  resetLabAnswer();
+}
+
+function updateLabVisual() {
+  labSteps.forEach((_, i) => {
+    document.getElementById('labStep' + i).className = 'labyrinth-step ' + (i < labCurrent ? 'completed' : i === labCurrent ? 'current' : 'future');
+  });
+}
+
+function showLabAnswer(btn) {
+  const el = document.getElementById('labAnswer');
+  if (labCurrent >= labSteps.length) return;
+  const open = !el.classList.contains('show');
+  el.textContent = 'Правильный ответ: ' + labSteps[labCurrent].a;
+  el.classList.toggle('show', open);
+  btn.textContent = open ? 'Скрыть' : 'Правильный ответ';
+  btn.classList.toggle('active', open);
+}
+
+function resetLabAnswer() {
+  const el = document.getElementById('labAnswer');
+  if (el) { el.className = 'lab-answer'; el.textContent = ''; }
+  const b = document.getElementById('labAnswerBtn');
+  if (b) { b.textContent = 'Правильный ответ'; b.classList.remove('active'); }
+}
+
+function checkLabStep() {
+  const input = document.getElementById('labInput'), hint = document.getElementById('labHint');
+  const val = input.value.trim().toLowerCase().replace(',', '.');
+  if (!val) { input.style.borderColor = 'var(--red)'; return; }
+  const expected = labSteps[labCurrent].a.toLowerCase().replace(',', '.');
+  if (val === expected || parseFloat(val) === parseFloat(expected)) {
+    labCorrectCount++; hint.className = 'lab-hint correct show'; hint.textContent = '✅ Правильно!'; labCurrent++;
+    setTimeout(() => {
+      if (labCurrent >= labSteps.length) {
+        document.getElementById('labTask').style.display = 'none';
+        document.getElementById('labComplete').classList.add('show');
+        updateLabVisual(); launchConfetti();
+      } else {
+        document.getElementById('labQuestion').textContent = labSteps[labCurrent].q;
+        input.value = ''; input.style.borderColor = 'var(--border)'; hint.className = 'lab-hint'; updateLabVisual();
+        resetLabAnswer();
+      }
+    }, 800);
+  } else {
+    hint.className = 'lab-hint wrong show'; hint.textContent = '❌ Попробуй ещё раз!';
+    input.style.borderColor = 'var(--red)'; input.value = ''; input.focus();
+    setTimeout(() => { hint.className = 'lab-hint'; }, 1500);
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('sec3').classList.contains('active') && labCurrent < labSteps.length) checkLabStep();
+});
+
+// ===================== PRACTICE =====================
+const variants = [
+  { answers: ['равные пути', 'неравномерное', 'траектории', 'редко', 'данных недостаточно'] },
+  { answers: ['равные промежутки', 'равномерное', 'характеру', 'эскалатора', 'разные пути'] },
+  { answers: ['прямолинейное', 'криволинейное', 'набирает скорость', 'любые', 'не хватает'] }
+];
+let activeVariant = 0;
+
+function switchVariant(idx) {
+  activeVariant = idx;
+  document.querySelectorAll('.variant-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  document.querySelectorAll('.variant-content').forEach((v, i) => v.classList.toggle('active', i === idx));
+  document.getElementById('varScore').style.display = 'none';
+}
+
+function checkAllExercises() {
+  const v = variants[activeVariant]; let correct = 0;
+  for (let i = 0; i < 5; i++) {
+    const input = document.getElementById('v' + activeVariant + 'e' + i);
+    const val = input.value.trim().toLowerCase().replace(',', '.');
+    const expected = String(v.answers[i]).toLowerCase().replace(',', '.');
+    input.classList.remove('correct', 'wrong');
+    if (val === expected || parseFloat(val) === parseFloat(expected)) { input.classList.add('correct'); correct++; } else input.classList.add('wrong');
+  }
+  const scoreEl = document.getElementById('varScore'); scoreEl.style.display = 'block';
+  const pct = Math.round((correct / 5) * 100);
+  const color = pct === 100 ? 'var(--green)' : pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+  scoreEl.innerHTML = 'Результат: <span style="color:' + color + '">' + correct + ' из 5</span> (' + pct + '%)';
+  if (correct === 5) launchConfetti();
+}
+
+function showExAnswer(id, btn) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+  btn.textContent = el.style.display === 'block' ? 'Скрыть' : 'Ответ';
+  btn.style.background = el.style.display === 'block' ? 'var(--accent)' : 'transparent';
+  btn.style.color = el.style.display === 'block' ? 'white' : 'var(--accent)';
+}
+
+// ===================== CONFETTI =====================
+function launchConfetti() {
+  const c = document.getElementById('confettiContainer');
+  const colors = ['#6366f1','#8b5cf6','#22c55e','#ef4444','#eab308','#3b82f6','#ec4899'];
+  for (let i = 0; i < 120; i++) {
+    const p = document.createElement('div'); p.className = 'confetti-piece';
+    p.style.left = Math.random()*100+'%'; p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.width = (Math.random()*8+6)+'px'; p.style.height = (Math.random()*8+6)+'px';
+    p.style.borderRadius = Math.random()>0.5?'50%':'2px';
+    p.style.animationDuration = (Math.random()*2+2)+'s'; p.style.animationDelay = (Math.random()*1.5)+'s';
+    c.appendChild(p);
+  }
+  setTimeout(() => { c.innerHTML = ''; }, 5000);
+}
+
+// ===================== DOWNLOAD HOMEWORK (.docx) =====================
+function loadDocxLib(callback) {
+  if (window.docx) { callback(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js';
+  s.onload = callback;
+  s.onerror = function() {
+    alert('Не удалось загрузить библиотеку для создания документа. Проверь подключение к Интернету.');
+  };
+  document.head.appendChild(s);
+}
+
+function makeHWDocTable(headers, rows, colWidths) {
+  const D = docx;
+  const total = colWidths.reduce(function(a, b) { return a + b; }, 0);
+  const headerRow = new D.TableRow({
+    tableHeader: true,
+    children: headers.map(function(h, i) {
+      return new D.TableCell({
+        width: { size: colWidths[i], type: D.WidthType.DXA },
+        shading: { type: D.ShadingType.CLEAR, fill: '3B82F6', color: 'auto' },
+        children: [new D.Paragraph({ children: [new D.TextRun({ text: h, bold: true, color: 'FFFFFF' })] })]
+      });
+    })
+  });
+  const bodyRows = rows.map(function(r) {
+    return new D.TableRow({
+      children: r.map(function(c, i) {
+        return new D.TableCell({
+          width: { size: colWidths[i], type: D.WidthType.DXA },
+          children: [new D.Paragraph({ text: c })]
+        });
+      })
+    });
+  });
+  return new D.Table({
+    width: { size: total, type: D.WidthType.DXA },
+    columnWidths: colWidths,
+    rows: [headerRow].concat(bodyRows)
+  });
+}
+
+function downloadHWDocx() {
+  loadDocxLib(function() {
+    const D = docx;
+    const h1 = t => new D.Paragraph({ heading: D.HeadingLevel.HEADING_1, text: t });
+    const h2 = t => new D.Paragraph({ heading: D.HeadingLevel.HEADING_2, text: t });
+    const para = t => new D.Paragraph({ text: t });
+    const bullet = t => new D.Paragraph({ text: t, numbering: { reference: 'bull', level: 0 } });
+    const numbered = (n, t) => new D.Paragraph({ children: [new D.TextRun({ text: n + '.  ', bold: true }), new D.TextRun(t)] });
+
+    const children = [];
+
+    children.push(new D.Paragraph({
+      alignment: D.AlignmentType.CENTER,
+      children: [
+        new D.TextRun({ text: 'Домашнее задание', bold: true, size: 40, color: '2563EB' })
+      ]
+    }));
+    children.push(new D.Paragraph({
+      alignment: D.AlignmentType.CENTER,
+      children: [
+        new D.TextRun({ text: '§15. Равномерное и неравномерное движение', bold: true, size: 32 })
+      ]
+    }));
+    children.push(new D.Paragraph({
+      alignment: D.AlignmentType.CENTER,
+      children: [
+        new D.TextRun({ text: 'Физика · 7 класс · Урок 13 · Глава 2. Взаимодействие тел', italics: true, size: 24, color: '64748B' })
+      ]
+    }));
+    children.push(new D.Paragraph({ text: '' }));
+
+children.push(h1('1. Повтори теорию'));
+    children.push(para('Ответь устно на вопросы:'));
+    children.push(new D.Paragraph({ children: [new D.TextRun({ text: '1.  ', bold: true }), new D.TextRun('Чем отличаются равномерное и неравномерное движение?')] }));
+    children.push(new D.Paragraph({ children: [new D.TextRun({ text: '2.  ', bold: true }), new D.TextRun('Дайте определение равномерного движения.')] }));
+    children.push(new D.Paragraph({ children: [new D.TextRun({ text: '3.  ', bold: true }), new D.TextRun('Приведите примеры равномерного и неравномерного движения.')] }));
+    children.push(new D.Paragraph({ children: [new D.TextRun({ text: '4.  ', bold: true }), new D.TextRun('По какому признаку движение делят на равномерное и неравномерное?')] }));
+
+    children.push(h1('2. Отработай в тренажёре'));
+    children.push(bullet('Разминка — 8 вопросов «верно/неверно».'));
+    children.push(bullet('Соответствие — соедини описания с видами движения.'));
+    children.push(bullet('Лабиринт — пройди все 8 шагов.'));
+    children.push(bullet('Практика — реши все 3 варианта.'));
+    children.push(new D.Paragraph({
+      children: [new D.TextRun({ text: 'Цель: ', bold: true }), new D.TextRun('набери 100% хотя бы в одном разделе тренажёра. Если не получается — повтори теорию и попробуй снова!')]
+    }));
+
+    children.push(h1('3. Запиши в тетрадь'));
+    children.push(h2('Две классификации движения'));
+    children.push(makeHWDocTable(
+      ['Признак', 'Виды движения', 'По чему различаются'],
+      [
+        ['По форме траектории', 'Прямолинейное и криволинейное', 'Траектория — прямая или кривая линия'],
+        ['По характеру движения', 'Равномерное и неравномерное', 'За равные промежутки времени равные или разные пути']
+      ],
+      [2100, 2900, 3400]
+    ));
+    children.push(para('Главный вывод: равномерность определяется не формой траектории, а тем, проходит ли тело за любые равные промежутки времени равные пути. Знать движение «за час» или «за минуту» недостаточно — нужно знать путь за все равные промежутки.'));
+    children.push(h2('Примеры'));
+    children.push(bullet('Равномерное: лента транспортёра, ступени эскалатора, тела вдали от небесных тел.'));
+    children.push(bullet('Неравномерное: разгон и торможение поезда, поворот автомобиля, взлёт самолёта, движение лифта.'));
+
+    children.push(h1('4. Вопросы из учебника (§15)'));
+    children.push(numbered(1, 'Чем отличаются равномерное и неравномерное движение?'));
+    children.push(numbered(2, 'Дайте определение равномерного движения.'));
+    children.push(numbered(3, 'Приведите примеры равномерного и неравномерного движения. Обоснуйте свой выбор.'));
+
+    children.push(h1('5. Реши задачу'));
+    children.push(h2('ЗАДАНИЕ 13'));
+    children.push(para('Определите характер движения шарика в жидкости. Налейте в кастрюлю 1,5 л воды, растворите в ней 8–10 столовых ложек сахарного песка. Перелейте раствор в 1,5-литровую пластиковую бутылку, заполнив её доверху. Сделайте шарик из фольги диаметром примерно 5 мм и опустите его в бутылку.'));
+    children.push(para('Перевернув бутылку, наблюдайте за движением шарика и измерьте секундомером телефона время его движения. Для определения характера движения отметьте на бутылке фломастером положение шарика через равные промежутки времени — так, чтобы получилось 3–4 участка. Опыт рекомендуется выполнять вдвоём.'));
+
+    children.push(h1('6. Подумай'));
+    children.push(para('За каждую секунду тело проходит 2 мм. Можно ли считать его движение равномерным?'));
+    children.push(new D.Paragraph({ text: '' }));
+    children.push(new D.Paragraph({
+      children: [new D.TextRun({ text: 'Физика · 7 класс · Урок 13 · §15 «Равномерное и неравномерное движение» · Глава 2. Взаимодействие тел', italics: true, size: 20, color: '94A3B8' })]
+    }));
+
+const doc = new D.Document({
+      creator: 'Урок физики',
+      title: 'Домашнее задание §15. Равномерное и неравномерное движение',
+      description: 'Физика 7 класс, урок 13',
+      numbering: {
+        config: [{
+          reference: 'bull',
+          levels: [{
+            level: 0,
+            format: D.LevelFormat.BULLET,
+            text: '•',
+            alignment: D.AlignmentType.LEFT,
+            style: { paragraph: { indent: { left: 720, hanging: 360 } } }
+          }]
+        }]
+      },
+      sections: [{ properties: {}, children: children }]
+    });
+
+    D.Packer.toBlob(doc).then(function(blob) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Домашнее задание - §15 Равномерное и неравномерное движение - 7 класс.docx';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    });
+  });
+}
+
+// ===================== INIT =====================
+initMatch();
+initLabyrinth();
+</script>
+</body>
+</html>
