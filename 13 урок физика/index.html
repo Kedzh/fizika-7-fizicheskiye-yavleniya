@@ -187,10 +187,6 @@ nav button .nav-emoji { display: block; font-size: 2rem; margin-bottom: 2px; }
 .lab-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; width: 100%; max-width: 640px; }
 .lab-count { font-weight: 800; font-size: 1.5rem; color: var(--primary); }
 .lab-status { text-align: center; font-size: 1.4rem; color: var(--text-secondary); min-height: 1.9em; max-width: 640px; }
-.lab-pad { display: grid; grid-template-columns: repeat(3, 54px); grid-template-rows: repeat(2, 46px); gap: 8px; justify-content: center; }
-.lab-pad button { border: none; border-radius: 12px; background: var(--primary); color: #fff; font-size: 1.3rem; font-weight: 800; cursor: pointer; box-shadow: 0 3px 0 rgba(15,23,42,.25); transition: transform .12s, filter .12s; }
-.lab-pad button:hover { filter: brightness(1.08); }
-.lab-pad button:active { transform: translateY(2px); box-shadow: none; }
 .lab-legend { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; font-size: 1.25rem; color: var(--text-secondary); }
 .lab-legend b { color: var(--text); font-weight: 700; }
 .lab-btn-mini { border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 999px; padding: 8px 16px; font-size: 1.3rem; font-weight: 700; cursor: pointer; font-family: inherit; }
@@ -311,7 +307,7 @@ nav button .nav-emoji { display: block; font-size: 2rem; margin-bottom: 2px; }
   .exercise .ex-input { width: 100%; }
   .lab-input-group { flex-direction: column; align-items: center; }
   .lab-input { width: 100%; max-width: 280px; }
-  .lab-pad { grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(2, 40px); }
+  
 }
 </style>
 </head>
@@ -551,7 +547,7 @@ nav button .nav-emoji { display: block; font-size: 2rem; margin-bottom: 2px; }
 <div class="section" id="sec3">
   <div class="card">
     <h2><span class="emoji">🧩</span>Физический лабиринт</h2>
-    <p class="card-desc">Настоящий лабиринт: ищи оранжевые ворота, отвечай на вопрос у каждых и выходи к финишу. Управление — стрелки, WASD или кнопки.</p>
+    <p class="card-desc">Нажимай на оранжевые ворота прямо в лабиринте — откроется вопрос. Ответь на все 8 и нажми на выход.</p>
 
     <div class="lab-wrap">
       <div class="lab-board" id="labBoard"><canvas id="labCanvas"></canvas></div>
@@ -559,13 +555,10 @@ nav button .nav-emoji { display: block; font-size: 2rem; margin-bottom: 2px; }
         <span class="lab-count" id="labCount">Врата: 0 / 8</span>
         <button class="lab-btn-mini" onclick="newLabMaze()">🔀 Новый лабиринт</button>
       </div>
-      <div class="lab-status" id="labStatus">Найди оранжевые ворота №1 и ответь на вопрос.</div>
-      <div class="lab-pad">
-        <span></span><button onclick="labTryMove(-1,0)" aria-label="Вверх">▲</button><span></span>
-        <button onclick="labTryMove(0,-1)" aria-label="Влево">◀</button><span></span><button onclick="labTryMove(0,1)" aria-label="Вправо">▶</button>
-      </div>
+      <div class="lab-status" id="labStatus">Нажми на оранжевые ворота №1.</div>
       <div class="lab-legend">
-        <span>🟠 <b>ворота</b></span><span>🟢 <b>открыто</b></span><span>🚪 <b>выход</b></span><span>🔵 <b>ты</b></span>
+        <span>🟠 <b>ворота</b></span><span>🟢 <b>открыто</b></span>
+        <span>🚪 <b>выход</b></span><span>🩵 <b>путь</b></span>
       </div>
     </div>
 
@@ -582,7 +575,7 @@ nav button .nav-emoji { display: block; font-size: 2rem; margin-bottom: 2px; }
 
     <div class="lab-complete" id="labComplete">
       <h3>🎉 Поздравляем!</h3>
-      <p>Ты прошёл настоящий лабиринт: открыл все 8 врат и вышел к финишу!</p>
+      <p>Ты прошёл лабиринт: открыл все 8 врат и дошёл до выхода!</p>
       <button class="lab-btn-mini" onclick="newLabMaze()" style="margin-top:16px">🔀 Пройти заново</button>
     </div>
   </div>
@@ -839,7 +832,7 @@ function checkMatch() {
   if (correct === matchData.length) launchConfetti();
 }
 
-// ===================== LABYRINTH =====================
+// ===================== LABYRINTH (клик по воротам) =====================
 const labSteps = [
   { q: 'Как называют движение, при котором тело за равные промежутки времени проходит равные пути? (одно слово)', a: 'равномерным' },
   { q: 'Как называют движение, при котором тело за равные промежутки времени проходит разные пути? (одно слово)', a: 'неравномерным' },
@@ -853,9 +846,9 @@ const labSteps = [
 
 const LAB_COLS = 9, LAB_ROWS = 7;
 const LAB_STEP = { n: [-1, 0], s: [1, 0], w: [0, -1], e: [0, 1] };
-let labG = null, labExit = 0, labPlayer = { r: 0, c: 0 }, labTrail = [0];
-let labCurrent = 0, labCorrectCount = 0, labDone = false, labAnim = null;
-let labSeed = 20261013, labTick = 0;
+let labG = null, labExit = 0, labGates = [], labRoute = [], labRouteEnd = [];
+let labCurrent = 0, labCorrectCount = 0, labDone = false, labTick = 0, labHideT = 0;
+let labSeed = 20261013;
 
 function mulberry32(a) {
   return function () {
@@ -868,6 +861,27 @@ function mulberry32(a) {
 function labCell(r, c) { return labG[r * LAB_COLS + c]; }
 function labIdx(r, c) { return r * LAB_COLS + c; }
 function labPos(i) { return { r: (i / LAB_COLS) | 0, c: i % LAB_COLS }; }
+
+/* единственный путь между двумя клетками лабиринта (он всегда один) */
+function labPath(from, to) {
+  const prev = new Int32Array(LAB_COLS * LAB_ROWS).fill(-1);
+  prev[from] = from; const q = [from];
+  for (let i = 0; i < q.length; i++) {
+    const cur = q[i]; if (cur === to) break;
+    const r = (cur / LAB_COLS) | 0, c = cur % LAB_COLS;
+    for (const d in LAB_STEP) {
+      if (labCell(r, c)[d]) continue;
+      const nr = r + LAB_STEP[d][0], nc = c + LAB_STEP[d][1];
+      if (nr < 0 || nc < 0 || nr >= LAB_ROWS || nc >= LAB_COLS) continue;
+      const ni = labIdx(nr, nc);
+      if (prev[ni] < 0) { prev[ni] = cur; q.push(ni); }
+    }
+  }
+  if (prev[to] < 0) return null;
+  const path = []; let cur = to;
+  while (cur !== from) { path.unshift(cur); cur = prev[cur]; }
+  path.unshift(from); return path;
+}
 
 function buildLab(seed) {
   const rnd = mulberry32(seed), n = LAB_COLS * LAB_ROWS;
@@ -917,6 +931,23 @@ function buildLab(seed) {
   return g;
 }
 
+/* маршрут: старт → ворота 1 … 8 → выход; labRouteEnd[k] — сколько клеток
+   нужно нарисовать, когда открыто k врат (8 — весь путь до выхода) */
+function buildLabRoute() {
+  labGates = []; for (let i = 0; i < labG.length; i++) if (labG[i].gate >= 0) labGates[labG[i].gate] = i;
+  labRoute = [0]; labRouteEnd = [];
+  let cur = 0;
+  for (let k = 0; k < labGates.length; k++) {
+    const p = labPath(cur, labGates[k]);
+    if (p) for (let i = 1; i < p.length; i++) labRoute.push(p[i]);
+    cur = labGates[k];
+    labRouteEnd[k] = labRoute.length;
+  }
+  const pe = labPath(cur, labExit);
+  if (pe) for (let i = 1; i < pe.length; i++) labRoute.push(pe[i]);
+  labRouteEnd[labSteps.length] = labRoute.length;
+}
+
 function labMetrics() {
   const board = document.getElementById('labBoard');
   let avail = board ? board.clientWidth : 0;
@@ -949,16 +980,18 @@ function drawLab() {
   ctx.fillStyle = t.bg; ctx.fillRect(0, 0, m.w, m.h);
   ctx.fillStyle = t.card; ctx.fillRect(O, O, C * LAB_COLS, C * LAB_ROWS);
 
-  ctx.save(); ctx.beginPath(); ctx.rect(O, O, C * LAB_COLS, C * LAB_ROWS); ctx.clip();
-  ctx.globalAlpha = 0.12; ctx.fillStyle = t.primary;
-  labTrail.forEach(i => { const p = labPos(i); ctx.fillRect(O + p.c * C, O + p.r * C, C, C); });
-  ctx.globalAlpha = 1; ctx.restore();
-
-  if (labTrail.length > 1) {
-    ctx.strokeStyle = t.primary; ctx.globalAlpha = .5;
+  // пройденный путь: подсветка клеток + линия
+  const upto = labRouteEnd[labCurrent] || 0;
+  const shown = labRoute.slice(0, upto);
+  if (shown.length) {
+    ctx.save(); ctx.beginPath(); ctx.rect(O, O, C * LAB_COLS, C * LAB_ROWS); ctx.clip();
+    ctx.globalAlpha = 0.12; ctx.fillStyle = t.primary;
+    shown.forEach(i => { const p = labPos(i); ctx.fillRect(O + p.c * C, O + p.r * C, C, C); });
+    ctx.globalAlpha = 1; ctx.restore();
+    ctx.strokeStyle = t.primary; ctx.globalAlpha = .55;
     ctx.lineWidth = Math.max(3, C * .17); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     ctx.beginPath();
-    labTrail.forEach((i, k) => {
+    shown.forEach((i, k) => {
       const p = labPos(i), x = O + p.c * C + C / 2, y = O + p.r * C + C / 2;
       k ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
     });
@@ -1006,27 +1039,12 @@ function drawLab() {
     ctx.font = '800 ' + (C * .3) + 'px system-ui, sans-serif';
     ctx.fillText(done ? '✓' : String(g.gate + 1), x, y + 1);
   }
-
-  let pr = labPlayer.r, pc = labPlayer.c;
-  if (labAnim) {
-    const k = Math.min(1, (Date.now() - labAnim.t0) / labAnim.dur);
-    const e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
-    pr = labAnim.fr + (labAnim.tr - labAnim.fr) * e;
-    pc = labAnim.fc + (labAnim.tc - labAnim.fc) * e;
-    if (k >= 1) labAnim = null;
-  }
-  const px = O + (pc + .5) * C, py = O + (pr + .5) * C;
-  ctx.beginPath(); ctx.arc(px, py, C * .27, 0, 7);
-  ctx.fillStyle = t.primary; ctx.fill();
-  ctx.lineWidth = Math.max(2, C * .06); ctx.strokeStyle = '#fff'; ctx.stroke();
-  ctx.beginPath(); ctx.arc(px, py, C * .1, 0, 7); ctx.fillStyle = '#fff'; ctx.fill();
 }
 
 function labLoop() {
   if (labG && document.getElementById('sec3').classList.contains('active')) drawLab();
   labTick = requestAnimationFrame(labLoop);
 }
-
 function labStatus(msg) {
   const el = document.getElementById('labStatus');
   if (el) el.textContent = msg;
@@ -1036,36 +1054,26 @@ function labCountUI() {
   if (el) el.textContent = 'Врата: ' + labCurrent + ' / ' + labSteps.length;
 }
 
-function labTryMove(dr, dc) {
-  if (labAnim && Date.now() - labAnim.t0 >= labAnim.dur) labAnim = null;
-  if (!labG || labDone || labAnim) return;
-  const r = labPlayer.r, c = labPlayer.c, nr = r + dr, nc = c + dc;
-  if (nr < 0 || nc < 0 || nr >= LAB_ROWS || nc >= LAB_COLS) return;
-  const g = labCell(r, c);
-  if (dr < 0 && g.n) return;
-  if (dr > 0 && g.s) return;
-  if (dc < 0 && g.w) return;
-  if (dc > 0 && g.e) return;
-  labAnim = { fr: r, fc: c, tr: nr, tc: nc, t0: Date.now(), dur: 130 };
-  labPlayer = { r: nr, c: nc };
-  const ni = labIdx(nr, nc);
-  if (labTrail[labTrail.length - 1] !== ni) labTrail.push(ni);
-  setTimeout(labArrive, 145);
-}
-
-function labArrive() {
-  const i = labIdx(labPlayer.r, labPlayer.c), g = labCell(labPlayer.r, labPlayer.c);
+/* нажатие на клетку: ворота — открыть вопрос, выход — закончить */
+function labClickCell(r, c) {
+  if (labDone || !labG) return;
+  const i = labIdx(r, c), g = labCell(r, c);
   if (i === labExit) {
     if (labCurrent >= labSteps.length) labFinish();
     else labStatus('🚪 Выход закрыт: осталось открыть врат — ' + (labSteps.length - labCurrent) + '.');
     return;
   }
-  if (g.gate < 0) return;
+  if (g.gate < 0) {
+    if (i === 0) labStatus('Ты в начале лабиринта. Иди по голубой линии к воротам.');
+    else labStatus('Это проход между воротами. Нажимай на кружок с номером.');
+    return;
+  }
   if (g.gate === labCurrent) labOpenTask(g.gate);
   else if (g.gate > labCurrent) labStatus('Ворота №' + (g.gate + 1) + ' закрыты: сначала открой ворота №' + (labCurrent + 1) + '.');
 }
 
 function labOpenTask(k) {
+  clearTimeout(labHideT);                       // иначе старое скрытие погасит новую панель
   document.getElementById('labQuestion').textContent = labSteps[k].q;
   const input = document.getElementById('labInput');
   input.value = ''; input.style.borderColor = '';
@@ -1112,9 +1120,10 @@ function checkLabStep() {
     hint.className = 'lab-hint correct show';
     hint.textContent = '✅ Правильно! Ворота №' + (k + 1) + ' открыты.';
     labCountUI();
-    labStatus(labCurrent >= labSteps.length ? 'Все ворота открыты — найди 🚪 выход!'
-      : 'Ищи оранжевые ворота №' + (labCurrent + 1) + '.');
-    setTimeout(() => { task.classList.remove('shown'); input.value = ''; }, 900);
+    drawLab();                                  // сразу рисуем: rAF может не идти (фоновая вкладка)
+    labStatus(labCurrent >= labSteps.length ? 'Все ворота открыты — нажми на 🚪 выход!'
+      : 'Нажми на оранжевые ворота №' + (labCurrent + 1) + '.');
+    labHideT = setTimeout(() => { task.classList.remove('shown'); input.value = ''; }, 900);
   } else {
     hint.className = 'lab-hint wrong show';
     hint.textContent = '❌ Попробуй ещё раз!';
@@ -1125,15 +1134,16 @@ function checkLabStep() {
 }
 
 function initLabyrinth() {
+  clearTimeout(labHideT);
   labG = buildLab(labSeed);
-  labPlayer = { r: 0, c: 0 }; labTrail = [0]; labAnim = null;
+  buildLabRoute();
   labCurrent = 0; labCorrectCount = 0; labDone = false;
   document.getElementById('labComplete').classList.remove('show');
   const task = document.getElementById('labTask');
   task.classList.remove('shown', 'lab-shake');
   document.getElementById('labHint').className = 'lab-hint';
   labCountUI();
-  labStatus('Найди оранжевые ворота №1 и ответь на вопрос.');
+  labStatus('Нажми на оранжевые ворота №1.');
   resetLabAnswer();
   drawLab();
   if (!labTick) labLoop();
@@ -1143,16 +1153,19 @@ function newLabMaze() {
   initLabyrinth();
 }
 
-document.addEventListener('keydown', e => {
-  if (!document.getElementById('sec3').classList.contains('active')) return;
-  const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-  const map = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1],
-                w: [-1, 0], s: [1, 0], a: [0, -1], d: [0, 1],
-                ц: [-1, 0], и: [1, 0], л: [0, -1], в: [0, 1] };
-  if (map[k]) { e.preventDefault(); labTryMove(map[k][0], map[k][1]); return; }
-  if (e.key === 'Enter' && labCurrent < labSteps.length) checkLabStep();
+document.getElementById('labCanvas').addEventListener('click', e => {
+  const cv = e.currentTarget, rect = cv.getBoundingClientRect();
+  const m = labMetrics();
+  const x = (e.clientX - rect.left) * (m.w / rect.width), y = (e.clientY - rect.top) * (m.h / rect.height);
+  const c = Math.floor((x - 2) / m.cell), r = Math.floor((y - 2) / m.cell);
+  if (r < 0 || c < 0 || r >= LAB_ROWS || c >= LAB_COLS) return;
+  labClickCell(r, c);
 });
 
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('sec3').classList.contains('active')) return;
+  if (e.key === 'Enter' && labCurrent < labSteps.length) checkLabStep();
+});
 // ===================== PRACTICE =====================
 const variants = [
   { answers: ['равные пути', 'неравномерное', 'траектории', 'редко', 'данных недостаточно'] },
