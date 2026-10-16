@@ -181,17 +181,24 @@ nav button .nav-emoji { display: block; font-size: 2rem; margin-bottom: 2px; }
 [data-theme="dark"] .match-select.correct { background: #14532d; }
 [data-theme="dark"] .match-select.wrong { background: #7f1d1d; }
 
-.labyrinth-visual { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
-.labyrinth-step {
-  width: 60px; height: 60px; border-radius: 50%; background: var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 1.35rem; color: var(--text-secondary); transition: all 0.4s;
-}
-.labyrinth-step.completed { background: var(--green); color: white; box-shadow: 0 2px 12px rgba(34,197,94,0.4); }
-.labyrinth-step.current { background: var(--primary); color: white; box-shadow: 0 2px 12px rgba(59,130,246,0.4); transform: scale(1.15); }
-.labyrinth-step.future { background: var(--border); color: var(--text-secondary); }
-.labyrinth-arrow { color: var(--text-secondary); font-size: 1.8rem; }
-.lab-task { background: var(--primary-light); border-radius: var(--radius-sm); padding: 24px; text-align: center; margin-bottom: 18px; }
+.lab-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-bottom: 22px; }
+.lab-board { width: 100%; display: flex; justify-content: center; }
+#labCanvas { display: block; border-radius: 14px; touch-action: none; box-shadow: 0 6px 22px rgba(15,23,42,.14); }
+.lab-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; width: 100%; max-width: 640px; }
+.lab-count { font-weight: 800; font-size: 1.5rem; color: var(--primary); }
+.lab-status { text-align: center; font-size: 1.4rem; color: var(--text-secondary); min-height: 1.9em; max-width: 640px; }
+.lab-pad { display: grid; grid-template-columns: repeat(3, 54px); grid-template-rows: repeat(2, 46px); gap: 8px; justify-content: center; }
+.lab-pad button { border: none; border-radius: 12px; background: var(--primary); color: #fff; font-size: 1.3rem; font-weight: 800; cursor: pointer; box-shadow: 0 3px 0 rgba(15,23,42,.25); transition: transform .12s, filter .12s; }
+.lab-pad button:hover { filter: brightness(1.08); }
+.lab-pad button:active { transform: translateY(2px); box-shadow: none; }
+.lab-legend { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; font-size: 1.25rem; color: var(--text-secondary); }
+.lab-legend b { color: var(--text); font-weight: 700; }
+.lab-btn-mini { border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 999px; padding: 8px 16px; font-size: 1.3rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+.lab-btn-mini:hover { border-color: var(--primary); color: var(--primary); }
+.lab-task.shown { display: block; animation: fadeIn 0.35s ease; }
+.lab-task.lab-shake { animation: labShake 0.35s ease; }
+@keyframes labShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-7px); } 75% { transform: translateX(7px); } }
+.lab-task { display: none; background: var(--primary-light); border-radius: var(--radius-sm); padding: 24px; text-align: center; margin-bottom: 18px; }
 .lab-task .lab-question { font-size: 1.9rem; font-weight: 700; margin-bottom: 18px; }
 .lab-input-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 .lab-input {
@@ -304,7 +311,7 @@ nav button .nav-emoji { display: block; font-size: 2rem; margin-bottom: 2px; }
   .exercise .ex-input { width: 100%; }
   .lab-input-group { flex-direction: column; align-items: center; }
   .lab-input { width: 100%; max-width: 280px; }
-  .labyrinth-step { width: 44px; height: 44px; font-size: 1.1rem; }
+  .lab-pad { grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(2, 40px); }
 }
 </style>
 </head>
@@ -544,21 +551,39 @@ nav button .nav-emoji { display: block; font-size: 2rem; margin-bottom: 2px; }
 <div class="section" id="sec3">
   <div class="card">
     <h2><span class="emoji">🧩</span>Физический лабиринт</h2>
-    <p class="card-desc">Ответь на все вопросы, чтобы пройти лабиринт!</p>
-    <div class="labyrinth-visual" id="labVisual"></div>
+    <p class="card-desc">Настоящий лабиринт: ищи оранжевые ворота, отвечай на вопрос у каждых и выходи к финишу. Управление — стрелки, WASD или кнопки.</p>
+
+    <div class="lab-wrap">
+      <div class="lab-board" id="labBoard"><canvas id="labCanvas"></canvas></div>
+      <div class="lab-bar">
+        <span class="lab-count" id="labCount">Врата: 0 / 8</span>
+        <button class="lab-btn-mini" onclick="newLabMaze()">🔀 Новый лабиринт</button>
+      </div>
+      <div class="lab-status" id="labStatus">Найди оранжевые ворота №1 и ответь на вопрос.</div>
+      <div class="lab-pad">
+        <span></span><button onclick="labTryMove(-1,0)" aria-label="Вверх">▲</button><span></span>
+        <button onclick="labTryMove(0,-1)" aria-label="Влево">◀</button><span></span><button onclick="labTryMove(0,1)" aria-label="Вправо">▶</button>
+      </div>
+      <div class="lab-legend">
+        <span>🟠 <b>ворота</b></span><span>🟢 <b>открыто</b></span><span>🚪 <b>выход</b></span><span>🔵 <b>ты</b></span>
+      </div>
+    </div>
+
     <div class="lab-task" id="labTask">
       <div class="lab-question" id="labQuestion"></div>
       <div class="lab-input-group">
-        <input type="text" class="lab-input" id="labInput" placeholder="Ответ">
-        <button class="btn-lab" id="labBtn" onclick="checkLabStep()">Далее ➡️</button>
+        <input type="text" class="lab-input" id="labInput" placeholder="Ответ" autocomplete="off">
+        <button class="btn-lab" id="labBtn" onclick="checkLabStep()">Ответить ✔️</button>
         <button class="btn-lab-hint" id="labAnswerBtn" onclick="showLabAnswer(this)">Правильный ответ</button>
       </div>
       <div class="lab-answer" id="labAnswer"></div>
       <div class="lab-hint" id="labHint"></div>
     </div>
+
     <div class="lab-complete" id="labComplete">
       <h3>🎉 Поздравляем!</h3>
-      <p>Ты успешно прошёл физический лабиринт!</p>
+      <p>Ты прошёл настоящий лабиринт: открыл все 8 врат и вышел к финишу!</p>
+      <button class="lab-btn-mini" onclick="newLabMaze()" style="margin-top:16px">🔀 Пройти заново</button>
     </div>
   </div>
 </div>
@@ -629,7 +654,7 @@ nav button .nav-emoji { display: block; font-size: 2rem; margin-bottom: 2px; }
         <div class="example-title">Решить задания:</div>
         <p>• Разминка (вопросы True/False) — 8 вопросов<br>
         • Соответствие — соедини описания с видами движения<br>
-        • Лабиринт — пройди все 8 шагов<br>
+        • Лабиринт — открой все 8 врат и выйди к финишу<br>
         • Практика — реши все 3 варианта</p>
       </div>
       <div class="example">
@@ -825,25 +850,238 @@ const labSteps = [
   { q: 'Если известно только, что автобус проходит 60 км за час, равномерно ли он движется? (коротко)', a: 'нельзя сказать' },
   { q: 'При каком движении за равные промежутки времени путь становится всё меньше? (два слова)', a: 'при торможении' }
 ];
-let labCurrent = 0, labCorrectCount = 0;
 
-function initLabyrinth() {
-  const visual = document.getElementById('labVisual');
-  visual.innerHTML = '';
-  labSteps.forEach((_, i) => {
-    if (i > 0) { const a = document.createElement('span'); a.className = 'labyrinth-arrow'; a.textContent = '→'; visual.appendChild(a); }
-    const s = document.createElement('div'); s.className = 'labyrinth-step future'; s.textContent = i + 1; s.id = 'labStep' + i; visual.appendChild(s);
+const LAB_COLS = 9, LAB_ROWS = 7;
+const LAB_STEP = { n: [-1, 0], s: [1, 0], w: [0, -1], e: [0, 1] };
+let labG = null, labExit = 0, labPlayer = { r: 0, c: 0 }, labTrail = [0];
+let labCurrent = 0, labCorrectCount = 0, labDone = false, labAnim = null;
+let labSeed = 20261013, labTick = 0;
+
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function labCell(r, c) { return labG[r * LAB_COLS + c]; }
+function labIdx(r, c) { return r * LAB_COLS + c; }
+function labPos(i) { return { r: (i / LAB_COLS) | 0, c: i % LAB_COLS }; }
+
+function buildLab(seed) {
+  const rnd = mulberry32(seed), n = LAB_COLS * LAB_ROWS;
+  const g = new Array(n);
+  for (let i = 0; i < n; i++) g[i] = { n: 1, e: 1, s: 1, w: 1, gate: -1, dist: -1 };
+  const seen = new Uint8Array(n), stack = [0];
+  seen[0] = 1; g[0].n = 0; g[0].w = 0;                       // вход — левый верхний угол
+  while (stack.length) {
+    const cur = stack[stack.length - 1], r = (cur / LAB_COLS) | 0, c = cur % LAB_COLS, cand = [];
+    if (r > 0 && !seen[cur - LAB_COLS]) cand.push([cur - LAB_COLS, 'n', 's']);
+    if (r < LAB_ROWS - 1 && !seen[cur + LAB_COLS]) cand.push([cur + LAB_COLS, 's', 'n']);
+    if (c > 0 && !seen[cur - 1]) cand.push([cur - 1, 'w', 'e']);
+    if (c < LAB_COLS - 1 && !seen[cur + 1]) cand.push([cur + 1, 'e', 'w']);
+    if (!cand.length) { stack.pop(); continue; }
+    const p = cand[Math.floor(rnd() * cand.length)];
+    g[cur][p[1]] = 0; g[p[0]][p[2]] = 0; seen[p[0]] = 1; stack.push(p[0]);
+  }
+  const q = [0]; g[0].dist = 0;                             // расстояния от старта
+  for (let i = 0; i < q.length; i++) {
+    const cur = q[i], r = (cur / LAB_COLS) | 0, c = cur % LAB_COLS;
+    for (const d in LAB_STEP) {
+      if (g[cur][d]) continue;
+      const nr = r + LAB_STEP[d][0], nc = c + LAB_STEP[d][1];
+      if (nr < 0 || nc < 0 || nr >= LAB_ROWS || nc >= LAB_COLS) continue;
+      const ni = labIdx(nr, nc);
+      if (g[ni].dist < 0) { g[ni].dist = g[cur].dist + 1; q.push(ni); }
+    }
+  }
+  let far = 0;
+  for (let i = 1; i < n; i++) if (g[i].dist > g[far].dist) far = i;
+  labExit = far;
+  const maxD = g[far].dist, targets = [];
+  for (let k = 1; k <= labSteps.length; k++) targets.push(Math.round(maxD * (0.12 + 0.80 * (k - 1) / (labSteps.length - 1))));
+  const pool = []; for (let i = 1; i < n; i++) if (i !== far) pool.push(i);
+  const chosen = [];
+  targets.forEach(t => {
+    let best = -1, bd = 1e9;
+    for (const i of pool) {
+      if (chosen.indexOf(i) >= 0) continue;
+      const d = Math.abs(g[i].dist - t);
+      if (d < bd) { bd = d; best = i; }
+    }
+    if (best >= 0) chosen.push(best);
   });
-  updateLabVisual();
-  document.getElementById('labQuestion').textContent = labSteps[0].q;
-  document.getElementById('labInput').value = '';
-  resetLabAnswer();
+  chosen.sort((a, b) => g[a].dist - g[b].dist);              // врата нумеруются по пути от старта
+  chosen.forEach((i, k) => { g[i].gate = k; });
+  return g;
 }
 
-function updateLabVisual() {
-  labSteps.forEach((_, i) => {
-    document.getElementById('labStep' + i).className = 'labyrinth-step ' + (i < labCurrent ? 'completed' : i === labCurrent ? 'current' : 'future');
-  });
+function labMetrics() {
+  const board = document.getElementById('labBoard');
+  let avail = board ? board.clientWidth : 0;
+  if (!avail) avail = Math.min(document.documentElement.clientWidth - 56, 660);
+  const cell = Math.max(30, Math.min(Math.floor((avail - 4) / LAB_COLS), 66));
+  return { cell: cell, w: cell * LAB_COLS + 4, h: cell * LAB_ROWS + 4 };
+}
+function labPalette() {
+  const cs = getComputedStyle(document.documentElement), v = n => cs.getPropertyValue(n).trim();
+  return {
+    bg: v('--bg') || '#f0f4f8', card: v('--card') || '#ffffff',
+    wall: v('--text') || '#1e293b', sec: v('--text-secondary') || '#64748b',
+    accent: v('--accent') || '#f97316', green: v('--green') || '#22c55e',
+    primary: v('--primary') || '#3b82f6'
+  };
+}
+
+function drawLab() {
+  const cv = document.getElementById('labCanvas');
+  if (!cv || !labG) return;
+  const m = labMetrics(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv._w !== m.w || cv._h !== m.h) {
+    cv.width = Math.round(m.w * dpr); cv.height = Math.round(m.h * dpr);
+    cv.style.width = m.w + 'px'; cv.style.height = m.h + 'px';
+    cv._w = m.w; cv._h = m.h;
+  }
+  const ctx = cv.getContext('2d'), t = labPalette(), C = m.cell, O = 2;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, m.w, m.h);
+  ctx.fillStyle = t.bg; ctx.fillRect(0, 0, m.w, m.h);
+  ctx.fillStyle = t.card; ctx.fillRect(O, O, C * LAB_COLS, C * LAB_ROWS);
+
+  ctx.save(); ctx.beginPath(); ctx.rect(O, O, C * LAB_COLS, C * LAB_ROWS); ctx.clip();
+  ctx.globalAlpha = 0.12; ctx.fillStyle = t.primary;
+  labTrail.forEach(i => { const p = labPos(i); ctx.fillRect(O + p.c * C, O + p.r * C, C, C); });
+  ctx.globalAlpha = 1; ctx.restore();
+
+  if (labTrail.length > 1) {
+    ctx.strokeStyle = t.primary; ctx.globalAlpha = .5;
+    ctx.lineWidth = Math.max(3, C * .17); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath();
+    labTrail.forEach((i, k) => {
+      const p = labPos(i), x = O + p.c * C + C / 2, y = O + p.r * C + C / 2;
+      k ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    });
+    ctx.stroke(); ctx.globalAlpha = 1;
+  }
+
+  ctx.strokeStyle = t.wall; ctx.lineWidth = Math.max(2, C * .09); ctx.lineCap = 'round';
+  ctx.beginPath();
+  for (let r = 0; r < LAB_ROWS; r++) for (let c = 0; c < LAB_COLS; c++) {
+    const g = labCell(r, c), x = O + c * C, y = O + r * C;
+    if (g.n) { ctx.moveTo(x, y); ctx.lineTo(x + C, y); }
+    if (g.w) { ctx.moveTo(x, y); ctx.lineTo(x, y + C); }
+    if (r === LAB_ROWS - 1 && g.s) { ctx.moveTo(x, y + C); ctx.lineTo(x + C, y + C); }
+    if (c === LAB_COLS - 1 && g.e) { ctx.moveTo(x + C, y); ctx.lineTo(x + C, y + C); }
+  }
+  ctx.stroke();
+
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = t.sec; ctx.font = '700 ' + (C * .17) + 'px system-ui, sans-serif';
+  ctx.fillText('СТАРТ', O + C / 2, O + C * .22);
+
+  const ep = labPos(labExit), ex = O + ep.c * C, ey = O + ep.r * C, open = labCurrent >= labSteps.length;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(ex + C * .14, ey + C * .1, C * .72, C * .8, C * .12);
+  else ctx.rect(ex + C * .14, ey + C * .1, C * .72, C * .8);
+  ctx.fillStyle = open ? t.green : t.bg; ctx.fill();
+  ctx.lineWidth = Math.max(2, C * .08); ctx.strokeStyle = open ? t.green : t.sec; ctx.stroke();
+  ctx.beginPath(); ctx.arc(ex + C * .68, ey + C * .52, C * .05, 0, 7);
+  ctx.fillStyle = open ? '#fff' : t.sec; ctx.fill();
+
+  for (let i = 0; i < labG.length; i++) {
+    const g = labG[i]; if (g.gate < 0) continue;
+    const p = labPos(i), x = O + p.c * C + C / 2, y = O + p.r * C + C / 2;
+    const done = g.gate < labCurrent, isNext = g.gate === labCurrent;
+    if (isNext) {
+      const k = .5 + .5 * Math.sin(Date.now() / 240);
+      ctx.beginPath(); ctx.arc(x, y, C * .46, 0, 7);
+      ctx.globalAlpha = .08 + .18 * k; ctx.fillStyle = t.accent; ctx.fill(); ctx.globalAlpha = 1;
+    }
+    ctx.beginPath(); ctx.arc(x, y, C * .29, 0, 7);
+    ctx.fillStyle = done ? t.green : isNext ? t.accent : t.bg; ctx.fill();
+    ctx.lineWidth = Math.max(1.5, C * .05);
+    ctx.strokeStyle = done ? t.green : isNext ? t.accent : t.sec; ctx.stroke();
+    ctx.fillStyle = done || isNext ? '#fff' : t.sec;
+    ctx.font = '800 ' + (C * .3) + 'px system-ui, sans-serif';
+    ctx.fillText(done ? '✓' : String(g.gate + 1), x, y + 1);
+  }
+
+  let pr = labPlayer.r, pc = labPlayer.c;
+  if (labAnim) {
+    const k = Math.min(1, (Date.now() - labAnim.t0) / labAnim.dur);
+    const e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    pr = labAnim.fr + (labAnim.tr - labAnim.fr) * e;
+    pc = labAnim.fc + (labAnim.tc - labAnim.fc) * e;
+    if (k >= 1) labAnim = null;
+  }
+  const px = O + (pc + .5) * C, py = O + (pr + .5) * C;
+  ctx.beginPath(); ctx.arc(px, py, C * .27, 0, 7);
+  ctx.fillStyle = t.primary; ctx.fill();
+  ctx.lineWidth = Math.max(2, C * .06); ctx.strokeStyle = '#fff'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(px, py, C * .1, 0, 7); ctx.fillStyle = '#fff'; ctx.fill();
+}
+
+function labLoop() {
+  if (labG && document.getElementById('sec3').classList.contains('active')) drawLab();
+  labTick = requestAnimationFrame(labLoop);
+}
+
+function labStatus(msg) {
+  const el = document.getElementById('labStatus');
+  if (el) el.textContent = msg;
+}
+function labCountUI() {
+  const el = document.getElementById('labCount');
+  if (el) el.textContent = 'Врата: ' + labCurrent + ' / ' + labSteps.length;
+}
+
+function labTryMove(dr, dc) {
+  if (labAnim && Date.now() - labAnim.t0 >= labAnim.dur) labAnim = null;
+  if (!labG || labDone || labAnim) return;
+  const r = labPlayer.r, c = labPlayer.c, nr = r + dr, nc = c + dc;
+  if (nr < 0 || nc < 0 || nr >= LAB_ROWS || nc >= LAB_COLS) return;
+  const g = labCell(r, c);
+  if (dr < 0 && g.n) return;
+  if (dr > 0 && g.s) return;
+  if (dc < 0 && g.w) return;
+  if (dc > 0 && g.e) return;
+  labAnim = { fr: r, fc: c, tr: nr, tc: nc, t0: Date.now(), dur: 130 };
+  labPlayer = { r: nr, c: nc };
+  const ni = labIdx(nr, nc);
+  if (labTrail[labTrail.length - 1] !== ni) labTrail.push(ni);
+  setTimeout(labArrive, 145);
+}
+
+function labArrive() {
+  const i = labIdx(labPlayer.r, labPlayer.c), g = labCell(labPlayer.r, labPlayer.c);
+  if (i === labExit) {
+    if (labCurrent >= labSteps.length) labFinish();
+    else labStatus('🚪 Выход закрыт: осталось открыть врат — ' + (labSteps.length - labCurrent) + '.');
+    return;
+  }
+  if (g.gate < 0) return;
+  if (g.gate === labCurrent) labOpenTask(g.gate);
+  else if (g.gate > labCurrent) labStatus('Ворота №' + (g.gate + 1) + ' закрыты: сначала открой ворота №' + (labCurrent + 1) + '.');
+}
+
+function labOpenTask(k) {
+  document.getElementById('labQuestion').textContent = labSteps[k].q;
+  const input = document.getElementById('labInput');
+  input.value = ''; input.style.borderColor = '';
+  document.getElementById('labHint').className = 'lab-hint';
+  document.getElementById('labTask').classList.add('shown');
+  resetLabAnswer();
+  labStatus('Врата №' + (k + 1) + '. Ответь на вопрос, чтобы открыть ворота.');
+  setTimeout(() => input.focus(), 60);
+}
+
+function labFinish() {
+  labDone = true;
+  document.getElementById('labTask').classList.remove('shown');
+  document.getElementById('labComplete').classList.add('show');
+  labStatus('🏁 Лабиринт пройден!');
+  launchConfetti();
 }
 
 function showLabAnswer(btn) {
@@ -855,7 +1093,6 @@ function showLabAnswer(btn) {
   btn.textContent = open ? 'Скрыть' : 'Правильный ответ';
   btn.classList.toggle('active', open);
 }
-
 function resetLabAnswer() {
   const el = document.getElementById('labAnswer');
   if (el) { el.className = 'lab-answer'; el.textContent = ''; }
@@ -864,32 +1101,56 @@ function resetLabAnswer() {
 }
 
 function checkLabStep() {
+  const task = document.getElementById('labTask');
+  if (labDone || !task.classList.contains('shown')) return;
   const input = document.getElementById('labInput'), hint = document.getElementById('labHint');
   const val = input.value.trim().toLowerCase().replace(',', '.');
   if (!val) { input.style.borderColor = 'var(--red)'; return; }
-  const expected = labSteps[labCurrent].a.toLowerCase().replace(',', '.');
+  const k = labCurrent, expected = labSteps[k].a.toLowerCase().replace(',', '.');
   if (val === expected || parseFloat(val) === parseFloat(expected)) {
-    labCorrectCount++; hint.className = 'lab-hint correct show'; hint.textContent = '✅ Правильно!'; labCurrent++;
-    setTimeout(() => {
-      if (labCurrent >= labSteps.length) {
-        document.getElementById('labTask').style.display = 'none';
-        document.getElementById('labComplete').classList.add('show');
-        updateLabVisual(); launchConfetti();
-      } else {
-        document.getElementById('labQuestion').textContent = labSteps[labCurrent].q;
-        input.value = ''; input.style.borderColor = 'var(--border)'; hint.className = 'lab-hint'; updateLabVisual();
-        resetLabAnswer();
-      }
-    }, 800);
+    labCorrectCount++; labCurrent = k + 1;
+    hint.className = 'lab-hint correct show';
+    hint.textContent = '✅ Правильно! Ворота №' + (k + 1) + ' открыты.';
+    labCountUI();
+    labStatus(labCurrent >= labSteps.length ? 'Все ворота открыты — найди 🚪 выход!'
+      : 'Ищи оранжевые ворота №' + (labCurrent + 1) + '.');
+    setTimeout(() => { task.classList.remove('shown'); input.value = ''; }, 900);
   } else {
-    hint.className = 'lab-hint wrong show'; hint.textContent = '❌ Попробуй ещё раз!';
+    hint.className = 'lab-hint wrong show';
+    hint.textContent = '❌ Попробуй ещё раз!';
     input.style.borderColor = 'var(--red)'; input.value = ''; input.focus();
+    task.classList.remove('lab-shake'); void task.offsetWidth; task.classList.add('lab-shake');
     setTimeout(() => { hint.className = 'lab-hint'; }, 1500);
   }
 }
 
+function initLabyrinth() {
+  labG = buildLab(labSeed);
+  labPlayer = { r: 0, c: 0 }; labTrail = [0]; labAnim = null;
+  labCurrent = 0; labCorrectCount = 0; labDone = false;
+  document.getElementById('labComplete').classList.remove('show');
+  const task = document.getElementById('labTask');
+  task.classList.remove('shown', 'lab-shake');
+  document.getElementById('labHint').className = 'lab-hint';
+  labCountUI();
+  labStatus('Найди оранжевые ворота №1 и ответь на вопрос.');
+  resetLabAnswer();
+  drawLab();
+  if (!labTick) labLoop();
+}
+function newLabMaze() {
+  labSeed = (labSeed * 1103515245 + 12345) >>> 0;
+  initLabyrinth();
+}
+
 document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.getElementById('sec3').classList.contains('active') && labCurrent < labSteps.length) checkLabStep();
+  if (!document.getElementById('sec3').classList.contains('active')) return;
+  const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  const map = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1],
+                w: [-1, 0], s: [1, 0], a: [0, -1], d: [0, 1],
+                ц: [-1, 0], и: [1, 0], л: [0, -1], в: [0, 1] };
+  if (map[k]) { e.preventDefault(); labTryMove(map[k][0], map[k][1]); return; }
+  if (e.key === 'Enter' && labCurrent < labSteps.length) checkLabStep();
 });
 
 // ===================== PRACTICE =====================
@@ -1029,7 +1290,7 @@ children.push(h1('1. Повтори теорию'));
     children.push(h1('2. Отработай в тренажёре'));
     children.push(bullet('Разминка — 8 вопросов «верно/неверно».'));
     children.push(bullet('Соответствие — соедини описания с видами движения.'));
-    children.push(bullet('Лабиринт — пройди все 8 шагов.'));
+    children.push(bullet('Лабиринт — открой все 8 врат и выйди к финишу.'));
     children.push(bullet('Практика — реши все 3 варианта.'));
     children.push(new D.Paragraph({
       children: [new D.TextRun({ text: 'Цель: ', bold: true }), new D.TextRun('набери 100% хотя бы в одном разделе тренажёра. Если не получается — повтори теорию и попробуй снова!')]
