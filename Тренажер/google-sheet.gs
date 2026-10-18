@@ -46,7 +46,8 @@ var HEADERS = [
 function doGet(e) {
   try {
     var ss = openSheet();
-    ensureSheetHeaders(ss.getSheets()[0]);
+    var first = ss.getSheets()[0];
+    ensureSheetHeaders(first);
     var names = [];
     ss.getSheets().forEach(function (s) { names.push(s.getName()); });
     return json({
@@ -54,6 +55,8 @@ function doGet(e) {
       name: ss.getName(),
       url: ss.getUrl(),
       columns: HEADERS.length,
+      headerOk: headersOk(first),       // названия столбцов на месте?
+      rows: Math.max(0, first.getLastRow() - 1),
       sheets: names
     });
   } catch (err) {
@@ -212,21 +215,64 @@ function openSheet() {
   throw new Error('Таблица не указана. Откройте скрипт из нужной таблицы или впишите SPREADSHEET_ID.');
 }
 
+/* Шапка таблицы. Раньше названия столбцов записывались только в пустой
+   таблице. Если первую строку стирали, а результаты уже есть — скрипт
+   больше никогда их не возвращал, и столбцы оставались без заголовков.
+   Теперь шапка проверяется при каждой отправке и при проверке связи. */
 function ensureSheetHeaders(sheet) {
-  if (sheet.getLastRow() === 0) {
+  var last = sheet.getLastRow();
+  if (last === 0) {
     sheet.appendRow(HEADERS);
-    sheet.getRange(1, 1, 1, HEADERS.length)
-         .setFontWeight('bold')
-         .setBackground('#dbeafe')
-         .setFontSize(11);
-    sheet.setFrozenRows(1);
-    var w = [90, 70, 130, 110, 60, 90, 260, 170, 70, 70, 90, 90];
-    for (var i = 0; i < w.length; i++) {
-      sheet.setColumnWidth(i + 1, w[i]);
+  } else {
+    var blank = true;
+    for (var i = 0; i < HEADERS.length; i++) {
+      if (String(sheet.getRange(1, i + 1).getValue()).trim() !== '') { blank = false; break; }
     }
-    sheet.getRange(1, 1, Math.max(sheet.getMaxRows(), 2), 2).setNumberFormat('@');
+    if (blank) sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);  // шапку стёрли — вернём
   }
+  sheet.getRange(1, 1, 1, HEADERS.length)
+       .setFontWeight('bold')
+       .setBackground('#dbeafe')
+       .setFontSize(11);
+  sheet.setFrozenRows(1);
+  var w = [90, 70, 130, 110, 60, 90, 260, 170, 70, 70, 90, 90];
+  for (var j = 0; j < w.length; j++) {
+    sheet.setColumnWidth(j + 1, w[j]);
+  }
+  sheet.getRange(1, 1, Math.max(sheet.getMaxRows(), 2), 2).setNumberFormat('@');
   return sheet;
+}
+
+/* Шапка на месте? Используется в doGet, чтобы тренажёр мог предупредить. */
+function headersOk(sheet) {
+  if (sheet.getLastRow() === 0) return false;
+  for (var i = 0; i < HEADERS.length; i++) {
+    if (String(sheet.getRange(1, i + 1).getValue()).trim() === '') return false;
+  }
+  return true;
+}
+
+/* Ручное восстановление названий столбцов — запустить из редактора скрипта.
+   Если в первой строке остались данные, они не пропадут: скрипт вставит
+   сверху пустую строку и запишет заголовки в неё. */
+function repairHeaders() {
+  var ss = openSheet();
+  var sheet = ss.getSheets()[0];
+  if (headersOk(sheet)) {
+    ensureSheetHeaders(sheet);
+    SpreadsheetApp.getUi().alert('Названия столбцов на месте: ' + sheet.getName());
+    return;
+  }
+  var firstBusy = false;
+  for (var i = 0; i < HEADERS.length; i++) {
+    if (String(sheet.getRange(1, i + 1).getValue()).trim() !== '') { firstBusy = true; break; }
+  }
+  if (firstBusy && sheet.getLastRow() > 0) sheet.insertRow(1);
+  sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+  ensureSheetHeaders(sheet);
+  SpreadsheetApp.getUi().alert(
+    'Названия столбцов восстановлены в листе «' + sheet.getName() + '».\n' +
+    'Строк с результатами: ' + Math.max(0, sheet.getLastRow() - 1) + '.');
 }
 
 /* Чистка текста: убираем управляющие символы, режем длину и гасим формулы.

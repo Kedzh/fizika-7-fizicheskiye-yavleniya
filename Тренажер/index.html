@@ -461,7 +461,12 @@ function testSheet(){
     .then(r=>r.json())
     .then(d=>{
       clearTimeout(to);
-      if(d&&d.ok)setSheetStatus('ok','✅ Связь есть. Таблица: '+(d.name||'без названия')+', столбцов: '+d.columns);
+      if(d&&d.ok){
+        let msg='✅ Связь есть. Таблица: '+(d.name||'без названия')+', столбцов: '+d.columns;
+        if(typeof d.rows==='number')msg+=', строк с результатами: '+d.rows;
+        if(d.headerOk===false)msg+=' ⚠️ В таблице нет названий столбцов — они будут восстановлены при следующей отправке результата.';
+        setSheetStatus('ok',msg);
+      }
       else setSheetStatus('err','❌ Скрипт ответил ошибкой: '+((d&&d.error)||'неизвестно'));
     })
     .catch(e=>{
