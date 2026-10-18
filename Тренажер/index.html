@@ -8,13 +8,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 :root {
   --bg: #f0f4f8; --card: #ffffff; --primary: #3b82f6; --primary-light: #dbeafe;
-  --green: #22c55e; --red: #ef4444; --yellow: #eab308; --accent: #f97316;
+  --green: #22c55e; --red: #ef4444; --yellow: #eab308;
   --text: #1e293b; --text-secondary: #64748b; --border: #e2e8f0;
   --shadow: 0 2px 12px rgba(0,0,0,0.08); --radius: 14px;
 }
 [data-theme="dark"] {
   --bg: #0f172a; --card: #1e293b; --primary: #60a5fa; --primary-light: #1e3a5f;
-  --green: #4ade80; --red: #f87171; --yellow: #facc15; --accent: #fb923c;
+  --green: #4ade80; --red: #f87171; --yellow: #facc15;
   --text: #f1f5f9; --text-secondary: #94a3b8; --border: #334155;
   --shadow: 0 2px 12px rgba(0,0,0,0.3);
 }
@@ -204,23 +204,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
   .opt-btn{padding:12px 10px!important;font-size:1rem!important}
   .odd-grid{grid-template-columns:1fr}
 }
-/* ===================== ЛАБИРИНТ ===================== */
-.lab2-board{width:100%;display:flex;justify-content:center;margin-bottom:10px}
-#labCanvas{display:block;border-radius:12px;touch-action:none;box-shadow:var(--shadow)}
-.lab2-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
-.lab2-count{font-weight:800;color:var(--primary);font-size:1rem}
-.lab2-status{text-align:center;font-size:.9rem;color:var(--text-secondary);min-height:1.4em;margin-bottom:10px}
-.lab2-pad{display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(3,48px);gap:8px;justify-content:center;margin-bottom:10px}
-.lab2-pad button{border:none;border-radius:12px;background:var(--primary);color:#fff;font-size:1.3rem;font-weight:800;cursor:pointer;padding:0;box-shadow:0 3px 0 rgba(15,23,42,.25);transition:transform .1s,filter .1s;font-family:inherit}
-.lab2-pad button:active{transform:translateY(2px);box-shadow:none;filter:brightness(1.12)}
-.lab2-pad button:disabled{opacity:.45;cursor:default;filter:none}
-.lab2-pad .ph{visibility:hidden}
-.lab2-legend{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:.82rem;color:var(--text-secondary);margin-bottom:12px}
-.lab2-legend b{color:var(--text)}
-.lab2-mini{padding:10px 14px;background:var(--card);color:var(--text);border:2px solid var(--border);border-radius:10px;font-family:inherit;font-weight:700;font-size:.9rem;cursor:pointer}
-.lab2-mini:hover{border-color:var(--primary);color:var(--primary)}
-.lab2-card{text-align:left}
-@media(max-width:480px){.lab2-pad{grid-template-columns:repeat(3,50px);grid-template-rows:repeat(3,42px)}}
 </style>
 </head>
 <body>
@@ -308,52 +291,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
       <div class="stats-row" id="resultStats"></div>
       <div class="report-note" id="reportNote"></div>
       <button class="btn-back" onclick="goMenu()">← В меню</button>
-    </div>
-  </div>
-
-<!-- ЛАБИРИНТ -->
-  <div class="screen" id="screenLabyrinth">
-    <div class="nav-bar">
-      <button class="nav-btn" onclick="labQuit()">← Меню</button>
-      <span class="nav-title" id="labTitle">Лабиринт</span>
-    </div>
-    <div class="stats-row">
-      <div class="stat-box green"><div class="stat-val" id="labStatOk">0</div><div class="stat-label">Верно</div></div>
-      <div class="stat-box red"><div class="stat-val" id="labStatFail">0</div><div class="stat-label">Ошибки</div></div>
-      <div class="stat-box"><div class="stat-val" id="labTimer">0:00</div><div class="stat-label">Время</div></div>
-    </div>
-    <div class="progress-wrap"><div class="progress-fill" id="labProgress" style="width:0%">0%</div></div>
-
-    <div class="lab2-board" id="labBoard"><canvas id="labCanvas"></canvas></div>
-    <div class="lab2-bar">
-      <span class="lab2-count" id="labCount">Врата: 0 / 8</span>
-      <button class="lab2-mini" onclick="labRestart()">🔀 Новый лабиринт</button>
-    </div>
-    <div class="lab2-status" id="labStatus">Найди оранжевые ворота и ответь на вопрос.</div>
-    <div class="lab2-pad">
-      <span class="ph"></span><button onclick="labMove(-1,0)" aria-label="Вверх">▲</button><span class="ph"></span>
-      <button onclick="labMove(0,-1)" aria-label="Влево">◀</button><span class="ph"></span><button onclick="labMove(0,1)" aria-label="Вправо">▶</button>
-      <span class="ph"></span><button onclick="labMove(1,0)" aria-label="Вниз">▼</button><span class="ph"></span>
-    </div>
-    <div class="lab2-legend">
-      <span>🟠 <b>ворота</b></span><span>🟢 <b>открыто</b></span><span>🚪 <b>выход</b></span><span>🔵 <b>ты</b></span>
-    </div>
-
-    <div class="ex-card" id="labCard" style="display:none">
-      <div class="ex-label" id="labGateNo">Врата 1 из 8</div>
-      <div class="timer" id="labQTimer"></div>
-      <div class="ex-task" id="labTask"></div>
-      <div class="options" id="labOptions"></div>
-      <div class="feedback" id="labFeedback"></div>
-    </div>
-
-    <div class="result-card" id="labResult" style="display:none">
-      <h2 id="labResultTitle">🏁 Лабиринт пройден!</h2>
-      <div class="result-big" id="labResultScore"></div>
-      <div class="result-msg" id="labResultMsg"></div>
-      <div class="report-note" id="labReportNote"></div>
-      <button class="btn-back" onclick="labRestart()">🔀 Ещё раз</button>
-      <button class="btn-back" onclick="goMenu()" style="background:var(--card);color:var(--text);border:2px solid var(--border)">← В меню</button>
     </div>
   </div>
 
@@ -635,6 +572,7 @@ function toggleTheme(){const h=document.documentElement;const d=h.getAttribute('
 // ===== ВЫБОР ТЕМЫ =====
 let currentTopic='';
 const TOPICS=[
+  {id:'motion',label:'Механическое движение (Урок 12)',icon:'🚗',desc:'Механическое движение, тело отсчёта, траектория и путь, прямолинейное и криволинейное движение'},
   {id:'uniform',label:'Равномерное и неравномерное движение (Урок 13)',icon:'🚄',desc:'Равномерное и неравномерное движение, слово «любые» в определении, ловушка с автобусом, две классификации движения'}
 ];
 // Пройденные темы: результаты не сохраняем и не отправляем в таблицу.
@@ -647,8 +585,7 @@ const ARCHIVE_TOPICS = [
   {id:'molecules',label:'Молекулы (Урок 8)',icon:'🔬',desc:'Молекула вещества, строение молекул, озон, вещества без молекул, размеры молекул'},
   {id:'diffusion',label:'Броуновское движение. Диффузия (Урок 9)',icon:'🌊',desc:'Броуновское движение, диффузия в газах, жидкостях и твёрдых телах, притяжение и отталкивание молекул'},
   {id:'states',label:'Агрегатные состояния вещества (Урок 10)',icon:'🧊',desc:'Твёрдое, жидкое и газообразное состояния, свойства вещества, кристаллы, переходы между состояниями'},
-  {id:'structure',label:'Молекулярное строение состояний (Урок 11)',icon:'🔬',desc:'Различие в молекулярном строении твёрдых тел, жидкостей и газов, расстояние между молекулами, сила притяжения'},
-  {id:'motion',label:'Механическое движение (Урок 12)',icon:'🚗',desc:'Механическое движение, тело отсчёта, траектория и путь, прямолинейное и криволинейное движение'}
+  {id:'structure',label:'Молекулярное строение состояний (Урок 11)',icon:'🔬',desc:'Различие в молекулярном строении твёрдых тел, жидкостей и газов, расстояние между молекулами, сила притяжения'}
 ];
 function isArchived(id){return ARCHIVE_TOPICS.some(x=>x.id===id)}
 /* Единственная точка записи статистики по теме */
@@ -2390,8 +2327,6 @@ function renderMenu(){
     grp.innerHTML=`<div class="menu-group-header" data-mode="${gr.id}"><span class="gh-icon">${gr.icon}</span><span class="gh-label">${gr.label}</span><span class="mi-count" style="margin-left:auto;font-size:.75rem;color:var(--text-secondary)">${cnt?cnt+' реш.':gr.hint}</span></div>`;
     if(gr.id==='theory'){
       grp.querySelector('.menu-group-header').onclick=()=>openTheory();
-    }else if(gr.id==='lab'){
-      grp.querySelector('.menu-group-header').onclick=()=>labOpen();
     }else{
       grp.querySelector('.menu-group-header').onclick=()=>startMode(gr.id);
     }
@@ -2399,11 +2334,11 @@ function renderMenu(){
   });
 }
 function getMenuForTopic(topic){
-  return[{id:'theory',label:'📖 Теория по теме',icon:'📖',hint:'кратко'},{id:'mix',label:'Микс (все темы)',icon:'🎲',hint:'10 вопросов'},{id:'odd',label:'Найди лишнее',icon:'🕵️',hint:'10 раундов'},{id:'tf',label:'Правда или ложь',icon:'⚖️',hint:'10 вопросов'},{id:'lab',label:'Лабиринт',icon:'🧩',hint:'8 врат + выход'}];
+  return[{id:'theory',label:'📖 Теория по теме',icon:'📖',hint:'кратко'},{id:'mix',label:'Микс (все темы)',icon:'🎲',hint:'10 вопросов'},{id:'odd',label:'Найди лишнее',icon:'🕵️',hint:'10 раундов'},{id:'tf',label:'Правда или ложь',icon:'⚖️',hint:'10 вопросов'}];
 }
 
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const el=document.getElementById(id);if(el)el.classList.add('active')}
-function goMenu(){clearTimeout(qAdvanceT);stopQTimer();lbStop();showScreen('screenMenu');renderMenu()}
+function goMenu(){clearTimeout(qAdvanceT);stopQTimer();showScreen('screenMenu');renderMenu()}
 function confirmQuit(){if(state.current>0&&state.current<state.total){if(!confirm('Тренировка не завершена. Выйти в меню?'))return;clearInterval(state.timerInterval)}goMenu()}
 
 function startMode(id){
@@ -2697,357 +2632,6 @@ function handleTFPick(pick,b1,b2,r){
   updateRoundBar(tfIdx,tfDeck.length);
   scheduleAdvance(()=>showTFRound(),2200);
 }
-
-// ===== ЛАБИРИНТ =====
-const LAB_R=7,LAB_C=9,LAB_GATES=8;
-const LAB_S={n:[-1,0],s:[1,0],w:[0,-1],e:[0,1]};
-const LAB_BANK={
-  phenomena:function(){const o=[];['mech','thermal','electric','magnetic','light','sound'].forEach(t=>o.push.apply(o,QUESTIONS[t]));return o},
-  measure:function(){return QUESTIONS2},
-  temp:function(){return QUESTIONS3},
-  tech:function(){return QUESTIONS5},
-  matter:function(){return QUESTIONS6},
-  molecules:function(){return QUESTIONS7},
-  diffusion:function(){return QUESTIONS8},
-  states:function(){return QUESTIONS9},
-  structure:function(){return QUESTIONS10},
-  motion:function(){return QUESTIONS11},
-  uniform:function(){return QUESTIONS12}
-};
-let lb=null,lbTick=0,lbQT=null,lbClock=null,lbHideT=null;
-
-function lbRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-function lbPal(){const cs=getComputedStyle(document.documentElement),v=n=>cs.getPropertyValue(n).trim();
-  return{bg:v('--bg')||'#f0f4f8',card:v('--card')||'#ffffff',wall:v('--text')||'#1e293b',sec:v('--text-secondary')||'#64748b',
-         accent:v('--accent')||'#f97316',green:v('--green')||'#22c55e',primary:v('--primary')||'#3b82f6'}}
-
-function lbBuild(seed){
-  const rnd=lbRnd(seed),n=LAB_R*LAB_C,g=[];
-  for(let i=0;i<n;i++)g.push({n:1,e:1,s:1,w:1,gate:-1,dist:-1});
-  const seen=new Uint8Array(n),st=[0];
-  seen[0]=1;g[0].n=0;g[0].w=0;
-  while(st.length){
-    const cur=st[st.length-1],r=(cur/LAB_C)|0,c=cur%LAB_C,cd=[];
-    if(r>0&&!seen[cur-LAB_C])cd.push([cur-LAB_C,'n','s']);
-    if(r<LAB_R-1&&!seen[cur+LAB_C])cd.push([cur+LAB_C,'s','n']);
-    if(c>0&&!seen[cur-1])cd.push([cur-1,'w','e']);
-    if(c<LAB_C-1&&!seen[cur+1])cd.push([cur+1,'e','w']);
-    if(!cd.length){st.pop();continue}
-    const p=cd[Math.floor(rnd()*cd.length)];
-    g[cur][p[1]]=0;g[p[0]][p[2]]=0;seen[p[0]]=1;st.push(p[0]);
-  }
-  const q=[0];g[0].dist=0;
-  for(let i=0;i<q.length;i++){
-    const cur=q[i],r=(cur/LAB_C)|0,c=cur%LAB_C;
-    for(const d in LAB_S){
-      if(g[cur][d])continue;
-      const nr=r+LAB_S[d][0],nc=c+LAB_S[d][1];
-      if(nr<0||nc<0||nr>=LAB_R||nc>=LAB_C)continue;
-      const ni=nr*LAB_C+nc;
-      if(g[ni].dist<0){g[ni].dist=g[cur].dist+1;q.push(ni)}
-    }
-  }
-  let far=0;
-  for(let i=1;i<n;i++)if(g[i].dist>g[far].dist)far=i;
-  const maxD=g[far].dist,tg=[];
-  for(let k=1;k<=LAB_GATES;k++)tg.push(Math.round(maxD*(0.12+0.80*(k-1)/(LAB_GATES-1))));
-  const pool=[];
-  for(let i=1;i<n;i++)if(i!==far)pool.push(i);
-  const ch=[];
-  tg.forEach(t=>{let best=-1,bd=1e9;
-    for(const i of pool){if(ch.indexOf(i)>=0)continue;const d=Math.abs(g[i].dist-t);if(d<bd){bd=d;best=i}}
-    if(best>=0)ch.push(best)});
-  ch.sort((a,b)=>g[a].dist-g[b].dist);
-  ch.forEach((i,k)=>{g[i].gate=k});
-  return{g:g,exit:far,gates:ch};
-}
-
-function lbMet(){
-  const b=document.getElementById('labBoard');
-  let w=b?b.clientWidth:0;
-  if(!w)w=Math.min(document.documentElement.clientWidth-40,620);
-  const cell=Math.max(26,Math.min(Math.floor((w-4)/LAB_C),58));
-  return{cell:cell,w:cell*LAB_C+4,h:cell*LAB_R+4};
-}
-
-function lbDraw(){
-  const cv=document.getElementById('labCanvas');
-  if(!cv||!lb)return;
-  const m=lbMet(),dpr=Math.min(window.devicePixelRatio||1,2);
-  if(cv._w!==m.w||cv._h!==m.h){
-    cv.width=Math.round(m.w*dpr);cv.height=Math.round(m.h*dpr);
-    cv.style.width=m.w+'px';cv.style.height=m.h+'px';cv._w=m.w;cv._h=m.h;
-  }
-  const ctx=cv.getContext('2d'),t=lbPal(),C=m.cell,O=2;
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  ctx.clearRect(0,0,m.w,m.h);
-  ctx.fillStyle=t.bg;ctx.fillRect(0,0,m.w,m.h);
-  ctx.fillStyle=t.card;ctx.fillRect(O,O,C*LAB_C,C*LAB_R);
-
-  if(lb.trail.length>1){
-    ctx.save();ctx.beginPath();ctx.rect(O,O,C*LAB_C,C*LAB_R);ctx.clip();
-    ctx.globalAlpha=.12;ctx.fillStyle=t.primary;
-    lb.trail.forEach(i=>{const r=(i/LAB_C)|0,c=i%LAB_C;ctx.fillRect(O+c*C,O+r*C,C,C)});
-    ctx.globalAlpha=1;ctx.restore();
-    ctx.strokeStyle=t.primary;ctx.globalAlpha=.5;ctx.lineWidth=Math.max(3,C*.17);
-    ctx.lineCap='round';ctx.lineJoin='round';
-    ctx.beginPath();
-    lb.trail.forEach((i,k)=>{const r=(i/LAB_C)|0,c=i%LAB_C,x=O+c*C+C/2,y=O+r*C+C/2;k?ctx.lineTo(x,y):ctx.moveTo(x,y)});
-    ctx.stroke();ctx.globalAlpha=1;
-  }
-
-  ctx.strokeStyle=t.wall;ctx.lineWidth=Math.max(2,C*.09);ctx.lineCap='round';
-  ctx.beginPath();
-  for(let r=0;r<LAB_R;r++)for(let c=0;c<LAB_C;c++){
-    const g=lb.g[r*LAB_C+c],x=O+c*C,y=O+r*C;
-    if(g.n){ctx.moveTo(x,y);ctx.lineTo(x+C,y)}
-    if(g.w){ctx.moveTo(x,y);ctx.lineTo(x,y+C)}
-    if(r===LAB_R-1&&g.s){ctx.moveTo(x,y+C);ctx.lineTo(x+C,y+C)}
-    if(c===LAB_C-1&&g.e){ctx.moveTo(x+C,y);ctx.lineTo(x+C,y+C)}
-  }
-  ctx.stroke();
-
-  ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillStyle=t.sec;ctx.font='700 '+(C*.17)+'px system-ui,sans-serif';
-  ctx.fillText('СТАРТ',O+C/2,O+C*.22);
-
-  const er=(lb.exit/LAB_C)|0,ec=lb.exit%LAB_C,ex=O+ec*C,ey=O+er*C,open=lb.cur>=LAB_GATES;
-  ctx.beginPath();
-  if(ctx.roundRect)ctx.roundRect(ex+C*.14,ey+C*.1,C*.72,C*.8,C*.12);else ctx.rect(ex+C*.14,ey+C*.1,C*.72,C*.8);
-  ctx.fillStyle=open?t.green:t.bg;ctx.fill();
-  ctx.lineWidth=Math.max(2,C*.08);ctx.strokeStyle=open?t.green:t.sec;ctx.stroke();
-  ctx.beginPath();ctx.arc(ex+C*.68,ey+C*.52,C*.05,0,7);ctx.fillStyle=open?'#fff':t.sec;ctx.fill();
-
-  for(let i=0;i<lb.g.length;i++){
-    const g=lb.g[i];
-    if(g.gate<0)continue;
-    const r=(i/LAB_C)|0,c=i%LAB_C,x=O+c*C+C/2,y=O+r*C+C/2;
-    const done=g.gate<lb.cur,isNext=g.gate===lb.cur;
-    if(isNext){
-      const k=.5+.5*Math.sin(Date.now()/240);
-      ctx.beginPath();ctx.arc(x,y,C*.46,0,7);ctx.globalAlpha=.08+.18*k;ctx.fillStyle=t.accent;ctx.fill();ctx.globalAlpha=1;
-    }
-    ctx.beginPath();ctx.arc(x,y,C*.29,0,7);
-    ctx.fillStyle=done?t.green:isNext?t.accent:t.bg;ctx.fill();
-    ctx.lineWidth=Math.max(1.5,C*.05);ctx.strokeStyle=done?t.green:isNext?t.accent:t.sec;ctx.stroke();
-    ctx.fillStyle=done||isNext?'#fff':t.sec;ctx.font='800 '+(C*.3)+'px system-ui,sans-serif';
-    ctx.fillText(done?'✓':String(g.gate+1),x,y+1);
-  }
-
-  let pr=lb.r,pc=lb.c;
-  if(lb.anim){
-    const k=Math.min(1,(Date.now()-lb.anim.t0)/lb.anim.dur);
-    const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
-    pr=lb.anim.fr+(lb.anim.tr-lb.anim.fr)*e;
-    pc=lb.anim.fc+(lb.anim.tc-lb.anim.fc)*e;
-    if(k>=1)lb.anim=null;
-  }
-  const px=O+(pc+.5)*C,py=O+(pr+.5)*C;
-  ctx.beginPath();ctx.arc(px,py,C*.27,0,7);ctx.fillStyle=t.primary;ctx.fill();
-  ctx.lineWidth=Math.max(2,C*.06);ctx.strokeStyle='#fff';ctx.stroke();
-  ctx.beginPath();ctx.arc(px,py,C*.1,0,7);ctx.fillStyle='#fff';ctx.fill();
-}
-
-function lbLoop(){
-  if(lb&&document.getElementById('screenLabyrinth').classList.contains('active')&&lb.done!=='res')lbDraw();
-  lbTick=requestAnimationFrame(lbLoop);
-}
-function lbSay(s){const el=document.getElementById('labStatus');if(el)el.textContent=s}
-function lbStop(){
-  clearInterval(lbClock);lbClock=null;
-  clearInterval(lbQT);lbQT=null;
-  clearTimeout(lbHideT);lbHideT=null;
-}
-function lbUpdate(){
-  const pct=Math.round(lb.cur/LAB_GATES*100);
-  const pb=document.getElementById('labProgress');
-  pb.style.width=pct+'%';pb.textContent=pct+'%';
-  document.getElementById('labCount').textContent='Врата: '+lb.cur+' / '+LAB_GATES;
-  lbDraw();
-}
-function lbShow(parts){
-  const board=document.getElementById('labBoard');
-  const pad=document.querySelector('.lab2-pad');
-  const leg=document.querySelector('.lab2-legend');
-  const stat=document.getElementById('labStatus');
-  const bar=document.querySelector('.lab2-bar');
-  board.style.display=parts?'flex':'none';
-  pad.style.display=parts?'grid':'none';
-  leg.style.display=parts?'flex':'none';
-  stat.style.display=parts?'block':'none';
-  bar.style.display=parts?'flex':'none';
-}
-
-function labOpen(){
-  const fn=LAB_BANK[currentTopic];
-  const bank=fn?fn():[];
-  if(!bank.length){alert('Для этой темы нет вопросов для лабиринта.');return}
-  lbStop();
-  const built=lbBuild((Date.now()^0x5f3a)&0x7fffffff);
-  lb={g:built.g,exit:built.exit,gates:built.gates,r:0,c:0,trail:[0],anim:null,
-      cur:0,ok:0,fail:0,locked:false,done:false,
-      deck:shuffle([...bank]).slice(0,Math.max(LAB_GATES,Math.min(bank.length,12))),
-      slot:[],start:Date.now()};
-  for(let k=0;k<LAB_GATES;k++)lb.slot.push(k%lb.deck.length);
-  const t=TOPICS.find(x=>x.id===currentTopic);
-  document.getElementById('labTitle').textContent=(t?t.icon+' ':'')+'Лабиринт';
-  document.getElementById('labStatOk').textContent='0';
-  document.getElementById('labStatFail').textContent='0';
-  document.getElementById('labTimer').textContent='0:00';
-  document.getElementById('labCard').style.display='none';
-  document.getElementById('labResult').style.display='none';
-  document.getElementById('labReportNote').textContent='';
-  lbShow(true);
-  lbUpdate();
-  lbSay('Найди оранжевые ворота и ответь на вопрос.');
-  showScreen('screenLabyrinth');
-  lbDraw();
-  if(!lbTick)lbLoop();
-  clearInterval(lbClock);
-  lbClock=setInterval(()=>{
-    const sec=Math.floor((Date.now()-lb.start)/1000),m=Math.floor(sec/60),s=sec%60;
-    document.getElementById('labTimer').textContent=m+':'+String(s).padStart(2,'0');
-  },1000);
-}
-function labRestart(){labOpen()}
-function labQuit(){lbStop();goMenu()}
-
-function labMove(dr,dc){
-  if(!lb||lb.done)return;
-  if(lb.anim){if(Date.now()-lb.anim.t0<lb.anim.dur)return;lb.anim=null}
-  if(lb.locked){lbSay('Сначала ответь на вопрос у врат.');return}
-  const r=lb.r,c=lb.c,nr=r+dr,nc=c+dc;
-  if(nr<0||nc<0||nr>=LAB_R||nc>=LAB_C)return;
-  const g=lb.g[r*LAB_C+c];
-  if(dr<0&&g.n)return;
-  if(dr>0&&g.s)return;
-  if(dc<0&&g.w)return;
-  if(dc>0&&g.e)return;
-  lb.anim={fr:r,fc:c,tr:nr,tc:nc,t0:Date.now(),dur:130};
-  lb.r=nr;lb.c=nc;
-  const ni=nr*LAB_C+nc;
-  if(lb.trail[lb.trail.length-1]!==ni)lb.trail.push(ni);
-  lbDraw();                       // перерисовываем сразу: rAF может не идти (фоновая вкладка)
-  setTimeout(lbArrive,145);
-}
-
-function lbArrive(){
-  lbDraw();
-  const i=lb.r*LAB_C+lb.c;
-  if(i===lb.exit){
-    if(lb.cur>=LAB_GATES)lbFinish();
-    else lbSay('🚪 Выход закрыт: осталось открыть врат — '+(LAB_GATES-lb.cur)+'.');
-    return;
-  }
-  const gt=lb.g[i].gate;
-  if(gt<0)return;
-  if(gt===lb.cur)lbGate(gt);
-  else if(gt>lb.cur)lbSay('Ворота №'+(gt+1)+' закрыты: сначала открой ворота №'+(lb.cur+1)+'.');
-}
-
-function lbQStart(){
-  clearInterval(lbQT);
-  let left=15;
-  const el=document.getElementById('labQTimer');
-  el.textContent='⏱ '+left+' сек';el.classList.remove('low');
-  lbQT=setInterval(()=>{
-    left--;
-    if(left<0){clearInterval(lbQT);lbQT=null;return}
-    el.textContent='⏱ '+left+' сек';
-    el.classList.toggle('low',left<=2);
-    if(left===0){clearInterval(lbQT);lbQT=null;lbAnswer(null,false,'⏱ Время вышло!')}
-  },1000);
-}
-function lbQStop(){clearInterval(lbQT);lbQT=null;const el=document.getElementById('labQTimer');if(el)el.textContent=''}
-
-function lbGate(k){
-  clearTimeout(lbHideT);
-  lb.locked=true;
-  const q=lb.deck[lb.slot[k]];
-  document.getElementById('labGateNo').textContent='Врата '+(k+1)+' из '+LAB_GATES;
-  document.getElementById('labTask').textContent=q.q;
-  const opts=shuffleAnswers({...q});
-  const grid=document.getElementById('labOptions');
-  grid.innerHTML='';
-  opts.a.forEach((v,i)=>{
-    const b=document.createElement('button');
-    b.className='opt-btn';b.textContent=v;
-    b.onclick=()=>lbAnswer(b,i===opts.c);
-    grid.appendChild(b);
-  });
-  const fb=document.getElementById('labFeedback');
-  fb.className='feedback';fb.textContent='';
-  document.getElementById('labCard').style.display='block';
-  lbQStart();
-}
-
-function lbAnswer(btn,isOk,timeMsg){
-  if(!lb.locked)return;
-  lbQStop();
-  const grid=document.getElementById('labOptions');
-  grid.querySelectorAll('.opt-btn').forEach(b=>{b.disabled=true});
-  const fb=document.getElementById('labFeedback');
-  const k=lb.cur;
-  if(isOk){
-    lb.ok++;bumpStats(currentTopic,'lab','ok',1);
-    if(btn)btn.classList.add('correct');
-    fb.className='feedback show ok';
-    fb.textContent='✅ Верно! Ворота №'+(k+1)+' открыты.';
-  }else{
-    lb.fail++;bumpStats(currentTopic,'lab','fail',1);
-    if(btn)btn.classList.add('wrong');
-    fb.className='feedback show fail';
-    fb.textContent=timeMsg||'❌ Неверно. Попробуй другой вопрос у этих врат.';
-  }
-  document.getElementById('labStatOk').textContent=lb.ok;
-  document.getElementById('labStatFail').textContent=lb.fail;
-  lbHideT=setTimeout(()=>{
-    document.getElementById('labCard').style.display='none';
-    lb.locked=false;
-    if(isOk){
-      lb.cur++;lbUpdate();
-      lbSay(lb.cur>=LAB_GATES?'Все ворота открыты — найди 🚪 выход!':'Ищи оранжевые ворота №'+(lb.cur+1)+'.');
-    }else{
-      lb.slot[k]=(lb.slot[k]+1)%lb.deck.length;
-      lbSay('Ворота №'+(k+1)+' ещё закрыты — подойди и попробуй снова.');
-    }
-    lbDraw();
-  },1600);
-}
-
-function lbFinish(){
-  lb.done=true;
-  lbQStop();
-  clearInterval(lbClock);lbClock=null;
-  document.getElementById('labCard').style.display='none';
-  lbShow(false);
-  const sec=Math.floor((Date.now()-lb.start)/1000);
-  const total=lb.ok+lb.fail;
-  const pct=total?Math.round(lb.ok/total*100):0;
-  let cls='red',msg='Нужно подтянуть :(',grade=2;
-  if(pct>=85){cls='green';msg='Отлично! 🎉';grade=5}
-  else if(pct>=70){cls='green';msg='Хорошо!';grade=4}
-  else if(pct>=50){cls='yellow';msg='Неплохо';grade=3}
-  const rs=document.getElementById('labResultScore');
-  rs.className='result-big '+cls;
-  rs.textContent=pct+'% — оценка '+grade;
-  document.getElementById('labResultMsg').textContent=msg+' · открыто врат: '+lb.cur+' из '+LAB_GATES;
-  document.getElementById('labResult').style.display='block';
-  reportResult('Лабиринт',lb.ok,total,sec);
-  const note=document.getElementById('labReportNote');
-  note.textContent=isArchived(currentTopic)
-    ?'📦 Это архивная тема. Результат не отправляется в таблицу и не учитывается в статистике.'
-    :(!sheetUrl()?'📊 Таблица не подключена. Результат сохранён в статистике.':'📤 Результат отправлен в таблицу.');
-}
-
-document.addEventListener('keydown',e=>{
-  if(!document.getElementById('screenLabyrinth').classList.contains('active'))return;
-  const k=e.key.length===1?e.key.toLowerCase():e.key;
-  const map={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1],
-             w:[-1,0],s:[1,0],a:[0,-1],d:[0,1],
-             ц:[-1,0],и:[1,0],л:[0,-1],в:[0,1]};
-  if(map[k]){e.preventDefault();labMove(map[k][0],map[k][1])}
-});
 
 // ===== KEYBOARD =====
 document.addEventListener('keydown',e=>{
