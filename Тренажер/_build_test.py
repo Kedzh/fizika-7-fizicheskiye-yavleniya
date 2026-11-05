@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Сборка итогового теста (20 вопросов) из банков Тренажёра -> DOCX."""
-import json, random, re, sys, io
+import json, random, re, sys, io, os
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
@@ -11,8 +11,10 @@ from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 
-BASE = r'O:\ШКОЛА\Физика\Тренажер'
-OUT = r'O:\ШКОЛА\Физика\Итоговый тест по физике (20 вопросов).docx'
+HERE = os.path.dirname(os.path.abspath(__file__))
+BASE = HERE
+OUT = os.path.join(os.path.dirname(HERE),
+                   'Итоговый тест по физике (20 вопросов).docx')
 
 # ---------------------------------------------------------------- утилиты
 EMOJI = re.compile(
@@ -73,23 +75,27 @@ TOPICS = [
     ('structure', 'Молекулярное строение состояний', ['QUESTIONS10'], ['TRUE_FALSE10'], ['ODD_ROUNDS10']),
     ('motion', 'Механическое движение', ['QUESTIONS11'], ['TRUE_FALSE11'], ['ODD_ROUNDS11']),
     ('uniform', 'Равномерное и неравномерное движение', ['QUESTIONS12'], ['TRUE_FALSE12'], ['ODD_ROUNDS12']),
+    ('speed', 'Скорость. Единицы скорости', ['QUESTIONS13'], ['TRUE_FALSE13'], ['ODD_ROUNDS13']),
 ]
 
 # квоты: (тема, сколько с выбором ответа, сколько «верно/неверно»)
 # Появилась тема Урока 13 — квоты у «Агрегатных состояний» и «Молекулярного
 # строения» уменьшены на 1, чтобы итог остался 20 вопросами (13 + 7).
+# Появилась тема Урока 14 (§16 «Скорость») — квота «верно/неверно» взята у
+# «Агрегатных состояний», квота с выбором ответа — у «Физических величин».
 PLAN = {
     'phenomena': (1, 0),
-    'measure':   (2, 0),
+    'measure':   (1, 0),
     'temp':      (1, 1),
     'tech':      (1, 1),
     'matter':    (1, 0),
     'molecules': (2, 0),
     'diffusion': (1, 1),
-    'states':    (1, 1),
+    'states':    (1, 0),
     'structure': (1, 1),
     'motion':    (1, 1),
     'uniform':   (1, 1),
+    'speed':     (1, 1),
 }
 assert sum(a + b for a, b in PLAN.values()) == 20, sum(a + b for a, b in PLAN.values())
 assert sum(a for a, _ in PLAN.values()) == 13, sum(a for a, _ in PLAN.values())

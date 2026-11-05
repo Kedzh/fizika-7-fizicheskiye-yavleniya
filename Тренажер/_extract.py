@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """Извлечение банков вопросов из Тренажер/index.html в JSON."""
-import json, re, sys, io
+import json, re, sys, io, os
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-SRC = r'O:\ШКОЛА\Физика\Тренажер\index.html'
+HERE = os.path.dirname(os.path.abspath(__file__))
+SRC = os.path.join(HERE, 'index.html')
 html = open(SRC, encoding='utf-8').read()
 
 def find_block(name):
@@ -57,13 +58,13 @@ def to_json(block):
 
 NAMES = ['QUESTIONS', 'QUESTIONS2', 'QUESTIONS3', 'QUESTIONS5', 'QUESTIONS6',
          'QUESTIONS7', 'QUESTIONS8', 'QUESTIONS9', 'QUESTIONS10', 'QUESTIONS11',
-         'QUESTIONS12',
+         'QUESTIONS12', 'QUESTIONS13',
          'TRUE_FALSE', 'TRUE_FALSE2', 'TRUE_FALSE3', 'TRUE_FALSE5', 'TRUE_FALSE6',
          'TRUE_FALSE7', 'TRUE_FALSE8', 'TRUE_FALSE9', 'TRUE_FALSE10',
-         'TRUE_FALSE11', 'TRUE_FALSE12',
+         'TRUE_FALSE11', 'TRUE_FALSE12', 'TRUE_FALSE13',
          'ODD_ROUNDS', 'ODD_ROUNDS2', 'ODD_ROUNDS3', 'ODD_ROUNDS5', 'ODD_ROUNDS6',
          'ODD_ROUNDS7', 'ODD_ROUNDS8', 'ODD_ROUNDS9', 'ODD_ROUNDS10',
-         'ODD_ROUNDS11', 'ODD_ROUNDS12']
+         'ODD_ROUNDS11', 'ODD_ROUNDS12', 'ODD_ROUNDS13']
 
 out = {}
 for n in NAMES:
@@ -82,6 +83,6 @@ for n in [k for k in NAMES if k.startswith('QUESTIONS') and isinstance(out.get(k
     if all(q['c'] == 0 for q in arr):
         print('  ! все ответы c=0 ->', n)
 
-json.dump(out, open(r'O:\ШКОЛА\Физика\Тренажер\_banks.json', 'w', encoding='utf-8'),
+json.dump(out, open(os.path.join(HERE, '_banks.json'), 'w', encoding='utf-8'),
           ensure_ascii=False, indent=1)
 print('\nSaved _banks.json')

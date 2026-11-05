@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§16. Скорость. Единицы скорости — 7 класс</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg: #f0f4f8;
+  --card: #ffffff;
+  --primary: #3b82f6;
+  --primary-light: #dbeafe;
+  --accent: #f97316;
+  --green: #22c55e;
+  --red: #ef4444;
+  --yellow: #eab308;
+  --text: #1e293b;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --card: #1e293b; --primary: #60a5fa; --primary-light: #1e3a5f;
+  --accent: #fb923c; --green: #4ade80; --red: #f87171; --yellow: #facc15;
+  --text: #f1f5f9; --text-secondary: #94a3b8; --border: #334155;
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.6;
+  transition: background 0.3s, color 0.3s; overflow-x: hidden;
+}
+.container { max-width: 1600px; margin: 0 auto; padding: 24px 48px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+
+header {
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  color: white; padding: 32px 40px; border-radius: var(--radius);
+  margin-bottom: 24px; text-align: center; position: relative;
+  box-shadow: var(--shadow); overflow: hidden;
+}
+header::before {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+  animation: headerPulse 8s ease-in-out infinite;
+}
+@keyframes headerPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+header h1 { font-size: clamp(2.2rem, 4.5vw, 3.4rem); font-weight: 800; position: relative; }
+header .subtitle { font-size: 1.8rem; opacity: 0.9; margin-top: 6px; position: relative; }
+header .source { font-size: 1.3rem; opacity: 0.7; margin-top: 4px; position: relative; }
+.theme-toggle {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(255,255,255,0.2); border: none; color: white;
+  font-size: 2.2rem; width: 56px; height: 56px; border-radius: 50%;
+  cursor: pointer; z-index: 2; display: flex; align-items: center; justify-content: center;
+}
+.theme-toggle:hover { background: rgba(255,255,255,0.35); transform: scale(1.1); }
+
+nav {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px;
+  position: sticky; top: 0; background: var(--bg);
+  padding: 12px 0; z-index: 100; border-bottom: 2px solid var(--border);
+}
+nav button {
+  flex: 1; min-width: 140px; padding: 16px 20px;
+  border: 2px solid var(--border); background: var(--card); color: var(--text);
+  border-radius: var(--radius-sm); font-family: inherit; font-size: 1.3rem;
+  font-weight: 700; cursor: pointer; transition: all 0.3s;
+}
+nav button:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+nav button.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 16px rgba(59,130,246,0.3); }
+nav button .nav-emoji { display: block; font-size: 2rem; margin-bottom: 2px; }
+
+.section { display: none; animation: fadeIn 0.4s ease; }
+.section.active { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+.card {
+  background: var(--card); border-radius: var(--radius); padding: 32px;
+  margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--border);
+  transition: background 0.3s, border 0.3s;
+}
+.card h2 { font-size: 2.2rem; margin-bottom: 6px; color: var(--primary); }
+.card h2 .emoji { margin-right: 10px; }
+.card .card-desc { color: var(--text-secondary); font-size: 1.5rem; margin-bottom: 18px; }
+
+.theory-box {
+  background: var(--primary-light); border-radius: var(--radius-sm); padding: 24px;
+  margin-bottom: 20px; border-left: 4px solid var(--primary);
+}
+.theory-box h3 { font-size: 1.8rem; margin-bottom: 12px; color: var(--primary); }
+.theory-box p { font-size: 1.5rem; margin-bottom: 10px; }
+.theory-box .formula {
+  background: var(--card); border: 2px solid var(--primary); border-radius: 8px;
+  padding: 16px 24px; font-size: 1.8rem; font-weight: 700; text-align: center;
+  margin: 16px 0; color: var(--primary);
+}
+.theory-box .example {
+  background: var(--card); border-radius: 8px; padding: 16px;
+  margin-top: 12px; font-size: 1.4rem;
+}
+.theory-box .example-title { font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+
+.units-table {
+  width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 1.4rem;
+}
+.units-table th {
+  background: var(--primary); color: white; padding: 12px 16px;
+  text-align: left; font-weight: 700;
+}
+.units-table td {
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+}
+.units-table tr:nth-child(even) { background: rgba(59,130,246,0.05); }
+
+.instruments-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px; margin: 16px 0;
+}
+.instrument-card {
+  background: var(--bg); border-radius: var(--radius-sm); padding: 16px;
+  text-align: center; border: 2px solid var(--border); transition: all 0.3s;
+}
+.instrument-card:hover { border-color: var(--primary); box-shadow: 0 4px 16px rgba(59,130,246,0.2); }
+.instrument-card .inst-emoji { font-size: 3rem; margin-bottom: 6px; }
+.instrument-card .inst-name { font-size: 1.4rem; font-weight: 700; margin-bottom: 2px; }
+.instrument-card .inst-measures { font-size: 1.2rem; color: var(--text-secondary); }
+
+.tf-item {
+  background: var(--bg); border-radius: var(--radius-sm); padding: 18px 24px;
+  margin-bottom: 12px; border-left: 4px solid var(--primary);
+  animation: slideIn 0.4s ease backwards;
+}
+@keyframes slideIn { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+.tf-statement { font-weight: 600; font-size: 1.65rem; margin-bottom: 10px; }
+.tf-buttons { display: flex; gap: 12px; }
+.tf-buttons button {
+  padding: 10px 24px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-weight: 700; font-size: 1.5rem;
+  cursor: pointer; transition: all 0.3s; background: var(--card); color: var(--text);
+}
+.tf-buttons button.true-btn:hover { border-color: var(--green); color: var(--green); }
+.tf-buttons button.false-btn:hover { border-color: var(--red); color: var(--red); }
+.tf-buttons button.selected-true { background: var(--green); color: white; border-color: var(--green); box-shadow: 0 2px 12px rgba(34,197,94,0.4); }
+.tf-buttons button.selected-false { background: var(--red); color: white; border-color: var(--red); box-shadow: 0 2px 12px rgba(239,68,68,0.4); }
+.tf-buttons button:disabled { cursor: default; opacity: 0.5; }
+.tf-comment { margin-top: 10px; padding: 10px 16px; border-radius: 8px; font-size: 1.4rem; font-weight: 600; display: none; }
+.tf-comment.correct { background: #dcfce7; color: #166534; display: block; }
+.tf-comment.wrong { background: #fee2e2; color: #991b1b; display: block; }
+[data-theme="dark"] .tf-comment.correct { background: #14532d; color: #bbf7d0; }
+[data-theme="dark"] .tf-comment.wrong { background: #7f1d1d; color: #fecaca; }
+
+.progress-bar-wrap { margin-top: 20px; background: var(--bg); border-radius: 20px; overflow: hidden; height: 34px; }
+.progress-bar {
+  height: 100%; background: linear-gradient(90deg, var(--green), #34d399);
+  border-radius: 20px; transition: width 0.6s ease; display: flex;
+  align-items: center; justify-content: center; color: white;
+  font-weight: 700; font-size: 1.35rem; min-width: 65px;
+}
+
+.match-game { max-width: 900px; margin: 0 auto; }
+.match-row {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 12px;
+  background: var(--bg); border-radius: var(--radius-sm); padding: 14px 18px;
+  border-left: 4px solid var(--primary);
+}
+.match-qty { flex: 1; font-weight: 700; font-size: 1.5rem; }
+.match-select {
+  flex: 1.4; padding: 12px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-size: 1.5rem; font-weight: 700;
+  background: var(--card); color: var(--text); cursor: pointer; transition: border 0.3s;
+}
+.match-select:focus { border-color: var(--primary); outline: none; }
+.match-select.correct { border-color: var(--green); background: #dcfce7; }
+.match-select.wrong { border-color: var(--red); background: #fee2e2; }
+[data-theme="dark"] .match-select.correct { background: #14532d; }
+[data-theme="dark"] .match-select.wrong { background: #7f1d1d; }
+
+.lab-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-bottom: 22px; }
+.lab-board { width: 100%; display: flex; justify-content: center; }
+#labCanvas { display: block; border-radius: 14px; touch-action: none; box-shadow: 0 6px 22px rgba(15,23,42,.14); }
+.lab-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; width: 100%; max-width: 640px; }
+.lab-count { font-weight: 800; font-size: 1.5rem; color: var(--primary); }
+.lab-status { text-align: center; font-size: 1.4rem; color: var(--text-secondary); min-height: 1.9em; max-width: 640px; }
+.lab-legend { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; font-size: 1.25rem; color: var(--text-secondary); }
+.lab-legend b { color: var(--text); font-weight: 700; }
+.lab-btn-mini { border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 999px; padding: 8px 16px; font-size: 1.3rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+.lab-btn-mini:hover { border-color: var(--primary); color: var(--primary); }
+.lab-task.shown { display: block; animation: fadeIn 0.35s ease; }
+.lab-task.lab-shake { animation: labShake 0.35s ease; }
+@keyframes labShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-7px); } 75% { transform: translateX(7px); } }
+.lab-task { display: none; background: var(--primary-light); border-radius: var(--radius-sm); padding: 24px; text-align: center; margin-bottom: 18px; }
+.lab-task .lab-question { font-size: 1.9rem; font-weight: 700; margin-bottom: 18px; }
+.lab-input-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.lab-input {
+  width: 240px; padding: 14px 18px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-size: 1.75rem; text-align: center; font-weight: 700;
+  background: var(--card); color: var(--text);
+}
+.lab-input:focus { border-color: var(--primary); outline: none; }
+.btn-lab {
+  padding: 14px 32px; background: var(--primary); color: white; border: none;
+  border-radius: 8px; font-family: inherit; font-weight: 700; font-size: 1.6rem;
+  cursor: pointer; transition: all 0.3s;
+}
+.btn-lab:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
+.lab-hint { margin-top: 12px; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 1.5rem; display: none; animation: fadeIn 0.3s ease; }
+.lab-hint.show { display: block; }
+.lab-hint.wrong { background: #fee2e2; color: #991b1b; }
+.lab-hint.correct { background: #dcfce7; color: #166534; }
+[data-theme="dark"] .lab-hint.wrong { background: #7f1d1d; color: #fecaca; }
+[data-theme="dark"] .lab-hint.correct { background: #14532d; color: #bbf7d0; }
+.btn-lab-hint {
+  padding: 14px 26px; background: transparent; color: var(--accent); border: 2px solid var(--accent);
+  border-radius: 8px; font-family: inherit; font-weight: 700; font-size: 1.4rem;
+  cursor: pointer; transition: all 0.3s; flex-shrink: 0;
+}
+.btn-lab-hint:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(249,115,26,0.35); }
+.btn-lab-hint.active { background: var(--accent); color: white; }
+.lab-answer {
+  display: none; margin-top: 12px; padding: 10px 14px; border-radius: 8px;
+  background: #dcfce7; color: #166534; font-size: 1.6rem; font-weight: 700; animation: fadeIn 0.3s ease;
+}
+.lab-answer.show { display: block; }
+[data-theme="dark"] .lab-answer { background: #14532d; color: #bbf7d0; }
+.lab-complete { text-align: center; padding: 32px; display: none; }
+.lab-complete.show { display: block; animation: fadeIn 0.5s ease; }
+.lab-complete h3 { font-size: 2.4rem; color: var(--green); margin-bottom: 10px; }
+.lab-complete p { font-size: 1.75rem; color: var(--text-secondary); }
+
+.variant-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+.variant-tab {
+  flex: 1; padding: 14px; border: 2px solid var(--border); background: var(--card);
+  border-radius: var(--radius-sm); font-family: inherit; font-weight: 700;
+  font-size: 1.6rem; cursor: pointer; transition: all 0.3s; color: var(--text);
+}
+.variant-tab.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 16px rgba(249,115,22,0.3); }
+.variant-content { display: none; }
+.variant-content.active { display: block; animation: fadeIn 0.4s ease; }
+.exercise {
+  display: flex; align-items: center; gap: 14px; padding: 16px 20px;
+  background: var(--bg); border-radius: var(--radius-sm); margin-bottom: 10px; flex-wrap: wrap;
+}
+.exercise .ex-num {
+  width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.35rem; flex-shrink: 0;
+}
+.exercise .ex-text { flex: 1; font-weight: 600; font-size: 1.45rem; }
+.exercise .ex-input {
+  width: 150px; padding: 10px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-size: 1.6rem; text-align: center; font-weight: 700;
+  background: var(--card); color: var(--text);
+}
+.exercise .ex-input:focus { border-color: var(--primary); outline: none; }
+.exercise .ex-input.correct { border-color: var(--green); background: #dcfce7; }
+.exercise .ex-input.wrong { border-color: var(--red); background: #fee2e2; }
+[data-theme="dark"] .exercise .ex-input.correct { background: #14532d; }
+[data-theme="dark"] .exercise .ex-input.wrong { background: #7f1d1d; }
+.btn-check-all {
+  margin-top: 16px; padding: 14px 36px; background: linear-gradient(135deg, var(--accent), #ea580c);
+  color: white; border: none; border-radius: var(--radius-sm); font-family: inherit;
+  font-weight: 700; font-size: 1.65rem; cursor: pointer; transition: all 0.3s;
+  display: block; margin-left: auto; margin-right: auto;
+}
+.btn-check-all:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(249,115,22,0.4); }
+.score-display { text-align: center; margin-top: 16px; font-size: 1.9rem; font-weight: 700; display: none; animation: fadeIn 0.4s ease; }
+.btn-check { padding: 14px 36px; background: var(--primary); color: white; border: none; border-radius: var(--radius-sm); font-family: inherit; font-weight: 700; font-size: 1.65rem; cursor: pointer; transition: all 0.3s; }
+.btn-check:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
+.btn-check:disabled { opacity: 0.6; cursor: default; transform: none; box-shadow: none; }
+.btn-download {
+  display: inline-block; margin: 0 auto; padding: 14px 36px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white; border: none; border-radius: var(--radius-sm);
+  font-family: inherit; font-weight: 700; font-size: 1.65rem;
+  cursor: pointer; transition: all 0.3s;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.3);
+}
+.btn-download:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34,197,94,0.4); }
+.ex-answer { margin-top: 6px; padding: 6px 12px; border-radius: 8px; background: #dcfce7; color: #166534; font-size: 1.3rem; font-weight: 700; display: none; animation: fadeIn 0.3s ease; }
+[data-theme="dark"] .ex-answer { background: #14532d; color: #bbf7d0; }
+.ex-hint-btn { margin-left: 8px; padding: 8px 14px; border: 2px solid var(--accent); background: transparent; color: var(--accent); border-radius: 8px; font-family: inherit; font-weight: 700; font-size: 1.2rem; cursor: pointer; transition: all 0.3s; flex-shrink: 0; }
+.ex-hint-btn:hover { background: var(--accent); color: white; }
+.ex-hint-btn:disabled { opacity: 0.5; cursor: default; }
+
+.hw-answer {
+  margin-top: 12px; padding: 16px; border-radius: 8px;
+  background: #dcfce7; color: #166534; font-size: 1.4rem; font-weight: 600;
+  animation: fadeIn 0.4s ease;
+}
+[data-theme="dark"] .hw-answer { background: #14532d; color: #bbf7d0; }
+
+.confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: hidden; }
+.confetti-piece { position: absolute; width: 10px; height: 10px; top: -20px; animation: confettiFall linear forwards; }
+@keyframes confettiFall { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+
+@media (max-width: 1100px) { .two-col { grid-template-columns: 1fr; } }
+@media (max-width: 600px) {
+  .container { padding: 12px; } .card { padding: 18px; } header { padding: 20px 14px; }
+  nav button { min-width: 100px; padding: 10px 6px; font-size: 1.1rem; }
+  .exercise { flex-direction: column; align-items: stretch; text-align: center; }
+  .exercise .ex-input { width: 100%; }
+  .lab-input-group { flex-direction: column; align-items: center; }
+  .lab-input { width: 100%; max-width: 280px; }
+  
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Переключить тему">🌓</button>
+  <h1>§16. Скорость. Единицы скорости</h1>
+  <div class="subtitle">7 класс · Урок 14 · Глава 2. Взаимодействие тел</div>
+  <div class="source">По учебнику Перышкин А.В. и др. (Просвещение, 2023)</div>
+</header>
+
+<nav id="mainNav">
+  <button class="active" onclick="showSection(0)"><span class="nav-emoji">📖</span>Теория</button>
+  <button onclick="showSection(1)"><span class="nav-emoji">🔥</span>Разминка</button>
+  <button onclick="showSection(2)"><span class="nav-emoji">🔗</span>Соответствие</button>
+  <button onclick="showSection(3)"><span class="nav-emoji">🧩</span>Лабиринт</button>
+  <button onclick="showSection(4)"><span class="nav-emoji">📝</span>Практика</button>
+  <button onclick="showSection(5)"><span class="nav-emoji">📚</span>Домашняя</button>
+</nav>
+
+<!-- ===== SECTION 0: THEORY ===== -->
+<div class="section active" id="sec0">
+  <div class="card">
+<h2><span class="emoji">📖</span>Теория. §16. Скорость. Единицы скорости</h2>
+    <p class="card-desc">Узнай, как измеряют быстроту движения, в каких единицах считают скорость и чем средняя скорость отличается от мгновенной.</p>
+
+    <div class="theory-box">
+      <h3>Главный вопрос параграфа</h3>
+      <p>В §15 мы научились различать равномерное и неравномерное движение. Осталась ещё одна задача: <strong>сравнить движения тел между собой</strong> — сказать, какое тело движется быстрее.</p>
+      <p>За одну секунду самолёт пролетает <strong>300 м</strong>, поезд проезжает <strong>30 м</strong>, велосипедист проезжает <strong>15 м</strong>, пешеход проходит <strong>1,5 м</strong>, а черепаха проползает <strong>0,02 м</strong>.</p>
+      <div class="formula">Величину, характеризующую быстроту движения тела, называют скоростью.</div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Скорость при равномерном движении</h3>
+      <p>Самолёт движется быстрее поезда, поезд — быстрее велосипедиста, велосипедист — быстрее пешехода. Но одно и то же тело может двигаться то быстрее, то медленнее: спортсмен-спринтер за 1 с пробегает до 10 м, а обычным шагом пройдёт 1,5–2 м.</p>
+      <p>При <strong>равномерном движении</strong> скорость показывает, какой путь проходит тело за единицу времени. Чтобы её определить, путь, пройденный телом, делят на время, за которое этот путь был пройден.</p>
+      <div class="formula">скорость = путь / время →&nbsp; v = s / t</div>
+      <div class="example">
+        <div class="example-title">Обозначения (из латинского языка):</div>
+        <p><strong>v</strong> — скорость (лат. velocitas — скорость), <strong>s</strong> — путь (лат. spatium — пространство), <strong>t</strong> — время (лат. tempus — время).</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Единицы скорости</h3>
+      <p>Единица скорости — <strong>производная единица</strong>: её получают из формулы, связывающей физические величины. В СИ единица пути — метр, единица времени — секунда, поэтому единица скорости — <strong>метр в секунду (м/с)</strong>.</p>
+      <div class="formula">1 м / 1 с = 1 м/с</div>
+      <p><strong>1 м/с</strong> — это скорость такого равномерного движения, при котором тело за время 1 с проходит путь 1 м. Значит, самолёт летит со скоростью 300 м/с, поезд едет 30 м/с, велосипедист едет 15 м/с.</p>
+      <div class="example">
+        <div class="example-title">Другие единицы скорости:</div>
+        <p>Скорость можно измерять и в <strong>метрах в минуту (м/мин)</strong>, и в <strong>километрах в час (км/ч)</strong> и т. п.</p>
+      </div>
+      <table class="units-table">
+        <tr><th>Единица</th><th>Что означает</th><th>Пример</th></tr>
+        <tr><td>м/с</td><td>метров за секунду</td><td>пешеход ≈ 1,5 м/с</td></tr>
+        <tr><td>км/ч</td><td>километров за час</td><td>велосипедист ≈ 15 км/ч</td></tr>
+        <tr><td>м/мин</td><td>метров за минуту</td><td>черепаха ≈ 1,2 м/мин</td></tr>
+      </table>
+    </div>
+
+    <div class="theory-box">
+      <h3>Как сравнивать скорости: перевод единиц</h3>
+      <div class="example">
+        <div class="example-title">Пример из учебника:</div>
+        <p>Автомобиль «Лада Гранта» развивает скорость <strong>160 км/ч</strong>, а почтовый голубь летит со скоростью <strong>16 м/с</strong>. Сможет ли голубь обогнать автомобиль?</p>
+        <p>Чтобы сравнить, нужно выразить скорости в <strong>одинаковых единицах</strong>. Сделать это можно двумя способами.</p>
+      </div>
+      <div class="example">
+        <div class="example-title">Способ 1 — перевести км/ч в м/с:</div>
+        <p>За 1 ч автомобиль проходит 160 км = 160 000 м, а 1 ч = 3600 с. Значит, за 1 с он пройдёт 160 000 м : 3600 = <strong>44 м/с</strong>.</p>
+        <p><strong>Ответ:</strong> голубь не сможет обогнать автомобиль, так как 16 м/с &lt; 44 м/с.</p>
+      </div>
+      <div class="example">
+        <div class="example-title">Способ 2 — перевести м/с в км/ч:</div>
+        <p>За 1 с голубь пролетает 16 м = 0,016 км, значит за 1 ч — 0,016 · 3600 = <strong>57,6 км/ч</strong>.</p>
+        <p><strong>Ответ:</strong> голубь не сможет обогнать автомобиль, так как 57,6 км/ч &lt; 160 км/ч.</p>
+      </div>
+      <div class="formula">1 м/с = 3,6 км/ч&nbsp;&nbsp;·&nbsp;&nbsp;1 км/ч = 10/36 м/с</div>
+      <div class="example">
+        <div class="example-title">Быстрый перевод:</div>
+        <p>36 км/ч = 36 : 3,6 = <strong>10 м/с</strong>&nbsp;&nbsp;·&nbsp;&nbsp;108 км/ч = 108 : 3,6 = <strong>30 м/с</strong></p>
+      </div>
+      <div class="formula">Значение скорости зависит от выбора единиц.</div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Спидометр</h3>
+      <p>Для измерения скорости существует прибор — <strong>спидометр</strong> (от англ. speed — скорость). Его видели на панели приборов автомобиля.</p>
+      <div class="formula">При равномерном движении показание спидометра остаётся постоянным.</div>
+      <p>При неравномерном движении (разгон, торможение) стрелка спидометра ползёт вверх или вниз.</p>
+    </div>
+
+    <div class="theory-box">
+      <h3>Скорость — величина векторная</h3>
+      <p>Скорость, помимо числового значения, имеет <strong>направление</strong>. Вы не сможете догнать друга, чуть раньше вас вышедшего из школы, с какой бы скоростью вы ни бежали, если движетесь с ним <strong>в разные стороны</strong>.</p>
+      <p>Величины, которые характеризуются числовым значением и направлением в пространстве, называют <strong>векторными</strong> (векторами). Величины, которые не имеют направления, называют <strong>скалярными</strong>.</p>
+      <table class="units-table">
+        <tr><th>Векторные (есть направление)</th><th>Скалярные (нет направления)</th></tr>
+        <tr><td>скорость</td><td>время, путь, масса</td></tr>
+      </table>
+      <div class="example">
+        <div class="example-title">Как обозначают:</div>
+        <p>Векторные величины обозначают буквами <strong>со стрелкой</strong>: скорость — <strong>v&#8407;</strong>. Числовое значение (модуль) вектора скорости пишут без стрелки — <strong>v</strong>. На рисунках скорость изображают стрелкой, направление которой совпадает с направлением движения, а длина в выбранном масштабе выражает модуль вектора.</p>
+      </div>
+      <div class="formula">Скорость — величина векторная. Время, путь и масса — величины скалярные.</div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Средняя скорость</h3>
+      <p>Если движение <strong>неравномерное</strong>, пройденный за одно и то же время путь на разных участках траектории разный — значит, разными будут и отношения пути ко времени. Всё же движение в целом можно охарактеризовать, введя понятие <strong>средней скорости движения тела</strong>.</p>
+      <div class="formula">v<sub>ср</sub> = s / t</div>
+      <p>Средняя скорость равна скорости такого равномерного движения, при котором тело прошло бы данный участок пути за тот же промежуток времени.</p>
+      <div class="example">
+        <div class="example-title">Пример:</div>
+        <p>Тело преодолело путь s = 100 м за время t = 20 с. Средняя скорость v<sub>ср</sub> = 100 м : 20 с = <strong>5 м/с</strong>. Возможно, не было ни одной секунды, за которую тело прошло бы именно 5 м.</p>
+        <p>Говоря о скорости поезда или самолёта между двумя пунктами, имеют в виду <strong>среднюю скорость</strong>.</p>
+      </div>
+      <div class="formula">Средняя скорость не содержит информации о деталях движения.</div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Мгновенная скорость</h3>
+      <p>Представим горнолыжника, спускающегося по трассе: «Скорость спортсмена у пятого флажка 20 м/с». Что это за скорость?</p>
+      <p>Если сделать серию фотографий лыжника с интервалом 0,02 с и вычислить среднюю скорость на каждом промежутке, то при уменьшении промежутка времени значения будут всё меньше отличаться друг от друга, приближаясь к 20 м/с.</p>
+      <table class="units-table">
+        <tr><th>t, с</th><th>0,02</th><th>0,04</th><th>0,5</th><th>1</th><th>2</th></tr>
+        <tr><td>s, м</td><td>0,4</td><td>0,8</td><td>10,5</td><td>22</td><td>48</td></tr>
+        <tr><td>v<sub>ср</sub>, м/с</td><td>20</td><td>20</td><td>21</td><td>22</td><td>24</td></tr>
+      </table>
+      <div class="formula">Среднюю скорость, измеренную за столь малый промежуток времени, что движение представляется равномерным, называют мгновенной скоростью.</div>
+      <div class="example">
+        <div class="example-title">Кто показывает мгновенную скорость?</div>
+        <p>Именно мгновенную скорость показывает <strong>спидометр</strong> автомобиля и мгновенную скорость лыжника озвучил комментатор.</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Скорости в природе и технике (таблица 2 учебника)</h3>
+      <div class="instruments-grid">
+        <div class="instrument-card">
+          <div class="inst-emoji">🐌</div>
+          <div class="inst-name">Улитка</div>
+          <div class="inst-measures">0,0014 м/с</div>
+        </div>
+        <div class="instrument-card">
+          <div class="inst-emoji">🚲</div>
+          <div class="inst-name">Велосипедист</div>
+          <div class="inst-measures">5 м/с</div>
+        </div>
+        <div class="instrument-card">
+          <div class="inst-emoji">🐦</div>
+          <div class="inst-name">Скворец</div>
+          <div class="inst-measures">20 м/с</div>
+        </div>
+        <div class="instrument-card">
+          <div class="inst-emoji">✈️</div>
+          <div class="inst-name">Самолёт Ту-204</div>
+          <div class="inst-measures">230 м/с</div>
+        </div>
+        <div class="instrument-card">
+          <div class="inst-emoji">🔊</div>
+          <div class="inst-name">Звук в воздухе (0 °C)</div>
+          <div class="inst-measures">332 м/с</div>
+        </div>
+        <div class="instrument-card">
+          <div class="inst-emoji">🌙</div>
+          <div class="inst-name">Луна вокруг Земли</div>
+          <div class="inst-measures">1000 м/с</div>
+        </div>
+        <div class="instrument-card">
+          <div class="inst-emoji">🛰️</div>
+          <div class="inst-name">ИСЗ</div>
+          <div class="inst-measures">8000 м/с</div>
+        </div>
+        <div class="instrument-card">
+          <div class="inst-emoji">💡</div>
+          <div class="inst-name">Свет и радиоволны</div>
+          <div class="inst-measures">≈ 300 000 000 м/с</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>Вопросы для самопроверки</h3>
+      <div class="example">
+        <div class="example-title">Ответь устно (вопросы из учебника):</div>
+        <p>1. Что показывает скорость тела при равномерном движении?<br>
+        2. По какой формуле можно рассчитать скорость тела, если заданы путь и время, за которое он пройден?<br>
+        3. Какова единица скорости в СИ?<br>
+        4. Скорость — величина векторная. Что это значит?<br>
+        5. По какой формуле определяют среднюю скорость тела при неравномерном движении?<br>
+        6. Какую скорость имеют в виду, говоря о скорости автомобиля между двумя пунктами; скорости пули в момент вылета из ствола?</p>
+      </div>
+      <div class="example">
+        <div class="example-title">«Подумай» (вопрос после параграфа):</div>
+        <p>Используя формулу для расчёта v<sub>ср</sub>, докажите, что единица средней скорости в СИ — метр в секунду.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 1: WARM-UP ===== -->
+<div class="section" id="sec1">
+  <div class="card">
+    <h2><span class="emoji">🔥</span>Разминка. Проверь знания!</h2>
+    <p class="card-desc">Определи, верно ли утверждение.</p>
+
+<div class="slide active" id="sec1-s0">
+      <div class="two-col">
+        <div>
+          <div class="tf-item" id="tf0">
+            <div class="tf-statement">1. Скорость — величина, характеризующая быстроту движения тела.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(0, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(0, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-0"></div>
+          </div>
+          <div class="tf-item" id="tf1">
+            <div class="tf-statement">2. При равномерном движении скорость показывает, какой путь тело проходит за единицу времени.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(1, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(1, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-1"></div>
+          </div>
+          <div class="tf-item" id="tf2">
+            <div class="tf-statement">3. Единица скорости в СИ — километр в час.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(2, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(2, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-2"></div>
+          </div>
+          <div class="tf-item" id="tf3">
+            <div class="tf-statement">4. 1 м/с = 3,6 км/ч.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(3, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(3, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-3"></div>
+          </div>
+        </div>
+        <div>
+          <div class="tf-item" id="tf4">
+            <div class="tf-statement">5. Скорость — величина векторная, то есть она имеет направление.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(4, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(4, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-4"></div>
+          </div>
+          <div class="tf-item" id="tf5">
+            <div class="tf-statement">6. Спидометр измеряет пройденный телом путь.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(5, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(5, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-5"></div>
+          </div>
+          <div class="tf-item" id="tf6">
+            <div class="tf-statement">7. Среднюю скорость неравномерного движения находят по формуле v = s / t.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(6, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(6, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-6"></div>
+          </div>
+          <div class="tf-item" id="tf7">
+            <div class="tf-statement">8. Если разделить весь путь на всё время движения, получится мгновенная скорость.</div>
+            <div class="tf-buttons">
+              <button class="true-btn" onclick="checkTF(7, true)">✅ Верно</button>
+              <button class="false-btn" onclick="checkTF(7, false)">❌ Неверно</button>
+            </div>
+            <div class="tf-comment" id="tf-comment-7"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="tfProgress" style="width:0%">0 / 8</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 2: MATCH ===== -->
+<div class="section" id="sec2">
+  <div class="card">
+    <h2><span class="emoji">🔗</span>Соответствие. Понятие о скорости</h2>
+    <p class="card-desc">Соедини определение с правильным понятием.</p>
+
+    <div class="match-game" id="matchGame"></div>
+
+    <div style="text-align:center">
+      <button class="btn-check-all" onclick="checkMatch()">Проверить всё ✔️</button>
+    </div>
+    <div class="score-display" id="matchScore"></div>
+  </div>
+</div>
+
+<div class="section" id="sec3">
+  <div class="card">
+    <h2><span class="emoji">🧩</span>Физический лабиринт</h2>
+    <p class="card-desc">Нажимай на оранжевые ворота прямо в лабиринте — откроется вопрос. Ответь на все 8 и нажми на выход.</p>
+
+    <div class="lab-wrap">
+      <div class="lab-board" id="labBoard"><canvas id="labCanvas"></canvas></div>
+      <div class="lab-bar">
+        <span class="lab-count" id="labCount">Врата: 0 / 8</span>
+        <button class="lab-btn-mini" onclick="newLabMaze()">🔀 Новый лабиринт</button>
+      </div>
+      <div class="lab-status" id="labStatus">Нажми на оранжевые ворота №1.</div>
+      <div class="lab-legend">
+        <span>🟠 <b>ворота</b></span><span>🟢 <b>открыто</b></span>
+        <span>🚪 <b>выход</b></span><span>🩵 <b>путь</b></span>
+      </div>
+    </div>
+
+    <div class="lab-task" id="labTask">
+      <div class="lab-question" id="labQuestion"></div>
+      <div class="lab-input-group">
+        <input type="text" class="lab-input" id="labInput" placeholder="Ответ" autocomplete="off">
+        <button class="btn-lab" id="labBtn" onclick="checkLabStep()">Ответить ✔️</button>
+        <button class="btn-lab-hint" id="labAnswerBtn" onclick="showLabAnswer(this)">Правильный ответ</button>
+      </div>
+      <div class="lab-answer" id="labAnswer"></div>
+      <div class="lab-hint" id="labHint"></div>
+    </div>
+
+    <div class="lab-complete" id="labComplete">
+      <h3>🎉 Поздравляем!</h3>
+      <p>Ты прошёл лабиринт: открыл все 8 врат и дошёл до выхода!</p>
+      <button class="lab-btn-mini" onclick="newLabMaze()" style="margin-top:16px">🔀 Пройти заново</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 4: PRACTICE ===== -->
+<div class="section" id="sec4">
+  <div class="card">
+    <h2><span class="emoji">📝</span>Практика. Самостоятельная работа</h2>
+    <p class="card-desc">Выбери вариант и ответь на все вопросы.</p>
+
+    <div class="variant-tabs">
+      <button class="variant-tab active" onclick="switchVariant(0)">Вариант 1</button>
+      <button class="variant-tab" onclick="switchVariant(1)">Вариант 2</button>
+      <button class="variant-tab" onclick="switchVariant(2)">Вариант 3</button>
+    </div>
+
+    <div class="variant-content active" id="var0">
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">1</span><span class="ex-text">Единица скорости в СИ — … (два слова)</span><input type="text" class="ex-input" id="v0e0" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v0e0ans',this)">Ответ</button></div><div class="ex-answer" id="v0e0ans">метр в секунду</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">2</span><span class="ex-text">Путь, разделённый на время, — это … (одно слово)</span><input type="text" class="ex-input" id="v0e1" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v0e1ans',this)">Ответ</button></div><div class="ex-answer" id="v0e1ans">скорость</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">3</span><span class="ex-text">72 км/ч = … м/с (число)</span><input type="text" class="ex-input" id="v0e2" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v0e2ans',this)">Ответ</button></div><div class="ex-answer" id="v0e2ans">20</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">4</span><span class="ex-text">Прибор для измерения скорости в автомобиле — … (одно слово)</span><input type="text" class="ex-input" id="v0e3" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v0e3ans',this)">Ответ</button></div><div class="ex-answer" id="v0e3ans">спидометр</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">5</span><span class="ex-text">У скорости есть числовое значение и … (одно слово)</span><input type="text" class="ex-input" id="v0e4" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v0e4ans',this)">Ответ</button></div><div class="ex-answer" id="v0e4ans">направление</div></div>
+    </div>
+
+    <div class="variant-content" id="var1">
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">1</span><span class="ex-text">Средняя скорость тела, прошедшего 100 м за 20 с, равна … м/с</span><input type="text" class="ex-input" id="v1e0" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v1e0ans',this)">Ответ</button></div><div class="ex-answer" id="v1e0ans">5</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">2</span><span class="ex-text">Скорость на очень малом промежутке времени называется … (одно слово)</span><input type="text" class="ex-input" id="v1e1" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v1e1ans',this)">Ответ</button></div><div class="ex-answer" id="v1e1ans">мгновенной</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">3</span><span class="ex-text">10 м/с = … км/ч (число)</span><input type="text" class="ex-input" id="v1e2" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v1e2ans',this)">Ответ</button></div><div class="ex-answer" id="v1e2ans">36</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">4</span><span class="ex-text">Величина, не имеющая направления, называется … (одно слово)</span><input type="text" class="ex-input" id="v1e3" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v1e3ans',this)">Ответ</button></div><div class="ex-answer" id="v1e3ans">скалярной</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">5</span><span class="ex-text">При равномерном движении показание спидометра (меняется/не меняется)?</span><input type="text" class="ex-input" id="v1e4" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v1e4ans',this)">Ответ</button></div><div class="ex-answer" id="v1e4ans">не меняется</div></div>
+    </div>
+
+    <div class="variant-content" id="var2">
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">1</span><span class="ex-text">Какая величина характеризует быстроту движения тела? (одно слово)</span><input type="text" class="ex-input" id="v2e0" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e0ans',this)">Ответ</button></div><div class="ex-answer" id="v2e0ans">скорость</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">2</span><span class="ex-text">5 м/с = … км/ч (число)</span><input type="text" class="ex-input" id="v2e1" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e1ans',this)">Ответ</button></div><div class="ex-answer" id="v2e1ans">18</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">3</span><span class="ex-text">Отношение пути ко всему времени движения — это … скорость (одно слово)</span><input type="text" class="ex-input" id="v2e2" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e2ans',this)">Ответ</button></div><div class="ex-answer" id="v2e2ans">средняя</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">4</span><span class="ex-text">Вектор обозначают буквой со … (одно слово)</span><input type="text" class="ex-input" id="v2e3" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e3ans',this)">Ответ</button></div><div class="ex-answer" id="v2e3ans">стрелкой</div></div>
+      <div class="exercise" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="ex-num">5</span><span class="ex-text">Значение скорости зависит от … (два слова)</span><input type="text" class="ex-input" id="v2e4" placeholder="?" style="width:220px"><button class="ex-hint-btn" onclick="showExAnswer('v2e4ans',this)">Ответ</button></div><div class="ex-answer" id="v2e4ans">выбора единиц</div></div>
+    </div>
+
+    <button class="btn-check-all" onclick="checkAllExercises()">Проверить всё ✔️</button>
+    <div class="score-display" id="varScore"></div>
+  </div>
+</div>
+
+<div class="section" id="sec5">
+  <div class="card">
+    <h2><span class="emoji">📚</span>Домашняя работа</h2>
+    <p class="card-desc">Повтори изученный материал и отработай его в тренажёре.</p>
+
+    <div style="text-align:center; margin-bottom: 24px;">
+      <button class="btn-download" onclick="downloadHWDocx()">📄 Скачать домашнее задание (.docx)</button>
+    </div>
+
+    <div class="theory-box">
+      <h3>1. Повтори теорию</h3>
+      <div class="example">
+        <p>1. Что показывает скорость тела при равномерном движении?<br>
+        2. По какой формуле можно рассчитать скорость тела, если заданы путь и время?<br>
+        3. Какова единица скорости в СИ?<br>
+        4. Скорость — величина векторная. Что это значит?<br>
+        5. По какой формуле определяют среднюю скорость при неравномерном движении?</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>2. Отработай в тренажёре</h3>
+      <div class="example">
+        <div class="example-title">Решить задания:</div>
+        <p>• Разминка (вопросы True/False) — 8 вопросов<br>
+        • Соответствие — соедини определения с понятиями о скорости<br>
+        • Лабиринт — открой все 8 врат и выйди к финишу<br>
+        • Практика — реши все 3 варианта</p>
+      </div>
+      <div class="example">
+        <div class="example-title">Цель:</div>
+        <p>Набери <strong>100%</strong> хотя бы в одном из разделов тренажёра. Если не получается сразу — повтори теорию и попробуй снова!</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>3. Запиши в тетрадь</h3>
+      <div class="example">
+        <div class="example-title">Скорость — основное:</div>
+        <table class="units-table">
+          <tr><th>Понятие</th><th>Формула</th><th>Что это</th></tr>
+          <tr><td>Скорость (равномерное движение)</td><td>v = s / t</td><td>Путь, пройденный за единицу времени</td></tr>
+          <tr><td>Единица скорости в СИ</td><td>м/с</td><td>1 м/с = 3,6 км/ч; 1 км/ч = 10/36 м/с</td></tr>
+          <tr><td>Средняя скорость</td><td>v<sub>ср</sub> = s / t</td><td>Отношение всего пути ко всему времени движения</td></tr>
+          <tr><td>Мгновенная скорость</td><td>—</td><td>Скорость на очень малом промежутке времени</td></tr>
+        </table>
+      </div>
+      <div class="example">
+        <div class="example-title">Векторные и скалярные величины:</div>
+        <p><strong>Векторные</strong> (имеют направление): скорость — обозначают <strong>v&#8407;</strong>, модуль пишут <strong>v</strong>.<br>
+        <strong>Скалярные</strong> (направления не имеют): время, путь, масса.</p>
+      </div>
+      <div class="example">
+        <div class="example-title">Главный вывод:</div>
+        <p>Чтобы сравнить скорости, их нужно привести к <strong>одинаковым единицам</strong>. Значение скорости зависит от выбора единиц: 16 м/с и 160 км/ч — это не одно и то же, 16 м/с = 57,6 км/ч.</p>
+      </div>
+    </div>
+
+    <div class="theory-box">
+      <h3>4. Вопросы из учебника (§16)</h3>
+
+      <div class="example">
+        <div class="example-title">Ответь письменно</div>
+        <p><strong>1.</strong> Что показывает скорость тела при равномерном движении?<br>
+        <strong>2.</strong> По какой формуле можно рассчитать скорость тела, если заданы путь и время, за которое он пройден?<br>
+        <strong>3.</strong> Какова единица скорости в СИ?<br>
+        <strong>4.</strong> Скорость — величина векторная. Что это значит?<br>
+        <strong>5.</strong> По какой формуле определяют среднюю скорость тела при неравномерном движении?<br>
+        <strong>6.</strong> Какую скорость имеют в виду, говоря о скорости автомобиля между двумя пунктами; скорости пули в момент вылета из ствола?</p>
+      </div>
+      <div class="hw-answer" id="hw1" style="display:none">
+        <p><strong>Примерные ответы:</strong><br>
+        1) При равномерном движении скорость показывает, какой путь проходит тело за единицу времени.<br>
+        2) Скорость находят как отношение пути ко времени: v = s / t.<br>
+        3) Единица скорости в СИ — метр в секунду (м/с), потому что единица пути — метр, а единица времени — секунда.<br>
+        4) Это значит, что у скорости есть не только числовое значение, но и направление: с одинаковой скоростью можно двигаться в разные стороны.<br>
+        5) Среднюю скорость определяют по формуле v<sub>ср</sub> = s / t, где s — весь путь, t — всё время движения.<br>
+        6) В обоих случаях имеют в виду <strong>среднюю</strong> скорость (для автомобиля между пунктами) и <strong>мгновенную</strong> скорость (для пули в момент вылета из ствола).</p>
+      </div>
+      <button class="btn-check" onclick="document.getElementById('hw1').style.display='block'; this.disabled=true;">Показать ответы</button>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? '' : 'dark');
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+}
+(function() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+})();
+
+function showSection(idx) {
+  document.querySelectorAll('.section').forEach((s, i) => s.classList.toggle('active', i === idx));
+  document.querySelectorAll('#mainNav button').forEach((b, i) => b.classList.toggle('active', i === idx));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== TRUE / FALSE =====================
+const tfData = [
+  { correctAnswer: true, explanation: 'Верно! Скорость — это величина, характеризующая быстроту движения тела.' },
+  { correctAnswer: true, explanation: 'Верно! При равномерном движении скорость показывает, какой путь тело проходит за единицу времени: v = s / t.' },
+  { correctAnswer: false, explanation: 'Неверно! Единица скорости в СИ — метр в секунду (м/с): единица пути — метр, единица времени — секунда.' },
+  { correctAnswer: true, explanation: 'Верно! 1 м/с = 3,6 км/ч: за 1 с тело проходит 1 м, а за 1 ч — 3,6 км.' },
+  { correctAnswer: true, explanation: 'Верно! Скорость имеет числовое значение и направление — значит, она векторная величина.' },
+  { correctAnswer: false, explanation: 'Неверно! Спидометр измеряет скорость. Пройденный путь находят по формуле s = v · t.' },
+  { correctAnswer: true, explanation: 'Верно! Среднюю скорость определяют по формуле v = s / t, где s — весь путь, t — всё время движения.' },
+  { correctAnswer: false, explanation: 'Неверно! Деление всего пути на всё время движения даёт среднюю скорость, а мгновенную измеряют на очень малом промежутке времени.' }
+];
+let tfAnswered = 0, tfCorrect = 0;
+
+function checkTF(idx, userAnswer) {
+  const item = document.getElementById('tf' + idx);
+  const buttons = item.querySelectorAll('.tf-buttons button');
+  if (buttons[0].disabled) return;
+  buttons.forEach(b => b.disabled = true);
+  const isCorrect = userAnswer === tfData[idx].correctAnswer;
+  tfAnswered++; if (isCorrect) tfCorrect++;
+  buttons[userAnswer ? 0 : 1].classList.add(isCorrect ? 'selected-true' : 'selected-false');
+  const comment = document.getElementById('tf-comment-' + idx);
+  comment.className = 'tf-comment ' + (isCorrect ? 'correct' : 'wrong');
+  comment.innerHTML = (isCorrect ? '✅ Правильно! ' : '❌ Неправильно. ') + tfData[idx].explanation;
+  updateTFProgress();
+}
+
+function updateTFProgress() {
+  const bar = document.getElementById('tfProgress');
+  bar.style.width = (tfAnswered / 8 * 100) + '%';
+  bar.textContent = tfCorrect + ' / 8';
+  if (tfAnswered === 8) {
+    bar.style.background = tfCorrect === 8 ? 'linear-gradient(90deg,#22c55e,#34d399)' : 'linear-gradient(90deg,#eab308,#facc15)';
+    if (tfCorrect === 8) launchConfetti();
+  }
+}
+
+// ===================== MATCH GAME =====================
+const matchData = [
+  { qty: 'Величина, характеризующая быстроту движения тела', correct: 'Скорость' },
+  { qty: 'Единица скорости в СИ', correct: 'Метр в секунду' },
+  { qty: 'Отношение пути ко времени при неравномерном движении', correct: 'Средняя скорость' },
+  { qty: 'Скорость на очень малом промежутке времени', correct: 'Мгновенная скорость' },
+  { qty: 'Прибор для измерения скорости на панели автомобиля', correct: 'Спидометр' },
+  { qty: 'Величина, которая имеет числовое значение и направление', correct: 'Векторная величина' }
+];
+const allUnits = [
+  'Скорость',
+  'Метр в секунду',
+  'Средняя скорость',
+  'Мгновенная скорость',
+  'Спидометр',
+  'Векторная величина',
+  'Скалярная величина',
+  'Путь'];
+
+function initMatch() {
+  const game = document.getElementById('matchGame');
+  game.innerHTML = '';
+  matchData.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'match-row';
+    const shuffled = [...allUnits].sort(() => Math.random() - 0.5);
+    const options = shuffled.map(u => `<option value="${u}">${u}</option>`).join('');
+    row.innerHTML = `
+      <div class="match-qty">${item.qty}</div>
+      <select class="match-select" id="match${i}">
+        <option value="">— Выбери —</option>
+        ${options}
+      </select>
+    `;
+    game.appendChild(row);
+  });
+}
+
+function checkMatch() {
+  let correct = 0;
+  matchData.forEach((item, i) => {
+    const sel = document.getElementById('match' + i);
+    sel.classList.remove('correct', 'wrong');
+    if (sel.value === item.correct) { sel.classList.add('correct'); correct++; }
+    else if (sel.value) { sel.classList.add('wrong'); }
+  });
+  const scoreEl = document.getElementById('matchScore');
+  scoreEl.style.display = 'block';
+  const pct = Math.round((correct / matchData.length) * 100);
+  const color = pct === 100 ? 'var(--green)' : pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+  scoreEl.innerHTML = 'Результат: <span style="color:' + color + '">' + correct + ' из ' + matchData.length + '</span> (' + pct + '%)';
+  if (correct === matchData.length) launchConfetti();
+}
+
+// ===================== LABYRINTH (клик по воротам) =====================
+const labSteps = [
+  { q: 'Как называют величину, характеризующую быстроту движения тела? (одно слово)', a: 'скорость' },
+  { q: 'На что делят путь, чтобы определить скорость равномерного движения? (одно слово)', a: 'время' },
+  { q: 'Какая единица скорости в СИ? (два слова)', a: 'метр в секунду' },
+  { q: 'Сколько километров в час составляет 10 м/с?', a: '36' },
+  { q: 'Как называется прибор для измерения скорости в автомобиле? (одно слово)', a: 'спидометр' },
+  { q: 'Скорость, которую показывает спидометр в данный момент, — это скорость … (одно слово)', a: 'мгновенная' },
+  { q: 'Отношение пути ко времени при неравномерном движении — это … скорость (одно слово)', a: 'средняя' },
+  { q: 'Какая величина имеет направление: скалярная или векторная?', a: 'векторная' }
+];
+
+const LAB_COLS = 9, LAB_ROWS = 7;
+const LAB_STEP = { n: [-1, 0], s: [1, 0], w: [0, -1], e: [0, 1] };
+let labG = null, labExit = 0, labGates = [], labRoute = [], labRouteEnd = [];
+let labCurrent = 0, labCorrectCount = 0, labDone = false, labTick = 0, labHideT = 0;
+let labSeed = 20261105;
+
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function labCell(r, c) { return labG[r * LAB_COLS + c]; }
+function labIdx(r, c) { return r * LAB_COLS + c; }
+function labPos(i) { return { r: (i / LAB_COLS) | 0, c: i % LAB_COLS }; }
+
+/* единственный путь между двумя клетками лабиринта (он всегда один) */
+function labPath(from, to) {
+  const prev = new Int32Array(LAB_COLS * LAB_ROWS).fill(-1);
+  prev[from] = from; const q = [from];
+  for (let i = 0; i < q.length; i++) {
+    const cur = q[i]; if (cur === to) break;
+    const r = (cur / LAB_COLS) | 0, c = cur % LAB_COLS;
+    for (const d in LAB_STEP) {
+      if (labCell(r, c)[d]) continue;
+      const nr = r + LAB_STEP[d][0], nc = c + LAB_STEP[d][1];
+      if (nr < 0 || nc < 0 || nr >= LAB_ROWS || nc >= LAB_COLS) continue;
+      const ni = labIdx(nr, nc);
+      if (prev[ni] < 0) { prev[ni] = cur; q.push(ni); }
+    }
+  }
+  if (prev[to] < 0) return null;
+  const path = []; let cur = to;
+  while (cur !== from) { path.unshift(cur); cur = prev[cur]; }
+  path.unshift(from); return path;
+}
+
+function buildLab(seed) {
+  const rnd = mulberry32(seed), n = LAB_COLS * LAB_ROWS;
+  const g = new Array(n);
+  for (let i = 0; i < n; i++) g[i] = { n: 1, e: 1, s: 1, w: 1, gate: -1, dist: -1 };
+  const seen = new Uint8Array(n), stack = [0];
+  seen[0] = 1; g[0].n = 0; g[0].w = 0;                       // вход — левый верхний угол
+  while (stack.length) {
+    const cur = stack[stack.length - 1], r = (cur / LAB_COLS) | 0, c = cur % LAB_COLS, cand = [];
+    if (r > 0 && !seen[cur - LAB_COLS]) cand.push([cur - LAB_COLS, 'n', 's']);
+    if (r < LAB_ROWS - 1 && !seen[cur + LAB_COLS]) cand.push([cur + LAB_COLS, 's', 'n']);
+    if (c > 0 && !seen[cur - 1]) cand.push([cur - 1, 'w', 'e']);
+    if (c < LAB_COLS - 1 && !seen[cur + 1]) cand.push([cur + 1, 'e', 'w']);
+    if (!cand.length) { stack.pop(); continue; }
+    const p = cand[Math.floor(rnd() * cand.length)];
+    g[cur][p[1]] = 0; g[p[0]][p[2]] = 0; seen[p[0]] = 1; stack.push(p[0]);
+  }
+  const q = [0]; g[0].dist = 0;                             // расстояния от старта
+  for (let i = 0; i < q.length; i++) {
+    const cur = q[i], r = (cur / LAB_COLS) | 0, c = cur % LAB_COLS;
+    for (const d in LAB_STEP) {
+      if (g[cur][d]) continue;
+      const nr = r + LAB_STEP[d][0], nc = c + LAB_STEP[d][1];
+      if (nr < 0 || nc < 0 || nr >= LAB_ROWS || nc >= LAB_COLS) continue;
+      const ni = labIdx(nr, nc);
+      if (g[ni].dist < 0) { g[ni].dist = g[cur].dist + 1; q.push(ni); }
+    }
+  }
+  let far = 0;
+  for (let i = 1; i < n; i++) if (g[i].dist > g[far].dist) far = i;
+  labExit = far;
+  const maxD = g[far].dist, targets = [];
+  for (let k = 1; k <= labSteps.length; k++) targets.push(Math.round(maxD * (0.12 + 0.80 * (k - 1) / (labSteps.length - 1))));
+  const pool = []; for (let i = 1; i < n; i++) if (i !== far) pool.push(i);
+  const chosen = [];
+  targets.forEach(t => {
+    let best = -1, bd = 1e9;
+    for (const i of pool) {
+      if (chosen.indexOf(i) >= 0) continue;
+      const d = Math.abs(g[i].dist - t);
+      if (d < bd) { bd = d; best = i; }
+    }
+    if (best >= 0) chosen.push(best);
+  });
+  chosen.sort((a, b) => g[a].dist - g[b].dist);              // врата нумеруются по пути от старта
+  chosen.forEach((i, k) => { g[i].gate = k; });
+  return g;
+}
+
+/* маршрут: старт → ворота 1 … 8 → выход; labRouteEnd[k] — сколько клеток
+   нужно нарисовать, когда открыто k врат (8 — весь путь до выхода) */
+function buildLabRoute() {
+  labGates = []; for (let i = 0; i < labG.length; i++) if (labG[i].gate >= 0) labGates[labG[i].gate] = i;
+  labRoute = [0]; labRouteEnd = [];
+  let cur = 0;
+  for (let k = 0; k < labGates.length; k++) {
+    const p = labPath(cur, labGates[k]);
+    if (p) for (let i = 1; i < p.length; i++) labRoute.push(p[i]);
+    cur = labGates[k];
+    labRouteEnd[k] = labRoute.length;
+  }
+  const pe = labPath(cur, labExit);
+  if (pe) for (let i = 1; i < pe.length; i++) labRoute.push(pe[i]);
+  labRouteEnd[labSteps.length] = labRoute.length;
+}
+
+function labMetrics() {
+  const board = document.getElementById('labBoard');
+  let avail = board ? board.clientWidth : 0;
+  if (!avail) avail = Math.min(document.documentElement.clientWidth - 56, 660);
+  const cell = Math.max(30, Math.min(Math.floor((avail - 4) / LAB_COLS), 66));
+  return { cell: cell, w: cell * LAB_COLS + 4, h: cell * LAB_ROWS + 4 };
+}
+function labPalette() {
+  const cs = getComputedStyle(document.documentElement), v = n => cs.getPropertyValue(n).trim();
+  return {
+    bg: v('--bg') || '#f0f4f8', card: v('--card') || '#ffffff',
+    wall: v('--text') || '#1e293b', sec: v('--text-secondary') || '#64748b',
+    accent: v('--accent') || '#f97316', green: v('--green') || '#22c55e',
+    primary: v('--primary') || '#3b82f6'
+  };
+}
+
+function drawLab() {
+  const cv = document.getElementById('labCanvas');
+  if (!cv || !labG) return;
+  const m = labMetrics(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv._w !== m.w || cv._h !== m.h) {
+    cv.width = Math.round(m.w * dpr); cv.height = Math.round(m.h * dpr);
+    cv.style.width = m.w + 'px'; cv.style.height = m.h + 'px';
+    cv._w = m.w; cv._h = m.h;
+  }
+  const ctx = cv.getContext('2d'), t = labPalette(), C = m.cell, O = 2;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, m.w, m.h);
+  ctx.fillStyle = t.bg; ctx.fillRect(0, 0, m.w, m.h);
+  ctx.fillStyle = t.card; ctx.fillRect(O, O, C * LAB_COLS, C * LAB_ROWS);
+
+  // пройденный путь: подсветка клеток + линия
+  const upto = labRouteEnd[labCurrent] || 0;
+  const shown = labRoute.slice(0, upto);
+  if (shown.length) {
+    ctx.save(); ctx.beginPath(); ctx.rect(O, O, C * LAB_COLS, C * LAB_ROWS); ctx.clip();
+    ctx.globalAlpha = 0.12; ctx.fillStyle = t.primary;
+    shown.forEach(i => { const p = labPos(i); ctx.fillRect(O + p.c * C, O + p.r * C, C, C); });
+    ctx.globalAlpha = 1; ctx.restore();
+    ctx.strokeStyle = t.primary; ctx.globalAlpha = .55;
+    ctx.lineWidth = Math.max(3, C * .17); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath();
+    shown.forEach((i, k) => {
+      const p = labPos(i), x = O + p.c * C + C / 2, y = O + p.r * C + C / 2;
+      k ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    });
+    ctx.stroke(); ctx.globalAlpha = 1;
+  }
+
+  ctx.strokeStyle = t.wall; ctx.lineWidth = Math.max(2, C * .09); ctx.lineCap = 'round';
+  ctx.beginPath();
+  for (let r = 0; r < LAB_ROWS; r++) for (let c = 0; c < LAB_COLS; c++) {
+    const g = labCell(r, c), x = O + c * C, y = O + r * C;
+    if (g.n) { ctx.moveTo(x, y); ctx.lineTo(x + C, y); }
+    if (g.w) { ctx.moveTo(x, y); ctx.lineTo(x, y + C); }
+    if (r === LAB_ROWS - 1 && g.s) { ctx.moveTo(x, y + C); ctx.lineTo(x + C, y + C); }
+    if (c === LAB_COLS - 1 && g.e) { ctx.moveTo(x + C, y); ctx.lineTo(x + C, y + C); }
+  }
+  ctx.stroke();
+
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = t.sec; ctx.font = '700 ' + (C * .17) + 'px system-ui, sans-serif';
+  ctx.fillText('СТАРТ', O + C / 2, O + C * .22);
+
+  const ep = labPos(labExit), ex = O + ep.c * C, ey = O + ep.r * C, open = labCurrent >= labSteps.length;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(ex + C * .14, ey + C * .1, C * .72, C * .8, C * .12);
+  else ctx.rect(ex + C * .14, ey + C * .1, C * .72, C * .8);
+  ctx.fillStyle = open ? t.green : t.bg; ctx.fill();
+  ctx.lineWidth = Math.max(2, C * .08); ctx.strokeStyle = open ? t.green : t.sec; ctx.stroke();
+  ctx.beginPath(); ctx.arc(ex + C * .68, ey + C * .52, C * .05, 0, 7);
+  ctx.fillStyle = open ? '#fff' : t.sec; ctx.fill();
+
+  for (let i = 0; i < labG.length; i++) {
+    const g = labG[i]; if (g.gate < 0) continue;
+    const p = labPos(i), x = O + p.c * C + C / 2, y = O + p.r * C + C / 2;
+    const done = g.gate < labCurrent, isNext = g.gate === labCurrent;
+    if (isNext) {
+      const k = .5 + .5 * Math.sin(Date.now() / 240);
+      ctx.beginPath(); ctx.arc(x, y, C * .46, 0, 7);
+      ctx.globalAlpha = .08 + .18 * k; ctx.fillStyle = t.accent; ctx.fill(); ctx.globalAlpha = 1;
+    }
+    ctx.beginPath(); ctx.arc(x, y, C * .29, 0, 7);
+    ctx.fillStyle = done ? t.green : isNext ? t.accent : t.bg; ctx.fill();
+    ctx.lineWidth = Math.max(1.5, C * .05);
+    ctx.strokeStyle = done ? t.green : isNext ? t.accent : t.sec; ctx.stroke();
+    ctx.fillStyle = done || isNext ? '#fff' : t.sec;
+    ctx.font = '800 ' + (C * .3) + 'px system-ui, sans-serif';
+    ctx.fillText(done ? '✓' : String(g.gate + 1), x, y + 1);
+  }
+}
+
+function labLoop() {
+  if (labG && document.getElementById('sec3').classList.contains('active')) drawLab();
+  labTick = requestAnimationFrame(labLoop);
+}
+function labStatus(msg) {
+  const el = document.getElementById('labStatus');
+  if (el) el.textContent = msg;
+}
+function labCountUI() {
+  const el = document.getElementById('labCount');
+  if (el) el.textContent = 'Врата: ' + labCurrent + ' / ' + labSteps.length;
+}
+
+/* нажатие на клетку: ворота — открыть вопрос, выход — закончить */
+function labClickCell(r, c) {
+  if (labDone || !labG) return;
+  const i = labIdx(r, c), g = labCell(r, c);
+  if (i === labExit) {
+    if (labCurrent >= labSteps.length) labFinish();
+    else labStatus('🚪 Выход закрыт: осталось открыть врат — ' + (labSteps.length - labCurrent) + '.');
+    return;
+  }
+  if (g.gate < 0) {
+    if (i === 0) labStatus('Ты в начале лабиринта. Иди по голубой линии к воротам.');
+    else labStatus('Это проход между воротами. Нажимай на кружок с номером.');
+    return;
+  }
+  if (g.gate === labCurrent) labOpenTask(g.gate);
+  else if (g.gate > labCurrent) labStatus('Ворота №' + (g.gate + 1) + ' закрыты: сначала открой ворота №' + (labCurrent + 1) + '.');
+}
+
+function labOpenTask(k) {
+  clearTimeout(labHideT);                       // иначе старое скрытие погасит новую панель
+  document.getElementById('labQuestion').textContent = labSteps[k].q;
+  const input = document.getElementById('labInput');
+  input.value = ''; input.style.borderColor = '';
+  document.getElementById('labHint').className = 'lab-hint';
+  document.getElementById('labTask').classList.add('shown');
+  resetLabAnswer();
+  labStatus('Врата №' + (k + 1) + '. Ответь на вопрос, чтобы открыть ворота.');
+  setTimeout(() => input.focus(), 60);
+}
+
+function labFinish() {
+  labDone = true;
+  document.getElementById('labTask').classList.remove('shown');
+  document.getElementById('labComplete').classList.add('show');
+  labStatus('🏁 Лабиринт пройден!');
+  launchConfetti();
+}
+
+function showLabAnswer(btn) {
+  const el = document.getElementById('labAnswer');
+  if (labCurrent >= labSteps.length) return;
+  const open = !el.classList.contains('show');
+  el.textContent = 'Правильный ответ: ' + labSteps[labCurrent].a;
+  el.classList.toggle('show', open);
+  btn.textContent = open ? 'Скрыть' : 'Правильный ответ';
+  btn.classList.toggle('active', open);
+}
+function resetLabAnswer() {
+  const el = document.getElementById('labAnswer');
+  if (el) { el.className = 'lab-answer'; el.textContent = ''; }
+  const b = document.getElementById('labAnswerBtn');
+  if (b) { b.textContent = 'Правильный ответ'; b.classList.remove('active'); }
+}
+
+function checkLabStep() {
+  const task = document.getElementById('labTask');
+  if (labDone || !task.classList.contains('shown')) return;
+  const input = document.getElementById('labInput'), hint = document.getElementById('labHint');
+  const val = input.value.trim().toLowerCase().replace(',', '.');
+  if (!val) { input.style.borderColor = 'var(--red)'; return; }
+  const k = labCurrent, expected = labSteps[k].a.toLowerCase().replace(',', '.');
+  if (val === expected || parseFloat(val) === parseFloat(expected)) {
+    labCorrectCount++; labCurrent = k + 1;
+    hint.className = 'lab-hint correct show';
+    hint.textContent = '✅ Правильно! Ворота №' + (k + 1) + ' открыты.';
+    labCountUI();
+    drawLab();                                  // сразу рисуем: rAF может не идти (фоновая вкладка)
+    labStatus(labCurrent >= labSteps.length ? 'Все ворота открыты — нажми на 🚪 выход!'
+      : 'Нажми на оранжевые ворота №' + (labCurrent + 1) + '.');
+    labHideT = setTimeout(() => { task.classList.remove('shown'); input.value = ''; }, 900);
+  } else {
+    hint.className = 'lab-hint wrong show';
+    hint.textContent = '❌ Попробуй ещё раз!';
+    input.style.borderColor = 'var(--red)'; input.value = ''; input.focus();
+    task.classList.remove('lab-shake'); void task.offsetWidth; task.classList.add('lab-shake');
+    setTimeout(() => { hint.className = 'lab-hint'; }, 1500);
+  }
+}
+
+function initLabyrinth() {
+  clearTimeout(labHideT);
+  labG = buildLab(labSeed);
+  buildLabRoute();
+  labCurrent = 0; labCorrectCount = 0; labDone = false;
+  document.getElementById('labComplete').classList.remove('show');
+  const task = document.getElementById('labTask');
+  task.classList.remove('shown', 'lab-shake');
+  document.getElementById('labHint').className = 'lab-hint';
+  labCountUI();
+  labStatus('Нажми на оранжевые ворота №1.');
+  resetLabAnswer();
+  drawLab();
+  if (!labTick) labLoop();
+}
+function newLabMaze() {
+  labSeed = (labSeed * 1103515245 + 12345) >>> 0;
+  initLabyrinth();
+}
+
+document.getElementById('labCanvas').addEventListener('click', e => {
+  const cv = e.currentTarget, rect = cv.getBoundingClientRect();
+  const m = labMetrics();
+  const x = (e.clientX - rect.left) * (m.w / rect.width), y = (e.clientY - rect.top) * (m.h / rect.height);
+  const c = Math.floor((x - 2) / m.cell), r = Math.floor((y - 2) / m.cell);
+  if (r < 0 || c < 0 || r >= LAB_ROWS || c >= LAB_COLS) return;
+  labClickCell(r, c);
+});
+
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('sec3').classList.contains('active')) return;
+  if (e.key === 'Enter' && labCurrent < labSteps.length) checkLabStep();
+});
+// ===================== PRACTICE =====================
+const variants = [
+  { answers: ['метр в секунду', 'скорость', '20', 'спидометр', 'направление'] },
+  { answers: ['5', 'мгновенной', '36', 'скалярной', 'не меняется'] },
+  { answers: ['скорость', '18', 'средняя', 'стрелкой', 'выбора единиц'] }
+];
+let activeVariant = 0;
+
+function switchVariant(idx) {
+  activeVariant = idx;
+  document.querySelectorAll('.variant-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  document.querySelectorAll('.variant-content').forEach((v, i) => v.classList.toggle('active', i === idx));
+  document.getElementById('varScore').style.display = 'none';
+}
+
+function checkAllExercises() {
+  const v = variants[activeVariant]; let correct = 0;
+  for (let i = 0; i < 5; i++) {
+    const input = document.getElementById('v' + activeVariant + 'e' + i);
+    const val = input.value.trim().toLowerCase().replace(',', '.');
+    const expected = String(v.answers[i]).toLowerCase().replace(',', '.');
+    input.classList.remove('correct', 'wrong');
+    if (val === expected || parseFloat(val) === parseFloat(expected)) { input.classList.add('correct'); correct++; } else input.classList.add('wrong');
+  }
+  const scoreEl = document.getElementById('varScore'); scoreEl.style.display = 'block';
+  const pct = Math.round((correct / 5) * 100);
+  const color = pct === 100 ? 'var(--green)' : pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+  scoreEl.innerHTML = 'Результат: <span style="color:' + color + '">' + correct + ' из 5</span> (' + pct + '%)';
+  if (correct === 5) launchConfetti();
+}
+
+function showExAnswer(id, btn) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+  btn.textContent = el.style.display === 'block' ? 'Скрыть' : 'Ответ';
+  btn.style.background = el.style.display === 'block' ? 'var(--accent)' : 'transparent';
+  btn.style.color = el.style.display === 'block' ? 'white' : 'var(--accent)';
+}
+
+// ===================== CONFETTI =====================
+function launchConfetti() {
+  const c = document.getElementById('confettiContainer');
+  const colors = ['#6366f1','#8b5cf6','#22c55e','#ef4444','#eab308','#3b82f6','#ec4899'];
+  for (let i = 0; i < 120; i++) {
+    const p = document.createElement('div'); p.className = 'confetti-piece';
+    p.style.left = Math.random()*100+'%'; p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.width = (Math.random()*8+6)+'px'; p.style.height = (Math.random()*8+6)+'px';
+    p.style.borderRadius = Math.random()>0.5?'50%':'2px';
+    p.style.animationDuration = (Math.random()*2+2)+'s'; p.style.animationDelay = (Math.random()*1.5)+'s';
+    c.appendChild(p);
+  }
+  setTimeout(() => { c.innerHTML = ''; }, 5000);
+}
+
+// ===================== DOWNLOAD HOMEWORK (.docx) =====================
+function loadDocxLib(callback) {
+  if (window.docx) { callback(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js';
+  s.onload = callback;
+  s.onerror = function() {
+    alert('Не удалось загрузить библиотеку для создания документа. Проверь подключение к Интернету.');
+  };
+  document.head.appendChild(s);
+}
+
+function makeHWDocTable(headers, rows, colWidths) {
+  const D = docx;
+  const total = colWidths.reduce(function(a, b) { return a + b; }, 0);
+  const headerRow = new D.TableRow({
+    tableHeader: true,
+    children: headers.map(function(h, i) {
+      return new D.TableCell({
+        width: { size: colWidths[i], type: D.WidthType.DXA },
+        shading: { type: D.ShadingType.CLEAR, fill: '3B82F6', color: 'auto' },
+        children: [new D.Paragraph({ children: [new D.TextRun({ text: h, bold: true, color: 'FFFFFF' })] })]
+      });
+    })
+  });
+  const bodyRows = rows.map(function(r) {
+    return new D.TableRow({
+      children: r.map(function(c, i) {
+        return new D.TableCell({
+          width: { size: colWidths[i], type: D.WidthType.DXA },
+          children: [new D.Paragraph({ text: c })]
+        });
+      })
+    });
+  });
+  return new D.Table({
+    width: { size: total, type: D.WidthType.DXA },
+    columnWidths: colWidths,
+    rows: [headerRow].concat(bodyRows)
+  });
+}
+
+function downloadHWDocx() {
+  loadDocxLib(function() {
+    const D = docx;
+    const h1 = t => new D.Paragraph({ heading: D.HeadingLevel.HEADING_1, text: t });
+    const h2 = t => new D.Paragraph({ heading: D.HeadingLevel.HEADING_2, text: t });
+    const para = t => new D.Paragraph({ text: t });
+    const bullet = t => new D.Paragraph({ text: t, numbering: { reference: 'bull', level: 0 } });
+    const numbered = (n, t) => new D.Paragraph({ children: [new D.TextRun({ text: n + '.  ', bold: true }), new D.TextRun(t)] });
+
+    const children = [];
+
+    children.push(new D.Paragraph({
+      alignment: D.AlignmentType.CENTER,
+      children: [
+        new D.TextRun({ text: 'Домашнее задание', bold: true, size: 40, color: '2563EB' })
+      ]
+    }));
+    children.push(new D.Paragraph({
+      alignment: D.AlignmentType.CENTER,
+      children: [
+        new D.TextRun({ text: '§16. Скорость. Единицы скорости', bold: true, size: 32 })
+      ]
+    }));
+    children.push(new D.Paragraph({
+      alignment: D.AlignmentType.CENTER,
+      children: [
+        new D.TextRun({ text: 'Физика · 7 класс · Урок 14 · Глава 2. Взаимодействие тел', italics: true, size: 24, color: '64748B' })
+      ]
+    }));
+    children.push(new D.Paragraph({ text: '' }));
+
+children.push(h1('1. Повтори теорию'));
+    children.push(para('Ответь устно на вопросы:'));
+    children.push(new D.Paragraph({ children: [new D.TextRun({ text: '1.  ', bold: true }), new D.TextRun('Что показывает скорость тела при равномерном движении?')] }));
+    children.push(new D.Paragraph({ children: [new D.TextRun({ text: '2.  ', bold: true }), new D.TextRun('По какой формуле можно рассчитать скорость тела, если заданы путь и время?')] }));
+    children.push(new D.Paragraph({ children: [new D.TextRun({ text: '3.  ', bold: true }), new D.TextRun('Какова единица скорости в СИ?')] }));
+    children.push(new D.Paragraph({ children: [new D.TextRun({ text: '4.  ', bold: true }), new D.TextRun('Скорость — величина векторная. Что это значит?')] }));
+    children.push(new D.Paragraph({ children: [new D.TextRun({ text: '5.  ', bold: true }), new D.TextRun('По какой формуле определяют среднюю скорость при неравномерном движении?')] }));
+
+    children.push(h1('2. Отработай в тренажёре'));
+    children.push(bullet('Разминка — 8 вопросов «верно/неверно».'));
+    children.push(bullet('Соответствие — соедини определения с понятиями о скорости.'));
+    children.push(bullet('Лабиринт — открой все 8 врат и выйди к финишу.'));
+    children.push(bullet('Практика — реши все 3 варианта.'));
+    children.push(new D.Paragraph({
+      children: [new D.TextRun({ text: 'Цель: ', bold: true }), new D.TextRun('набери 100% хотя бы в одном разделе тренажёра. Если не получается — повтори теорию и попробуй снова!')]
+    }));
+
+    children.push(h1('3. Запиши в тетрадь'));
+    children.push(h2('Скорость — основное'));
+    children.push(makeHWDocTable(
+      ['Понятие', 'Формула', 'Что это'],
+      [
+        ['Скорость (равномерное движение)', 'v = s / t', 'Путь, пройденный за единицу времени'],
+        ['Единица скорости в СИ', 'м/с', '1 м/с = 3,6 км/ч; 1 км/ч = 10/36 м/с'],
+        ['Средняя скорость', 'vср = s / t', 'Отношение всего пути ко всему времени движения'],
+        ['Мгновенная скорость', '—', 'Скорость на очень малом промежутке времени']
+      ],
+      [2100, 2900, 3400]
+    ));
+    children.push(para('Главный вывод: чтобы сравнить скорости разных тел, их нужно привести к одинаковым единицам. Значение скорости зависит от выбора единиц: 16 м/с = 57,6 км/ч, а 160 км/ч = 44 м/с.'));
+    children.push(h2('Векторные и скалярные величины'));
+    children.push(bullet('Векторные (имеют направление): скорость — обозначают буквой v со стрелкой, модуль пишут без стрелки.'));
+    children.push(bullet('Скалярные (направления не имеют): время, путь, масса.'));
+
+    children.push(h1('4. Вопросы из учебника (§16)'));
+    children.push(numbered(1, 'Что показывает скорость тела при равномерном движении?'));
+    children.push(numbered(2, 'По какой формуле можно рассчитать скорость тела, если заданы путь и время, за которое он пройден?'));
+    children.push(numbered(3, 'Какова единица скорости в СИ?'));
+    children.push(numbered(4, 'Скорость — величина векторная. Что это значит?'));
+    children.push(numbered(5, 'По какой формуле определяют среднюю скорость тела при неравномерном движении?'));
+    children.push(numbered(6, 'Какую скорость имеют в виду, говоря о скорости автомобиля между двумя пунктами; скорости пули в момент вылета из ствола?'));
+
+    children.push(new D.Paragraph({ text: '' }));
+    children.push(new D.Paragraph({
+      children: [new D.TextRun({ text: 'Физика · 7 класс · Урок 14 · §16 «Скорость. Единицы скорости» · Глава 2. Взаимодействие тел', italics: true, size: 20, color: '94A3B8' })]
+    }));
+
+const doc = new D.Document({
+      creator: 'Урок физики',
+      title: 'Домашнее задание §16. Скорость. Единицы скорости',
+      description: 'Физика 7 класс, урок 14',
+      numbering: {
+        config: [{
+          reference: 'bull',
+          levels: [{
+            level: 0,
+            format: D.LevelFormat.BULLET,
+            text: '•',
+            alignment: D.AlignmentType.LEFT,
+            style: { paragraph: { indent: { left: 720, hanging: 360 } } }
+          }]
+        }]
+      },
+      sections: [{ properties: {}, children: children }]
+    });
+
+    D.Packer.toBlob(doc).then(function(blob) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Домашнее задание - §16 Скорость. Единицы скорости - 7 класс.docx';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    });
+  });
+}
+
+// ===================== INIT =====================
+initMatch();
+initLabyrinth();
+</script>
+</body>
+</html>
