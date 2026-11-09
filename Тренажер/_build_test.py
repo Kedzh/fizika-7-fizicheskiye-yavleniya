@@ -15,6 +15,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 BASE = HERE
 OUT = os.path.join(os.path.dirname(HERE),
                    'Итоговый тест по физике (20 вопросов).docx')
+if len(sys.argv) > 1:
+    OUT = sys.argv[1]
 
 # ---------------------------------------------------------------- утилиты
 EMOJI = re.compile(
@@ -76,6 +78,7 @@ TOPICS = [
     ('motion', 'Механическое движение', ['QUESTIONS11'], ['TRUE_FALSE11'], ['ODD_ROUNDS11']),
     ('uniform', 'Равномерное и неравномерное движение', ['QUESTIONS12'], ['TRUE_FALSE12'], ['ODD_ROUNDS12']),
     ('speed', 'Скорость. Единицы скорости', ['QUESTIONS13'], ['TRUE_FALSE13'], ['ODD_ROUNDS13']),
+    ('path', 'Расчёт пути и времени движения', ['QUESTIONS14'], ['TRUE_FALSE14'], ['ODD_ROUNDS14']),
 ]
 
 # квоты: (тема, сколько с выбором ответа, сколько «верно/неверно»)
@@ -83,19 +86,22 @@ TOPICS = [
 # строения» уменьшены на 1, чтобы итог остался 20 вопросами (13 + 7).
 # Появилась тема Урока 14 (§16 «Скорость») — квота «верно/неверно» взята у
 # «Агрегатных состояний», квота с выбором ответа — у «Физических величин».
+# Появилась тема Урока 15 (§17 «Расчёт пути и времени») — одна квота с выбором
+# ответа взята у «Молекул», одна «верно/неверно» — у «Измерения температуры».
 PLAN = {
     'phenomena': (1, 0),
     'measure':   (1, 0),
-    'temp':      (1, 1),
+    'temp':      (1, 0),
     'tech':      (1, 1),
     'matter':    (1, 0),
-    'molecules': (2, 0),
+    'molecules': (1, 0),
     'diffusion': (1, 1),
     'states':    (1, 0),
     'structure': (1, 1),
     'motion':    (1, 1),
     'uniform':   (1, 1),
     'speed':     (1, 1),
+    'path':      (1, 1),
 }
 assert sum(a + b for a, b in PLAN.values()) == 20, sum(a + b for a, b in PLAN.values())
 assert sum(a for a, _ in PLAN.values()) == 13, sum(a for a, _ in PLAN.values())
