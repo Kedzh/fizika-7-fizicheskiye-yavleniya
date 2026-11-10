@@ -223,7 +223,22 @@
 
   // ===================== помощники =====================
   function el(id) { return document.getElementById(id); }
-  function fmt(x, d) { return Number(x).toFixed(d === undefined ? 1 : d); }
+  function fmt(x, d) {
+    d = d === undefined ? 1 : d;
+    let s = Number(x).toFixed(d);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    if (s === '-0') s = '0';
+    return s.replace('.', ',');
+  }
+  function disposeDeep(obj) {
+    obj.traverse(o => {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) {
+        if (o.material.map) o.material.map.dispose();
+        o.material.dispose();
+      }
+    });
+  }
 
   function textSprite(text, opts) {
     opts = opts || {};
@@ -292,6 +307,62 @@
       w.position.set(p[0], 0.6, p[1]);
       g.add(w);
     });
+    return g;
+  }
+
+  function makeSnail() {
+    const g = new THREE.Group();
+    const bodyMat = new THREE.MeshStandardMaterial({ color: 0xd9a066, roughness: .7 });
+    const body = new THREE.Mesh(new THREE.SphereGeometry(1, 18, 14), bodyMat);
+    body.scale.set(1.8, 0.7, 0.9);
+    body.position.y = 0.55;
+    body.castShadow = true;
+    const shellMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: .45 });
+    const shell = new THREE.Mesh(new THREE.SphereGeometry(0.85, 18, 14), shellMat);
+    shell.position.set(-0.25, 1.05, 0);
+    shell.castShadow = true;
+    const stripe = new THREE.Mesh(
+      new THREE.TorusGeometry(0.85, 0.07, 8, 26),
+      new THREE.MeshStandardMaterial({ color: 0x5b3a1a, roughness: .6 })
+    );
+    stripe.position.copy(shell.position);
+    stripe.rotation.y = Math.PI / 2;
+    const stalkMat = new THREE.MeshStandardMaterial({ color: 0xd9a066, roughness: .7 });
+    const eyeMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: .4 });
+    const stalkGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.7, 8);
+    const eyeGeo = new THREE.SphereGeometry(0.11, 10, 10);
+    [[0.85, 0.22], [0.85, -0.22]].forEach(p => {
+      const st = new THREE.Mesh(stalkGeo, stalkMat);
+      st.position.set(p[0], 1.05, p[1]);
+      const ey = new THREE.Mesh(eyeGeo, eyeMat);
+      ey.position.set(p[0], 1.42, p[1]);
+      g.add(st, ey);
+    });
+    g.add(body, shell, stripe);
+    return g;
+  }
+
+  function makeTree() {
+    const g = new THREE.Group();
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.35, 0.55, 4, 10),
+      new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: .8 })
+    );
+    trunk.position.y = 2;
+    trunk.castShadow = true;
+    const crown = new THREE.Mesh(
+      new THREE.SphereGeometry(2.4, 18, 14),
+      new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: .7 })
+    );
+    crown.position.y = 5;
+    crown.castShadow = true;
+    const crown2 = new THREE.Mesh(
+      new THREE.SphereGeometry(1.6, 16, 12),
+      new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: .7 })
+    );
+    crown2.position.set(1.2, 4.2, 0.6);
+    crown2.castShadow = true;
+    g.add(trunk, crown, crown2);
     return g;
   }
 
@@ -698,51 +769,47 @@
   // ===================== Пример 4: задачи =====================
   function createTasks() {
     const group = new THREE.Group();
-    const ROAD_LEN = 90;
-    group.add(buildRoad(ROAD_LEN, 7));
-    addMarkers(group, 10, 80, 'усл. ед.');
-
-    const car = makeCar(0x3b82f6);
-    group.add(car);
-    const trail = makeTrail(0x3b82f6);
-    group.add(trail);
-    const flag = new THREE.Mesh(
-      new THREE.BoxGeometry(0.4, 5, 0.4),
-      new THREE.MeshStandardMaterial({ color: 0xfacc15 })
-    );
-    const flagLab = textSprite('ФИНИШ', { size: 24, color: '#facc15', scale: 1 });
+    const state = { task: null, playing: false, progress: 0, hist: [], scene: null, mover: null, trail: null };
 
     const TASKS = [
       {
-        id: 'snail', name: '🐌 Улитка',
-        desc: 'v = 1,4 мм/с, путь 420 мм',
+        id: 'snail', name: '🐌 Улитка', type: 'move',
+        desc: 'v = 1,4 мм/с, t = 5 мин. Найди путь.',
         v: 1.4, vUnit: 'мм/с', s: 420, sUnit: 'мм', T: 300, tUnit: 'с',
         worldS: 42, duration: 8,
+        markers: [
+          { s: 0, label: '0' }, { s: 100, label: '100 мм' }, { s: 200, label: '200 мм' },
+          { s: 300, label: '300 мм' }, { s: 400, label: '400 мм' }
+        ],
         formula: 's = v · t = 1,4 · 300 = 420 мм = 42 см',
         answer: 'Улитка проползёт 420 мм (42 см) за 300 с = 5 мин.'
       },
       {
-        id: 'oak', name: '🌳 Дуб',
-        desc: 'v = 0,3 м/год, высота 6 м',
+        id: 'oak', name: '🌳 Дуб', type: 'grow',
+        desc: 'v = 0,3 м/год, высота 6 м. Найди возраст.',
         v: 0.3, vUnit: 'м/год', s: 6, sUnit: 'м', T: 20, tUnit: 'лет',
-        worldS: 30, duration: 8,
+        duration: 8,
+        markers: [
+          { s: 0, label: '0' }, { s: 2, label: '2 м' }, { s: 4, label: '4 м' }, { s: 6, label: '6 м' }
+        ],
         formula: 't = s / v = 6 : 0,3 = 20 лет',
         answer: 'Дереву 20 лет: t = s / v = 6 м : 0,3 м/год = 20 лет.'
       },
       {
-        id: 'city', name: '🚗 Москва — Подольск',
-        desc: '20 км со скоростью 90 км/ч и 20 км со скоростью 10 км/ч',
+        id: 'city', name: '🚗 Москва — Подольск', type: 'move',
+        desc: '20 км со скоростью 90 км/ч и 20 км со скоростью 10 км/ч. Найди время.',
         segments: [{ s: 20, v: 90 }, { s: 20, v: 10 }],
         v: 90, vUnit: 'км/ч',
         s: 40, sUnit: 'км', T: 20 / 90 + 20 / 10, tUnit: 'ч',
         worldS: 80, duration: 10,
+        markers: [
+          { s: 0, label: '0' }, { s: 10, label: '10 км' }, { s: 20, label: '20 км' },
+          { s: 30, label: '30 км' }, { s: 40, label: '40 км' }
+        ],
         formula: 't = 20/90 + 20/10 = 2 2/9 ч ≈ 2 ч 13 мин',
         answer: 'Время: 2 2/9 ч ≈ 2 ч 13 мин. Велосипедист проедет 40 км за это время со скоростью v = 40 : (20/9) = 18 км/ч.'
       }
     ];
-    // для городской задачи время: t1 = 20/90 ч, t2 = 20/10 ч
-
-    const state = { task: TASKS[0], playing: false, progress: 0, hist: [] };
 
     function currentSegment(t) {
       if (!state.task.segments) return { v: state.task.v };
@@ -759,6 +826,76 @@
     function progressToT(p) { return p * state.task.T; }
     function sToWorld(s) { return s / state.task.s * state.task.worldS; }
 
+    function buildScene(task) {
+      if (state.scene) {
+        group.remove(state.scene);
+        disposeDeep(state.scene);
+      }
+      const sc = new THREE.Group();
+      state.scene = sc;
+      state.mover = null;
+      state.trail = null;
+      state.hist = [];
+
+      if (task.type === 'move') {
+        const ROAD_LEN = task.worldS + 20;
+        sc.add(buildRoad(ROAD_LEN, 7));
+        task.markers.forEach(m => {
+          const x = sToWorld(m.s);
+          const post = new THREE.Mesh(
+            new THREE.BoxGeometry(0.35, 3.2, 0.35),
+            new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: .7 })
+          );
+          post.position.set(x, 1.6, 5);
+          post.castShadow = true;
+          const lab = textSprite(m.label, { size: 22, scale: 0.9 });
+          lab.position.set(x, 4.4, 5);
+          sc.add(post, lab);
+        });
+        state.mover = task.id === 'snail' ? makeSnail() : makeCar(0x3b82f6);
+        sc.add(state.mover);
+        state.trail = makeTrail(0x3b82f6);
+        sc.add(state.trail);
+        const fx = sToWorld(task.s);
+        const flag = new THREE.Mesh(
+          new THREE.BoxGeometry(0.4, 5, 0.4),
+          new THREE.MeshStandardMaterial({ color: 0xfacc15 })
+        );
+        flag.position.set(fx, 2.5, 5);
+        const flagLab = textSprite('ФИНИШ', { size: 24, color: '#facc15', scale: 1 });
+        flagLab.position.set(fx, 6.2, 5);
+        sc.add(flag, flagLab);
+      } else {
+        const patch = new THREE.Mesh(
+          new THREE.CylinderGeometry(10, 10, 0.3, 28),
+          new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 1 })
+        );
+        patch.position.y = 0.15;
+        patch.receiveShadow = true;
+        sc.add(patch);
+        state.mover = makeTree();
+        state.mover.position.set(0, 0.3, 0);
+        state.mover.scale.y = 0.05;
+        sc.add(state.mover);
+        const H = 7.5;
+        task.markers.forEach(m => {
+          const y = m.s / task.s * H;
+          const tick = new THREE.Mesh(
+            new THREE.BoxGeometry(2.4, 0.18, 0.18),
+            new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: .7 })
+          );
+          tick.position.set(-3.4, y, 0);
+          const lab = textSprite(m.label, { size: 22, scale: 0.9 });
+          lab.position.set(-6.2, y, 0);
+          sc.add(tick, lab);
+        });
+        const ty = textSprite('высота, м', { size: 22, color: '#e2e8f0' });
+        ty.position.set(-6.2, H + 1.6, 0);
+        sc.add(ty);
+      }
+      group.add(sc);
+    }
+
     function updateReadout() {
       const s = progressToS(state.progress);
       const t = progressToT(state.progress);
@@ -773,15 +910,24 @@
     }
     function updateVisual() {
       const s = progressToS(state.progress);
-      car.position.x = sToWorld(s);
-      state.hist.push([state.progress, sToWorld(s)]);
-      updateTrail(trail, state.hist.map(p => new THREE.Vector3(p[1], 0.7, 0)));
+      if (state.task.type === 'move') {
+        state.mover.position.x = sToWorld(s);
+        state.hist.push([state.progress, sToWorld(s)]);
+        updateTrail(state.trail, state.hist.map(p => new THREE.Vector3(p[1], 0.7, 0)));
+      } else {
+        state.mover.scale.y = 0.05 + 0.95 * state.progress;
+      }
       updateReadout();
     }
     function reset() {
-      state.progress = 0; state.hist = [];
-      car.position.x = 0;
-      updateTrail(trail, []);
+      state.progress = 0;
+      state.hist = [];
+      if (state.task.type === 'move') {
+        state.mover.position.x = 0;
+        updateTrail(state.trail, []);
+      } else {
+        state.mover.scale.y = 0.05;
+      }
       updateReadout();
       const ans = el('t-answer'); if (ans) ans.classList.remove('show');
     }
@@ -798,19 +944,27 @@
       state.playing = false;
       playButton('t-play', false);
       buildTaskButtons();
+      buildScene(state.task);
       reset();
       el('t-formula').textContent = state.task.formula;
       el('t-answer').textContent = state.task.answer;
-      const w = sToWorld(state.task.s);
-      flag.position.set(w, 2.5, 5);
-      flagLab.position.set(w, 6.2, 5);
+      if (state.task.type === 'move') {
+        orbit.target.set(state.task.worldS / 2, 4, 0);
+        orbit.dist = state.task.worldS * 2 + 90;
+      } else {
+        orbit.target.set(0, 4, 0);
+        orbit.dist = 48;
+      }
+      orbit.theta = -1.2; orbit.phi = 1.05;
+      applyCamera();
     }
     function buildTaskButtons() {
       const wrap = el('t-tasks');
       wrap.innerHTML = '';
       TASKS.forEach(t => {
         const b = document.createElement('button');
-        b.textContent = t.name;
+        b.innerHTML = '<div style="font-weight:800">' + t.name + '</div>' +
+          '<div style="font-size:.75rem;opacity:.85;margin-top:2px">' + t.desc + '</div>';
         if (t.id === state.task.id) b.classList.add('active');
         b.addEventListener('click', () => selectTask(t.id));
         wrap.appendChild(b);
@@ -824,7 +978,7 @@
       '<button class="btn" id="t-reset">↺ Сброс</button>' +
       '<button class="btn green" id="t-answer-btn">💡 Показать ответ</button></div>' +
       '<div class="answer" id="t-answer"></div>';
-    const explain = 'Выбери задачу и нажми «Старт»: машина покажет движение, а в панели — время, путь и скорость. ' +
+    const explain = 'Выбери задачу и нажми «Старт»: сцена покажет движение (или рост), а в панели — время, путь и скорость. ' +
       'Сравни с решением по формулам <b>s = v · t</b> и <b>t = s / v</b>.';
 
     function mount() {
