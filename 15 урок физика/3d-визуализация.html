@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D-визуализация. §17. Расчёт пути и времени движения</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+  :root {
+    --bg: #0b1220; --panel: #111a2e; --panel2: #16213a;
+    --text: #e2e8f0; --muted: #94a3b8;
+    --primary: #3b82f6; --accent: #f97316; --green: #22c55e; --yellow: #facc15;
+    --border: #243352;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text); overflow-x: hidden;
+  }
+  header {
+    padding: 20px 28px 12px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+    background: linear-gradient(135deg, #0f1b33, #0b1220);
+  }
+  header h1 { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; }
+  header p { color: var(--muted); font-size: 1rem; margin-top: 2px; }
+  header .hint {
+    margin-left: auto; font-size: .85rem; color: var(--muted);
+    background: var(--panel2); border: 1px solid var(--border);
+    padding: 8px 14px; border-radius: 999px;
+  }
+  .layout {
+    display: grid; grid-template-columns: 1fr 360px; gap: 0;
+    height: calc(100vh - 86px); min-height: 480px;
+  }
+  #viewport { position: relative; overflow: hidden; }
+  #viewport canvas { display: block; }
+  #viewport .overlay {
+    position: absolute; left: 14px; bottom: 12px; font-size: .8rem; color: var(--muted);
+    background: rgba(11,18,32,.7); padding: 6px 12px; border-radius: 8px;
+    border: 1px solid var(--border); pointer-events: none;
+  }
+  aside {
+    background: var(--panel); border-left: 1px solid var(--border);
+    padding: 18px; overflow-y: auto;
+  }
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+  .tabs button {
+    padding: 10px 8px; border: 1px solid var(--border); background: var(--panel2);
+    color: var(--text); border-radius: 10px; font-family: inherit; font-weight: 700;
+    font-size: .85rem; cursor: pointer; transition: all .2s;
+  }
+  .tabs button:hover { border-color: var(--primary); }
+  .tabs button.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .ctl { margin-bottom: 14px; }
+  .ctl label { display: flex; justify-content: space-between; font-size: .9rem; color: var(--muted); margin-bottom: 6px; }
+  .ctl label b { color: var(--text); }
+  input[type=range] { width: 100%; accent-color: var(--primary); height: 26px; cursor: pointer; }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 16px; }
+  .btn {
+    padding: 10px 18px; border: 1px solid var(--border); background: var(--panel2);
+    color: var(--text); border-radius: 10px; font-family: inherit; font-weight: 700;
+    font-size: .95rem; cursor: pointer; transition: all .2s;
+  }
+  .btn:hover { border-color: var(--primary); transform: translateY(-1px); }
+  .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .btn.green { background: var(--green); border-color: var(--green); color: #052e16; }
+  .btn:disabled { opacity: .5; cursor: default; transform: none; }
+  .readout { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+  .stat {
+    background: var(--panel2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 8px; text-align: center;
+  }
+  .stat .k { display: block; font-size: .72rem; color: var(--muted); margin-bottom: 4px; }
+  .stat .v { display: block; font-size: 1.05rem; font-weight: 800; color: var(--yellow); }
+  .explain {
+    background: var(--panel2); border-left: 4px solid var(--primary);
+    border-radius: 8px; padding: 14px; font-size: .92rem; line-height: 1.55;
+  }
+  .explain b { color: var(--yellow); }
+  .answer {
+    display: none; margin-top: 12px; background: #052e16; border: 1px solid var(--green);
+    color: #bbf7d0; border-radius: 8px; padding: 12px; font-size: .9rem; line-height: 1.5;
+  }
+  .answer.show { display: block; }
+  .task-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .task-list button {
+    text-align: left; padding: 10px 12px; border: 1px solid var(--border);
+    background: var(--panel2); color: var(--text); border-radius: 10px;
+    font-family: inherit; font-weight: 700; font-size: .9rem; cursor: pointer;
+  }
+  .task-list button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .formula {
+    font-size: 1rem; font-weight: 800; color: var(--primary);
+    background: var(--panel2); border-radius: 8px; padding: 10px 12px;
+    margin-bottom: 12px; text-align: center;
+  }
+  #fallback {
+    display: none; position: absolute; inset: 0; padding: 40px;
+    background: var(--bg); color: var(--text); font-size: 1.1rem; line-height: 1.6;
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; height: auto; }
+    #viewport { height: 60vh; min-height: 360px; }
+    aside { border-left: none; border-top: 1px solid var(--border); }
+    header .hint { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🧊 3D-визуализация. §17. Расчёт пути и времени движения</h1>
+    <p>Наглядные примеры: равномерное и неравномерное движение, графики s(t) и задачи.</p>
+  </div>
+  <div class="hint">🖱️ Вращай сцену мышью · колесо — масштаб</div>
+</header>
+
+<div class="layout">
+  <div id="viewport">
+    <div class="overlay">Сцена условная: масштаб и время ускорены · ось X на графике — t, ч; ось Y — s, км</div>
+    <div id="fallback">
+      <h2>Не удалось загрузить Three.js</h2>
+      <p>Для 3D-визуализации нужен доступ к сети (CDN cdnjs.cloudflare.com). Проверь подключение к Интернету и обнови страницу.</p>
+    </div>
+  </div>
+
+  <aside>
+    <div class="tabs" id="tabs"></div>
+    <div id="controls"></div>
+    <div class="readout" id="readout"></div>
+    <div id="extra"></div>
+    <div class="explain" id="explain"></div>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  if (typeof THREE === 'undefined') {
+    document.getElementById('fallback').style.display = 'block';
+    return;
+  }
+
+  // ===================== базовая сцена =====================
+  const container = document.getElementById('viewport');
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  container.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0b1220);
+  scene.fog = new THREE.Fog(0x0b1220, 500, 1400);
+
+  const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 4000);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.95);
+  sun.position.set(150, 240, 160);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.camera.left = -350;
+  sun.shadow.camera.right = 350;
+  sun.shadow.camera.top = 350;
+  sun.shadow.camera.bottom = -350;
+  sun.shadow.camera.far = 1200;
+  scene.add(sun);
+
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(2400, 2400),
+    new THREE.MeshStandardMaterial({ color: 0x0f1a2e, roughness: 1 })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  const grid = new THREE.GridHelper(1200, 60, 0x2b3a55, 0x18233c);
+  grid.position.y = 0.02;
+  scene.add(grid);
+
+  // ===================== камера (орбита) =====================
+  const orbit = { theta: -1.15, phi: 1.02, dist: 340, target: new THREE.Vector3(180, 8, -20) };
+  function applyCamera() {
+    const sp = Math.sin(orbit.phi), cp = Math.cos(orbit.phi);
+    camera.position.set(
+      orbit.target.x + orbit.dist * sp * Math.cos(orbit.theta),
+      orbit.target.y + orbit.dist * cp,
+      orbit.target.z + orbit.dist * sp * Math.sin(orbit.theta)
+    );
+    camera.lookAt(orbit.target);
+  }
+  let dragging = false, px = 0, py = 0;
+  renderer.domElement.addEventListener('pointerdown', e => {
+    dragging = true; px = e.clientX; py = e.clientY;
+    renderer.domElement.setPointerCapture(e.pointerId);
+  });
+  window.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    orbit.theta -= (e.clientX - px) * 0.005;
+    orbit.phi = Math.max(0.15, Math.min(1.45, orbit.phi - (e.clientY - py) * 0.005));
+    px = e.clientX; py = e.clientY;
+    applyCamera();
+  });
+  window.addEventListener('pointerup', () => { dragging = false; });
+  renderer.domElement.addEventListener('wheel', e => {
+    e.preventDefault();
+    orbit.dist = Math.max(40, Math.min(900, orbit.dist * (1 + Math.sign(e.deltaY) * 0.1)));
+    applyCamera();
+  }, { passive: false });
+
+  function resize() {
+    const w = container.clientWidth, h = container.clientHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  applyCamera();
+
+  // ===================== помощники =====================
+  function el(id) { return document.getElementById(id); }
+  function fmt(x, d) { return Number(x).toFixed(d === undefined ? 1 : d); }
+
+  function textSprite(text, opts) {
+    opts = opts || {};
+    const size = opts.size || 26;
+    const color = opts.color || '#e2e8f0';
+    const scale = opts.scale || 1;
+    const c = document.createElement('canvas');
+    let ctx = c.getContext('2d');
+    ctx.font = '700 ' + size + 'px Nunito, Arial, sans-serif';
+    const w = Math.ceil(ctx.measureText(text).width) + 20;
+    c.width = w; c.height = size + 20;
+    ctx = c.getContext('2d');
+    ctx.font = '700 ' + size + 'px Nunito, Arial, sans-serif';
+    ctx.fillStyle = color;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 10, c.height / 2);
+    const tex = new THREE.CanvasTexture(c);
+    tex.minFilter = THREE.LinearFilter;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+    sp.scale.set(c.width * 0.045 * scale, c.height * 0.045 * scale, 1);
+    return sp;
+  }
+
+  function makeCar(color) {
+    const g = new THREE.Group();
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(4, 1.2, 2),
+      new THREE.MeshStandardMaterial({ color: color, roughness: .45, metalness: .25 })
+    );
+    body.position.y = 1.0; body.castShadow = true;
+    const cabin = new THREE.Mesh(
+      new THREE.BoxGeometry(2.2, 0.9, 1.8),
+      new THREE.MeshStandardMaterial({ color: 0xdbeafe, roughness: .25 })
+    );
+    cabin.position.set(-0.2, 2.0, 0); cabin.castShadow = true;
+    g.add(body, cabin);
+    const wheelGeo = new THREE.CylinderGeometry(0.55, 0.55, 0.4, 18);
+    wheelGeo.rotateX(Math.PI / 2);
+    const wheelMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: .8 });
+    [[1.3, 0.95], [1.3, -0.95], [-1.3, 0.95], [-1.3, -0.95]].forEach(p => {
+      const w = new THREE.Mesh(wheelGeo, wheelMat);
+      w.position.set(p[0], 0.55, p[1]);
+      g.add(w);
+    });
+    return g;
+  }
+
+  function makeBus(color) {
+    const g = new THREE.Group();
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(6, 2.2, 2.4),
+      new THREE.MeshStandardMaterial({ color: color, roughness: .5, metalness: .15 })
+    );
+    body.position.y = 1.6; body.castShadow = true;
+    const windows = new THREE.Mesh(
+      new THREE.BoxGeometry(5.2, 0.8, 2.5),
+      new THREE.MeshStandardMaterial({ color: 0xbae6fd, roughness: .2 })
+    );
+    windows.position.y = 2.2;
+    g.add(body, windows);
+    const wheelGeo = new THREE.CylinderGeometry(0.6, 0.6, 0.45, 18);
+    wheelGeo.rotateX(Math.PI / 2);
+    const wheelMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: .8 });
+    [[2, 1.1], [2, -1.1], [-2, 1.1], [-2, -1.1]].forEach(p => {
+      const w = new THREE.Mesh(wheelGeo, wheelMat);
+      w.position.set(p[0], 0.6, p[1]);
+      g.add(w);
+    });
+    return g;
+  }
+
+  function buildRoad(length, width) {
+    const g = new THREE.Group();
+    width = width || 8;
+    const road = new THREE.Mesh(
+      new THREE.BoxGeometry(length, 0.2, width),
+      new THREE.MeshStandardMaterial({ color: 0x273449, roughness: .95 })
+    );
+    road.position.set(length / 2, 0.1, 0);
+    road.receiveShadow = true;
+    g.add(road);
+    const dashGeo = new THREE.BoxGeometry(3, 0.06, 0.35);
+    const dashMat = new THREE.MeshBasicMaterial({ color: 0x94a3b8 });
+    for (let x = 3; x < length; x += 9) {
+      const d = new THREE.Mesh(dashGeo, dashMat);
+      d.position.set(x, 0.24, 0);
+      g.add(d);
+    }
+    return g;
+  }
+
+  function addMarkers(group, step, max, unit) {
+    for (let d = 0; d <= max; d += step) {
+      const post = new THREE.Mesh(
+        new THREE.BoxGeometry(0.35, 3.2, 0.35),
+        new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: .7 })
+      );
+      post.position.set(d, 1.6, 6);
+      post.castShadow = true;
+      const label = textSprite(d + ' ' + unit, { size: 24, scale: 0.9 });
+      label.position.set(d, 4.4, 6);
+      group.add(post, label);
+    }
+  }
+
+  function makeTrail(color) {
+    const line = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial({ color: color })
+    );
+    line.frustumCulled = false;
+    return line;
+  }
+  function updateTrail(line, pts) {
+    line.geometry.dispose();
+    line.geometry = new THREE.BufferGeometry().setFromPoints(pts);
+  }
+
+  // График s(t): ось X — время, ось Y — путь
+  function buildGraph(opts) {
+    const tMax = opts.tMax || 4, sMax = opts.sMax || 500;
+    const tStep = opts.tStep || 1, sStep = opts.sStep || 100;
+    const w = opts.w || 400, h = opts.h || 260, z = opts.z === undefined ? -80 : opts.z;
+    const g = new THREE.Group();
+    const pts = [];
+    pts.push(new THREE.Vector3(0, 0, 0), new THREE.Vector3(w + 8, 0, 0));
+    pts.push(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, h + 8, 0));
+    for (let t = tStep; t <= tMax; t += tStep) {
+      const x = t / tMax * w;
+      pts.push(new THREE.Vector3(x, 0, 0), new THREE.Vector3(x, h, 0));
+    }
+    for (let s = sStep; s <= sMax; s += sStep) {
+      const y = s / sMax * h;
+      pts.push(new THREE.Vector3(0, y, 0), new THREE.Vector3(w, y, 0));
+    }
+    const lines = new THREE.LineSegments(
+      new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({ color: 0x334155 })
+    );
+    lines.frustumCulled = false;
+    g.add(lines);
+
+    for (let t = 0; t <= tMax; t += tStep) {
+      const lab = textSprite(t + ' ч', { size: 20, color: '#94a3b8', scale: 0.8 });
+      lab.position.set(t / tMax * w, -10, 0);
+      g.add(lab);
+    }
+    for (let s = 0; s <= sMax; s += sStep) {
+      const lab = textSprite(s + '', { size: 20, color: '#94a3b8', scale: 0.8 });
+      lab.position.set(-14, s / sMax * h, 0);
+      g.add(lab);
+    }
+    const tx = textSprite('t, ч', { size: 24, color: '#e2e8f0' });
+    tx.position.set(w + 16, 0, 0);
+    const ty = textSprite('s, км', { size: 24, color: '#e2e8f0' });
+    ty.position.set(-16, h + 16, 0);
+    g.add(tx, ty);
+
+    g.position.set(0, 0, z);
+    return {
+      group: g,
+      x: function (t) { return t / tMax * w; },
+      y: function (s) { return s / sMax * h; }
+    };
+  }
+
+  function setReadout(vals) {
+    const r = el('readout');
+    r.innerHTML = '';
+    vals.forEach(v => {
+      const d = document.createElement('div');
+      d.className = 'stat';
+      d.innerHTML = '<span class="k">' + v[0] + '</span><span class="v">' + v[1] + '</span>';
+      r.appendChild(d);
+    });
+  }
+
+  function playButton(id, playing) {
+    const b = el(id);
+    if (b) { b.textContent = playing ? '⏸ Пауза' : '▶ Старт'; b.dataset.playing = playing ? '1' : '0'; }
+  }
+
+  // ===================== Пример 1: равномерное движение =====================
+  function createUniform() {
+    const group = new THREE.Group();
+    const ROAD_LEN = 520;
+    group.add(buildRoad(ROAD_LEN));
+    addMarkers(group, 100, 500, 'км');
+
+    const car = makeCar(0x3b82f6);
+    group.add(car);
+
+    const graph = buildGraph({ tMax: 4, sMax: 560, tStep: 1, sStep: 100, w: 400, h: 260, z: -85 });
+    group.add(graph.group);
+
+    const trail = makeTrail(0x3b82f6); group.add(trail);
+    const graphLine = makeTrail(0x60a5fa); graph.group.add(graphLine);
+    const marker = new THREE.Mesh(
+      new THREE.SphereGeometry(1.3, 18, 18),
+      new THREE.MeshBasicMaterial({ color: 0xfacc15 })
+    );
+    graph.group.add(marker);
+
+    const state = { t: 0, playing: false, v: 70, timeScale: 0.5, tMax: 4 };
+    const hist = [];
+
+    function updateReadout() {
+      setReadout([
+        ['t', fmt(state.t, 2) + ' ч'],
+        ['s = v · t', fmt(state.v * state.t, 0) + ' км'],
+        ['v', fmt(state.v, 0) + ' км/ч']
+      ]);
+    }
+    function updateVisual() {
+      const s = state.v * state.t;
+      car.position.x = Math.min(s, ROAD_LEN - 6);
+      hist.push([state.t, s]);
+      updateTrail(trail, hist.map(p => new THREE.Vector3(p[1], 0.7, 0)));
+      updateTrail(graphLine, hist.map(p => new THREE.Vector3(graph.x(p[0]), graph.y(p[1]), 0)));
+      marker.position.set(graph.x(state.t), graph.y(s), 0.5);
+      updateReadout();
+    }
+    function reset() {
+      state.t = 0; hist.length = 0; car.position.x = 0;
+      updateTrail(trail, []); updateTrail(graphLine, []);
+      marker.position.set(0, 0, 0.5);
+      updateReadout();
+    }
+    function update(dt) {
+      if (!state.playing) return;
+      state.t += dt * state.timeScale;
+      if (state.t >= state.tMax) {
+        state.t = state.tMax; state.playing = false; playButton('u-play', false);
+      }
+      updateVisual();
+    }
+
+    const html =
+      '<div class="ctl"><label>Скорость v <b id="u-v">' + state.v + ' км/ч</b></label>' +
+      '<input type="range" id="u-speed" min="10" max="140" step="5" value="70"></div>' +
+      '<div class="ctl"><label>Ускорение времени <b id="u-ts">' + fmt(state.timeScale, 1) + ' ч/с</b></label>' +
+      '<input type="range" id="u-timescale" min="0.1" max="2" step="0.1" value="0.5"></div>' +
+      '<div class="btns"><button class="btn primary" id="u-play">▶ Старт</button>' +
+      '<button class="btn" id="u-reset">↺ Сброс</button></div>';
+    const explain = 'Автомобиль движется <b>равномерно</b>: за каждый час он проходит одно и то же расстояние. ' +
+      'Меняй скорость и смотри, как растёт путь: <b>s = v · t</b>. ' +
+      'Синяя линия на графике — зависимость пути от времени: чем больше скорость, тем круче график.';
+
+    function mount() {
+      el('controls').innerHTML = html;
+      el('explain').innerHTML = explain;
+      updateReadout(); reset();
+      el('u-speed').addEventListener('input', e => {
+        state.v = +e.target.value; el('u-v').textContent = state.v + ' км/ч';
+        if (state.t === 0) { reset(); }
+      });
+      el('u-timescale').addEventListener('input', e => {
+        state.timeScale = +e.target.value; el('u-ts').textContent = fmt(state.timeScale, 1) + ' ч/с';
+      });
+      el('u-play').addEventListener('click', () => {
+        if (state.t >= state.tMax) reset();
+        state.playing = !state.playing; playButton('u-play', state.playing);
+      });
+      el('u-reset').addEventListener('click', () => {
+        state.playing = false; playButton('u-play', false); reset();
+      });
+    }
+    return { group: group, update: update, mount: mount, reset: reset,
+      camera: { theta: -1.15, phi: 1.02, dist: 340, target: [180, 8, -20] } };
+  }
+
+  // ===================== Пример 2: сравнение двух тел =====================
+  function createCompare() {
+    const group = new THREE.Group();
+    const ROAD_LEN = 520;
+    group.add(buildRoad(ROAD_LEN));
+    addMarkers(group, 100, 500, 'км');
+
+    const car1 = makeCar(0x3b82f6); car1.position.z = -3; group.add(car1);
+    const car2 = makeCar(0xf97316); car2.position.z = 3; group.add(car2);
+
+    const graph = buildGraph({ tMax: 4, sMax: 560, tStep: 1, sStep: 100, w: 400, h: 260, z: -85 });
+    group.add(graph.group);
+
+    const trail1 = makeTrail(0x3b82f6); group.add(trail1);
+    const trail2 = makeTrail(0xf97316); group.add(trail2);
+    const line1 = makeTrail(0x60a5fa); graph.group.add(line1);
+    const line2 = makeTrail(0xfb923c); graph.group.add(line2);
+    const m1 = new THREE.Mesh(new THREE.SphereGeometry(1.2, 18, 18), new THREE.MeshBasicMaterial({ color: 0x60a5fa }));
+    const m2 = new THREE.Mesh(new THREE.SphereGeometry(1.2, 18, 18), new THREE.MeshBasicMaterial({ color: 0xfb923c }));
+    graph.group.add(m1, m2);
+
+    const state = { t: 0, playing: false, v1: 40, v2: 90, timeScale: 0.5, tMax: 4 };
+    const h1 = [], h2 = [];
+
+    function updateReadout() {
+      const s1 = state.v1 * state.t, s2 = state.v2 * state.t;
+      setReadout([
+        ['t', fmt(state.t, 2) + ' ч'],
+        ['Синий: s₁', fmt(s1, 0) + ' км'],
+        ['Оранжевый: s₂', fmt(s2, 0) + ' км']
+      ]);
+    }
+    function updateVisual() {
+      const s1 = state.v1 * state.t, s2 = state.v2 * state.t;
+      car1.position.x = Math.min(s1, ROAD_LEN - 6);
+      car2.position.x = Math.min(s2, ROAD_LEN - 6);
+      h1.push([state.t, s1]); h2.push([state.t, s2]);
+      updateTrail(trail1, h1.map(p => new THREE.Vector3(p[1], 0.7, -3)));
+      updateTrail(trail2, h2.map(p => new THREE.Vector3(p[1], 0.7, 3)));
+      updateTrail(line1, h1.map(p => new THREE.Vector3(graph.x(p[0]), graph.y(p[1]), 0)));
+      updateTrail(line2, h2.map(p => new THREE.Vector3(graph.x(p[0]), graph.y(p[1]), 0)));
+      m1.position.set(graph.x(state.t), graph.y(s1), 0.5);
+      m2.position.set(graph.x(state.t), graph.y(s2), 0.5);
+      updateReadout();
+    }
+    function reset() {
+      state.t = 0; h1.length = 0; h2.length = 0;
+      car1.position.x = 0; car2.position.x = 0;
+      updateTrail(trail1, []); updateTrail(trail2, []);
+      updateTrail(line1, []); updateTrail(line2, []);
+      m1.position.set(0, 0, 0.5); m2.position.set(0, 0, 0.5);
+      updateReadout();
+    }
+    function update(dt) {
+      if (!state.playing) return;
+      state.t += dt * state.timeScale;
+      if (state.t >= state.tMax) {
+        state.t = state.tMax; state.playing = false; playButton('c-play', false);
+      }
+      updateVisual();
+    }
+
+    const html =
+      '<div class="ctl"><label>Скорость синего <b id="c-v1">' + state.v1 + ' км/ч</b></label>' +
+      '<input type="range" id="c-s1" min="10" max="140" step="5" value="40"></div>' +
+      '<div class="ctl"><label>Скорость оранжевого <b id="c-v2">' + state.v2 + ' км/ч</b></label>' +
+      '<input type="range" id="c-s2" min="10" max="140" step="5" value="90"></div>' +
+      '<div class="btns"><button class="btn primary" id="c-play">▶ Старт</button>' +
+      '<button class="btn" id="c-reset">↺ Сброс</button></div>';
+    const explain = 'Два тела стартуют <b>одновременно</b>. У кого скорость больше, тот за то же время пройдёт больший путь. ' +
+      'На графике s(t) это видно по углу наклона: <b>чем круче прямая, тем больше скорость</b>. ' +
+      'Попробуй подобрать одинаковые скорости — прямые совпадут.';
+
+    function mount() {
+      el('controls').innerHTML = html;
+      el('explain').innerHTML = explain;
+      updateReadout(); reset();
+      el('c-s1').addEventListener('input', e => {
+        state.v1 = +e.target.value; el('c-v1').textContent = state.v1 + ' км/ч';
+        if (state.t === 0) reset();
+      });
+      el('c-s2').addEventListener('input', e => {
+        state.v2 = +e.target.value; el('c-v2').textContent = state.v2 + ' км/ч';
+        if (state.t === 0) reset();
+      });
+      el('c-play').addEventListener('click', () => {
+        if (state.t >= state.tMax) reset();
+        state.playing = !state.playing; playButton('c-play', state.playing);
+      });
+      el('c-reset').addEventListener('click', () => {
+        state.playing = false; playButton('c-play', false); reset();
+      });
+    }
+    return { group: group, update: update, mount: mount, reset: reset,
+      camera: { theta: -1.15, phi: 1.02, dist: 340, target: [180, 8, -20] } };
+  }
+
+  // ===================== Пример 3: туда и обратно (средняя скорость) =====================
+  function createNonUniform() {
+    const group = new THREE.Group();
+    const ROAD_LEN = 66; // 60 км
+    group.add(buildRoad(ROAD_LEN, 6));
+    addMarkers(group, 10, 60, 'км');
+
+    const bus = makeBus(0x22c55e);
+    bus.scale.setScalar(0.16);
+    group.add(bus);
+
+    // отметка разворота на 30 км
+    const turn = new THREE.Mesh(
+      new THREE.BoxGeometry(0.4, 4.5, 0.4),
+      new THREE.MeshStandardMaterial({ color: 0xfacc15 })
+    );
+    turn.position.set(30, 2.25, 5);
+    const turnLab = textSprite('разворот: 30 км', { size: 22, color: '#facc15', scale: 0.9 });
+    turnLab.position.set(30, 5.4, 5);
+    group.add(turn, turnLab);
+
+    const state = {
+      t: 0, playing: false, v1: 60, v2: 50, leg: 30,
+      t1: 30 / 60, t2: 30 / 50, total: 30 / 60 + 30 / 50, timeScale: 0.2
+    };
+    const trail = makeTrail(0x22c55e);
+    group.add(trail);
+    const hist = [];
+
+    function posAt(t) {
+      if (t <= state.t1) return state.v1 * t;
+      return state.leg - state.v2 * (t - state.t1);
+    }
+    function passedAt(t) {
+      if (t <= state.t1) return state.v1 * t;
+      return state.leg + state.v2 * (t - state.t1);
+    }
+    function updateReadout() {
+      const x = posAt(state.t), s = passedAt(state.t);
+      setReadout([
+        ['t', fmt(state.t, 2) + ' ч'],
+        ['положение', fmt(x, 1) + ' км'],
+        ['пройдено', fmt(s, 1) + ' км']
+      ]);
+      const res = el('n-result');
+      if (res) {
+        if (state.t >= state.total) {
+          const avg = 60 / state.total;
+          res.innerHTML = 'Весь путь: <b>60 км</b><br>Всё время: <b>' + fmt(state.total, 2) + ' ч</b><br>' +
+            'v<sub>ср</sub> = 60 : ' + fmt(state.total, 2) + ' ≈ <b>' + fmt(avg, 1) + ' км/ч</b><br>' +
+            '<span style="color:#fca5a5">Среднее арифметическое (60 + 50) : 2 = 55 км/ч — неверно!</span>';
+        } else {
+          res.innerHTML = 'Туда: ' + fmt(state.v1, 0) + ' км/ч · обратно: ' + fmt(state.v2, 0) + ' км/ч';
+        }
+      }
+    }
+    function updateVisual() {
+      bus.position.x = posAt(state.t);
+      bus.rotation.y = state.t <= state.t1 ? 0 : Math.PI;
+      hist.push([state.t, posAt(state.t)]);
+      updateTrail(trail, hist.map(p => new THREE.Vector3(p[1], 0.7, 0)));
+      updateReadout();
+    }
+    function reset() {
+      state.t = 0; hist.length = 0;
+      bus.position.x = 0; bus.rotation.y = 0;
+      updateTrail(trail, []);
+      updateReadout();
+    }
+    function update(dt) {
+      if (!state.playing) return;
+      state.t += dt * state.timeScale;
+      if (state.t >= state.total) {
+        state.t = state.total; state.playing = false; playButton('n-play', false);
+      }
+      updateVisual();
+    }
+
+    const html =
+      '<div class="btns"><button class="btn primary" id="n-play">▶ Старт</button>' +
+      '<button class="btn" id="n-reset">↺ Сброс</button></div>' +
+      '<div id="n-result" style="background:var(--panel2);border:1px solid var(--border);border-radius:8px;' +
+      'padding:12px;font-size:.9rem;line-height:1.55;margin-bottom:14px;"></div>';
+    const explain = 'Автобус ехал <b>туда 30 км со скоростью 60 км/ч</b>, а обратно — <b>30 км со скоростью 50 км/ч</b>. ' +
+      'Средняя скорость за весь путь — это <b>весь путь, делённый на всё время</b>: ' +
+      'v<sub>ср</sub> = 60 км : 1,1 ч ≈ 54,5 км/ч. Она не равна среднему арифметическому 55 км/ч.';
+
+    function mount() {
+      el('controls').innerHTML = html;
+      el('explain').innerHTML = explain;
+      updateReadout(); reset();
+      el('n-play').addEventListener('click', () => {
+        if (state.t >= state.total) reset();
+        state.playing = !state.playing; playButton('n-play', state.playing);
+      });
+      el('n-reset').addEventListener('click', () => {
+        state.playing = false; playButton('n-play', false); reset();
+      });
+    }
+    return { group: group, update: update, mount: mount, reset: reset,
+      camera: { theta: -1.2, phi: 1.05, dist: 110, target: [32, 4, 0] } };
+  }
+
+  // ===================== Пример 4: задачи =====================
+  function createTasks() {
+    const group = new THREE.Group();
+    const ROAD_LEN = 90;
+    group.add(buildRoad(ROAD_LEN, 7));
+    addMarkers(group, 10, 80, 'усл. ед.');
+
+    const car = makeCar(0x3b82f6);
+    group.add(car);
+    const trail = makeTrail(0x3b82f6);
+    group.add(trail);
+    const flag = new THREE.Mesh(
+      new THREE.BoxGeometry(0.4, 5, 0.4),
+      new THREE.MeshStandardMaterial({ color: 0xfacc15 })
+    );
+    const flagLab = textSprite('ФИНИШ', { size: 24, color: '#facc15', scale: 1 });
+
+    const TASKS = [
+      {
+        id: 'snail', name: '🐌 Улитка',
+        desc: 'v = 1,4 мм/с, путь 420 мм',
+        v: 1.4, vUnit: 'мм/с', s: 420, sUnit: 'мм', T: 300, tUnit: 'с',
+        worldS: 42, duration: 8,
+        formula: 's = v · t = 1,4 · 300 = 420 мм = 42 см',
+        answer: 'Улитка проползёт 420 мм (42 см) за 300 с = 5 мин.'
+      },
+      {
+        id: 'oak', name: '🌳 Дуб',
+        desc: 'v = 0,3 м/год, высота 6 м',
+        v: 0.3, vUnit: 'м/год', s: 6, sUnit: 'м', T: 20, tUnit: 'лет',
+        worldS: 30, duration: 8,
+        formula: 't = s / v = 6 : 0,3 = 20 лет',
+        answer: 'Дереву 20 лет: t = s / v = 6 м : 0,3 м/год = 20 лет.'
+      },
+      {
+        id: 'city', name: '🚗 Москва — Подольск',
+        desc: '20 км со скоростью 90 км/ч и 20 км со скоростью 10 км/ч',
+        segments: [{ s: 20, v: 90 }, { s: 20, v: 10 }],
+        v: 90, vUnit: 'км/ч',
+        s: 40, sUnit: 'км', T: 20 / 90 + 20 / 10, tUnit: 'ч',
+        worldS: 80, duration: 10,
+        formula: 't = 20/90 + 20/10 = 2 2/9 ч ≈ 2 ч 13 мин',
+        answer: 'Время: 2 2/9 ч ≈ 2 ч 13 мин. Велосипедист проедет 40 км за это время со скоростью v = 40 : (20/9) = 18 км/ч.'
+      }
+    ];
+    // для городской задачи время: t1 = 20/90 ч, t2 = 20/10 ч
+
+    const state = { task: TASKS[0], playing: false, progress: 0, hist: [] };
+
+    function currentSegment(t) {
+      if (!state.task.segments) return { v: state.task.v };
+      let acc = 0;
+      for (let i = 0; i < state.task.segments.length; i++) {
+        const seg = state.task.segments[i];
+        const dur = seg.s / seg.v;
+        if (t <= acc + dur) return { v: seg.v, index: i };
+        acc += dur;
+      }
+      return { v: state.task.segments[state.task.segments.length - 1].v };
+    }
+    function progressToS(p) { return p * state.task.s; }
+    function progressToT(p) { return p * state.task.T; }
+    function sToWorld(s) { return s / state.task.s * state.task.worldS; }
+
+    function updateReadout() {
+      const s = progressToS(state.progress);
+      const t = progressToT(state.progress);
+      const seg = currentSegment(t);
+      setReadout([
+        ['t', fmt(t, t < 10 ? 2 : 1) + ' ' + state.task.tUnit],
+        ['s', fmt(s, s < 10 ? 2 : 0) + ' ' + state.task.sUnit],
+        ['v', fmt(seg.v, 1) + ' ' + state.task.vUnit]
+      ]);
+      const ans = el('t-answer');
+      if (ans && state.progress >= 1) ans.classList.add('show');
+    }
+    function updateVisual() {
+      const s = progressToS(state.progress);
+      car.position.x = sToWorld(s);
+      state.hist.push([state.progress, sToWorld(s)]);
+      updateTrail(trail, state.hist.map(p => new THREE.Vector3(p[1], 0.7, 0)));
+      updateReadout();
+    }
+    function reset() {
+      state.progress = 0; state.hist = [];
+      car.position.x = 0;
+      updateTrail(trail, []);
+      updateReadout();
+      const ans = el('t-answer'); if (ans) ans.classList.remove('show');
+    }
+    function update(dt) {
+      if (!state.playing) return;
+      state.progress += dt / state.task.duration;
+      if (state.progress >= 1) {
+        state.progress = 1; state.playing = false; playButton('t-play', false);
+      }
+      updateVisual();
+    }
+    function selectTask(id) {
+      state.task = TASKS.find(t => t.id === id);
+      state.playing = false;
+      playButton('t-play', false);
+      buildTaskButtons();
+      reset();
+      el('t-formula').textContent = state.task.formula;
+      el('t-answer').textContent = state.task.answer;
+      const w = sToWorld(state.task.s);
+      flag.position.set(w, 2.5, 5);
+      flagLab.position.set(w, 6.2, 5);
+    }
+    function buildTaskButtons() {
+      const wrap = el('t-tasks');
+      wrap.innerHTML = '';
+      TASKS.forEach(t => {
+        const b = document.createElement('button');
+        b.textContent = t.name;
+        if (t.id === state.task.id) b.classList.add('active');
+        b.addEventListener('click', () => selectTask(t.id));
+        wrap.appendChild(b);
+      });
+    }
+
+    const html =
+      '<div class="task-list" id="t-tasks"></div>' +
+      '<div class="formula" id="t-formula"></div>' +
+      '<div class="btns"><button class="btn primary" id="t-play">▶ Старт</button>' +
+      '<button class="btn" id="t-reset">↺ Сброс</button>' +
+      '<button class="btn green" id="t-answer-btn">💡 Показать ответ</button></div>' +
+      '<div class="answer" id="t-answer"></div>';
+    const explain = 'Выбери задачу и нажми «Старт»: машина покажет движение, а в панели — время, путь и скорость. ' +
+      'Сравни с решением по формулам <b>s = v · t</b> и <b>t = s / v</b>.';
+
+    function mount() {
+      el('controls').innerHTML = html;
+      el('explain').innerHTML = explain;
+      selectTask('snail');
+      el('t-play').addEventListener('click', () => {
+        if (state.progress >= 1) reset();
+        state.playing = !state.playing; playButton('t-play', state.playing);
+      });
+      el('t-reset').addEventListener('click', () => {
+        state.playing = false; playButton('t-play', false); reset();
+      });
+      el('t-answer-btn').addEventListener('click', () => {
+        el('t-answer').classList.toggle('show');
+      });
+    }
+    return { group: group, update: update, mount: mount, reset: reset,
+      camera: { theta: -1.2, phi: 1.05, dist: 130, target: [42, 4, 0] } };
+  }
+
+  // ===================== переключатель примеров =====================
+  const EXAMPLES = [
+    { id: 'uniform', name: '🚗 Равномерное', create: createUniform },
+    { id: 'compare', name: '🏎️ Два тела', create: createCompare },
+    { id: 'nonuniform', name: '🚌 Туда и обратно', create: createNonUniform },
+    { id: 'tasks', name: '🧩 Задачи', create: createTasks }
+  ];
+
+  let current = null;
+
+  function selectExample(id) {
+    if (current) {
+      scene.remove(current.group);
+      current.group.traverse(o => {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) {
+          if (o.material.map) o.material.map.dispose();
+          o.material.dispose();
+        }
+      });
+    }
+    document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('active', b.dataset.id === id));
+    const ex = EXAMPLES.find(e => e.id === id);
+    current = ex.create();
+    scene.add(current.group);
+    current.mount();
+    const c = current.camera;
+    orbit.theta = c.theta; orbit.phi = c.phi; orbit.dist = c.dist;
+    orbit.target.set(c.target[0], c.target[1], c.target[2]);
+    applyCamera();
+  }
+
+  const tabs = el('tabs');
+  EXAMPLES.forEach(e => {
+    const b = document.createElement('button');
+    b.textContent = e.name;
+    b.dataset.id = e.id;
+    b.addEventListener('click', () => selectExample(e.id));
+    tabs.appendChild(b);
+  });
+
+  selectExample('uniform');
+
+  // ===================== цикл =====================
+  let last = performance.now();
+  function loop(now) {
+    const dt = Math.min((now - last) / 1000, 0.05);
+    last = now;
+    if (current) current.update(dt);
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
