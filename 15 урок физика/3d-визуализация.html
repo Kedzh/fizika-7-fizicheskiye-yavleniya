@@ -119,7 +119,7 @@
 
 <div class="layout">
   <div id="viewport">
-    <div class="overlay">Сцена условная: масштаб и время ускорены · ось X на графике — t, ч; ось Y — s, км</div>
+    <div class="overlay">Графики: s(t) и v(t) · ось X — время, ось Y — путь или скорость · масштаб и время условны</div>
     <div id="fallback">
       <h2>Не удалось загрузить Three.js</h2>
       <p>Для 3D-визуализации нужен доступ к сети (CDN cdnjs.cloudflare.com). Проверь подключение к Интернету и обнови страницу.</p>
@@ -415,20 +415,23 @@
 
   // График s(t): ось X — время, ось Y — путь
   function buildGraph(opts) {
-    const tMax = opts.tMax || 4, sMax = opts.sMax || 500;
-    const tStep = opts.tStep || 1, sStep = opts.sStep || 100;
-    const w = opts.w || 400, h = opts.h || 260, z = opts.z === undefined ? -80 : opts.z;
+    const tMax = opts.tMax || 4, yMax = opts.yMax || 500;
+    const tStep = opts.tStep || 1, yStep = opts.yStep || 100;
+    const w = opts.w || 400, h = opts.h || 260;
+    const x = opts.x || 0, y = opts.y || 0, z = opts.z === undefined ? -80 : opts.z;
+    const yLabel = opts.yLabel || 's, км';
+    const yUnit = opts.yUnit || '';
     const g = new THREE.Group();
     const pts = [];
     pts.push(new THREE.Vector3(0, 0, 0), new THREE.Vector3(w + 8, 0, 0));
     pts.push(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, h + 8, 0));
-    for (let t = tStep; t <= tMax; t += tStep) {
-      const x = t / tMax * w;
-      pts.push(new THREE.Vector3(x, 0, 0), new THREE.Vector3(x, h, 0));
+    for (let t = tStep; t <= tMax + 1e-9; t += tStep) {
+      const xx = t / tMax * w;
+      pts.push(new THREE.Vector3(xx, 0, 0), new THREE.Vector3(xx, h, 0));
     }
-    for (let s = sStep; s <= sMax; s += sStep) {
-      const y = s / sMax * h;
-      pts.push(new THREE.Vector3(0, y, 0), new THREE.Vector3(w, y, 0));
+    for (let v = yStep; v <= yMax + 1e-9; v += yStep) {
+      const yy = v / yMax * h;
+      pts.push(new THREE.Vector3(0, yy, 0), new THREE.Vector3(w, yy, 0));
     }
     const lines = new THREE.LineSegments(
       new THREE.BufferGeometry().setFromPoints(pts),
@@ -437,27 +440,27 @@
     lines.frustumCulled = false;
     g.add(lines);
 
-    for (let t = 0; t <= tMax; t += tStep) {
-      const lab = textSprite(t + ' ч', { size: 20, color: '#94a3b8', scale: 0.8 });
+    for (let t = 0; t <= tMax + 1e-9; t += tStep) {
+      const lab = textSprite(fmt(t, 1) + ' ч', { size: 20, color: '#94a3b8', scale: 0.8 });
       lab.position.set(t / tMax * w, -10, 0);
       g.add(lab);
     }
-    for (let s = 0; s <= sMax; s += sStep) {
-      const lab = textSprite(s + '', { size: 20, color: '#94a3b8', scale: 0.8 });
-      lab.position.set(-14, s / sMax * h, 0);
+    for (let v = 0; v <= yMax + 1e-9; v += yStep) {
+      const lab = textSprite(v + yUnit, { size: 20, color: '#94a3b8', scale: 0.8 });
+      lab.position.set(-14, v / yMax * h, 0);
       g.add(lab);
     }
     const tx = textSprite('t, ч', { size: 24, color: '#e2e8f0' });
     tx.position.set(w + 16, 0, 0);
-    const ty = textSprite('s, км', { size: 24, color: '#e2e8f0' });
+    const ty = textSprite(yLabel, { size: 24, color: '#e2e8f0' });
     ty.position.set(-16, h + 16, 0);
     g.add(tx, ty);
 
-    g.position.set(0, 0, z);
+    g.position.set(x, y, z);
     return {
       group: g,
       x: function (t) { return t / tMax * w; },
-      y: function (s) { return s / sMax * h; }
+      y: function (v) { return v / yMax * h; }
     };
   }
 
@@ -487,8 +490,9 @@
     const car = makeCar(0x3b82f6);
     group.add(car);
 
-    const graph = buildGraph({ tMax: 4, sMax: 560, tStep: 1, sStep: 100, w: 400, h: 260, z: -85 });
-    group.add(graph.group);
+    const graph = buildGraph({ tMax: 4, yMax: 560, tStep: 1, yStep: 100, w: 400, h: 200, z: -85, y: 0, yLabel: 's, км' });
+    const graphV = buildGraph({ tMax: 4, yMax: 140, tStep: 1, yStep: 20, w: 400, h: 200, z: -85, y: 240, yLabel: 'v, км/ч' });
+    group.add(graph.group, graphV.group);
 
     const trail = makeTrail(0x3b82f6); group.add(trail);
     const graphLine = makeTrail(0x60a5fa); graph.group.add(graphLine);
@@ -497,6 +501,12 @@
       new THREE.MeshBasicMaterial({ color: 0xfacc15 })
     );
     graph.group.add(marker);
+    const vLine = makeTrail(0xfacc15); graphV.group.add(vLine);
+    const vMarker = new THREE.Mesh(
+      new THREE.SphereGeometry(1.3, 18, 18),
+      new THREE.MeshBasicMaterial({ color: 0xfacc15 })
+    );
+    graphV.group.add(vMarker);
 
     const state = { t: 0, playing: false, v: 70, timeScale: 0.5, tMax: 4 };
     const hist = [];
@@ -508,6 +518,14 @@
         ['v', fmt(state.v, 0) + ' км/ч']
       ]);
     }
+    function drawVLine() {
+      const vy = graphV.y(state.v);
+      updateTrail(vLine, [
+        new THREE.Vector3(0, vy, 0),
+        new THREE.Vector3(graphV.x(state.tMax), vy, 0)
+      ]);
+      vMarker.position.set(graphV.x(state.t), vy, 0.5);
+    }
     function updateVisual() {
       const s = state.v * state.t;
       car.position.x = Math.min(s, ROAD_LEN - 6);
@@ -515,12 +533,14 @@
       updateTrail(trail, hist.map(p => new THREE.Vector3(p[1], 0.7, 0)));
       updateTrail(graphLine, hist.map(p => new THREE.Vector3(graph.x(p[0]), graph.y(p[1]), 0)));
       marker.position.set(graph.x(state.t), graph.y(s), 0.5);
+      drawVLine();
       updateReadout();
     }
     function reset() {
       state.t = 0; hist.length = 0; car.position.x = 0;
       updateTrail(trail, []); updateTrail(graphLine, []);
       marker.position.set(0, 0, 0.5);
+      drawVLine();
       updateReadout();
     }
     function update(dt) {
@@ -541,7 +561,8 @@
       '<button class="btn" id="u-reset">↺ Сброс</button></div>';
     const explain = 'Автомобиль движется <b>равномерно</b>: за каждый час он проходит одно и то же расстояние. ' +
       'Меняй скорость и смотри, как растёт путь: <b>s = v · t</b>. ' +
-      'Синяя линия на графике — зависимость пути от времени: чем больше скорость, тем круче график.';
+      'Синяя линия на верхнем графике — зависимость пути от времени: чем больше скорость, тем круче график. ' +
+      'Жёлтая линия на нижнем графике — зависимость <b>v(t)</b>: при равномерном движении скорость постоянна.';
 
     function mount() {
       el('controls').innerHTML = html;
@@ -549,7 +570,7 @@
       updateReadout(); reset();
       el('u-speed').addEventListener('input', e => {
         state.v = +e.target.value; el('u-v').textContent = state.v + ' км/ч';
-        if (state.t === 0) { reset(); }
+        reset();
       });
       el('u-timescale').addEventListener('input', e => {
         state.timeScale = +e.target.value; el('u-ts').textContent = fmt(state.timeScale, 1) + ' ч/с';
@@ -563,7 +584,7 @@
       });
     }
     return { group: group, update: update, mount: mount, reset: reset,
-      camera: { theta: -1.15, phi: 1.02, dist: 340, target: [180, 8, -20] } };
+      camera: { theta: 1.15, phi: 1.05, dist: 560, target: [180, 210, -85] } };
   }
 
   // ===================== Пример 2: сравнение двух тел =====================
@@ -576,8 +597,9 @@
     const car1 = makeCar(0x3b82f6); car1.position.z = -3; group.add(car1);
     const car2 = makeCar(0xf97316); car2.position.z = 3; group.add(car2);
 
-    const graph = buildGraph({ tMax: 4, sMax: 560, tStep: 1, sStep: 100, w: 400, h: 260, z: -85 });
-    group.add(graph.group);
+    const graph = buildGraph({ tMax: 4, yMax: 560, tStep: 1, yStep: 100, w: 400, h: 200, z: -85, y: 0, yLabel: 's, км' });
+    const graphV = buildGraph({ tMax: 4, yMax: 140, tStep: 1, yStep: 20, w: 400, h: 200, z: -85, y: 240, yLabel: 'v, км/ч' });
+    group.add(graph.group, graphV.group);
 
     const trail1 = makeTrail(0x3b82f6); group.add(trail1);
     const trail2 = makeTrail(0xf97316); group.add(trail2);
@@ -586,6 +608,11 @@
     const m1 = new THREE.Mesh(new THREE.SphereGeometry(1.2, 18, 18), new THREE.MeshBasicMaterial({ color: 0x60a5fa }));
     const m2 = new THREE.Mesh(new THREE.SphereGeometry(1.2, 18, 18), new THREE.MeshBasicMaterial({ color: 0xfb923c }));
     graph.group.add(m1, m2);
+    const vLine1 = makeTrail(0x60a5fa); graphV.group.add(vLine1);
+    const vLine2 = makeTrail(0xfb923c); graphV.group.add(vLine2);
+    const vm1 = new THREE.Mesh(new THREE.SphereGeometry(1.2, 18, 18), new THREE.MeshBasicMaterial({ color: 0x60a5fa }));
+    const vm2 = new THREE.Mesh(new THREE.SphereGeometry(1.2, 18, 18), new THREE.MeshBasicMaterial({ color: 0xfb923c }));
+    graphV.group.add(vm1, vm2);
 
     const state = { t: 0, playing: false, v1: 40, v2: 90, timeScale: 0.5, tMax: 4 };
     const h1 = [], h2 = [];
@@ -598,6 +625,18 @@
         ['Оранжевый: s₂', fmt(s2, 0) + ' км']
       ]);
     }
+    function drawVLines() {
+      updateTrail(vLine1, [
+        new THREE.Vector3(0, graphV.y(state.v1), 0),
+        new THREE.Vector3(graphV.x(state.tMax), graphV.y(state.v1), 0)
+      ]);
+      updateTrail(vLine2, [
+        new THREE.Vector3(0, graphV.y(state.v2), 0),
+        new THREE.Vector3(graphV.x(state.tMax), graphV.y(state.v2), 0)
+      ]);
+      vm1.position.set(graphV.x(state.t), graphV.y(state.v1), 0.5);
+      vm2.position.set(graphV.x(state.t), graphV.y(state.v2), 0.5);
+    }
     function updateVisual() {
       const s1 = state.v1 * state.t, s2 = state.v2 * state.t;
       car1.position.x = Math.min(s1, ROAD_LEN - 6);
@@ -609,6 +648,7 @@
       updateTrail(line2, h2.map(p => new THREE.Vector3(graph.x(p[0]), graph.y(p[1]), 0)));
       m1.position.set(graph.x(state.t), graph.y(s1), 0.5);
       m2.position.set(graph.x(state.t), graph.y(s2), 0.5);
+      drawVLines();
       updateReadout();
     }
     function reset() {
@@ -617,6 +657,7 @@
       updateTrail(trail1, []); updateTrail(trail2, []);
       updateTrail(line1, []); updateTrail(line2, []);
       m1.position.set(0, 0, 0.5); m2.position.set(0, 0, 0.5);
+      drawVLines();
       updateReadout();
     }
     function update(dt) {
@@ -636,7 +677,8 @@
       '<div class="btns"><button class="btn primary" id="c-play">▶ Старт</button>' +
       '<button class="btn" id="c-reset">↺ Сброс</button></div>';
     const explain = 'Два тела стартуют <b>одновременно</b>. У кого скорость больше, тот за то же время пройдёт больший путь. ' +
-      'На графике s(t) это видно по углу наклона: <b>чем круче прямая, тем больше скорость</b>. ' +
+      'На верхнем графике s(t) это видно по углу наклона: <b>чем круче прямая, тем больше скорость</b>. ' +
+      'На нижнем графике <b>v(t)</b> каждая скорость — горизонтальная прямая. ' +
       'Попробуй подобрать одинаковые скорости — прямые совпадут.';
 
     function mount() {
@@ -645,11 +687,11 @@
       updateReadout(); reset();
       el('c-s1').addEventListener('input', e => {
         state.v1 = +e.target.value; el('c-v1').textContent = state.v1 + ' км/ч';
-        if (state.t === 0) reset();
+        reset();
       });
       el('c-s2').addEventListener('input', e => {
         state.v2 = +e.target.value; el('c-v2').textContent = state.v2 + ' км/ч';
-        if (state.t === 0) reset();
+        reset();
       });
       el('c-play').addEventListener('click', () => {
         if (state.t >= state.tMax) reset();
@@ -660,7 +702,7 @@
       });
     }
     return { group: group, update: update, mount: mount, reset: reset,
-      camera: { theta: -1.15, phi: 1.02, dist: 340, target: [180, 8, -20] } };
+      camera: { theta: 1.15, phi: 1.05, dist: 560, target: [180, 210, -85] } };
   }
 
   // ===================== Пример 3: туда и обратно (средняя скорость) =====================
@@ -683,6 +725,16 @@
     const turnLab = textSprite('разворот: 30 км', { size: 22, color: '#facc15', scale: 0.9 });
     turnLab.position.set(30, 5.4, 5);
     group.add(turn, turnLab);
+
+    // график v(t): сначала 60 км/ч, после разворота — 50 км/ч
+    const graphV = buildGraph({ tMax: 1.2, yMax: 70, tStep: 0.2, yStep: 10, w: 220, h: 200, z: -85, x: 80, y: 0, yLabel: 'v, км/ч' });
+    group.add(graphV.group);
+    const vStepLine = makeTrail(0x22c55e); graphV.group.add(vStepLine);
+    const vMarker = new THREE.Mesh(
+      new THREE.SphereGeometry(1.1, 18, 18),
+      new THREE.MeshBasicMaterial({ color: 0xfacc15 })
+    );
+    graphV.group.add(vMarker);
 
     const state = {
       t: 0, playing: false, v1: 60, v2: 50, leg: 30,
@@ -719,17 +771,30 @@
         }
       }
     }
+    function drawVStep() {
+      const x = graphV.x, y = graphV.y;
+      updateTrail(vStepLine, [
+        new THREE.Vector3(x(0), y(state.v1), 0),
+        new THREE.Vector3(x(state.t1), y(state.v1), 0),
+        new THREE.Vector3(x(state.t1), y(state.v2), 0),
+        new THREE.Vector3(x(state.total), y(state.v2), 0)
+      ]);
+      const v = state.t <= state.t1 ? state.v1 : state.v2;
+      vMarker.position.set(x(state.t), y(v), 0.5);
+    }
     function updateVisual() {
       bus.position.x = posAt(state.t);
       bus.rotation.y = state.t <= state.t1 ? 0 : Math.PI;
       hist.push([state.t, posAt(state.t)]);
       updateTrail(trail, hist.map(p => new THREE.Vector3(p[1], 0.7, 0)));
+      drawVStep();
       updateReadout();
     }
     function reset() {
       state.t = 0; hist.length = 0;
       bus.position.x = 0; bus.rotation.y = 0;
       updateTrail(trail, []);
+      drawVStep();
       updateReadout();
     }
     function update(dt) {
@@ -748,7 +813,8 @@
       'padding:12px;font-size:.9rem;line-height:1.55;margin-bottom:14px;"></div>';
     const explain = 'Автобус ехал <b>туда 30 км со скоростью 60 км/ч</b>, а обратно — <b>30 км со скоростью 50 км/ч</b>. ' +
       'Средняя скорость за весь путь — это <b>весь путь, делённый на всё время</b>: ' +
-      'v<sub>ср</sub> = 60 км : 1,1 ч ≈ 54,5 км/ч. Она не равна среднему арифметическому 55 км/ч.';
+      'v<sub>ср</sub> = 60 км : 1,1 ч ≈ 54,5 км/ч. Она не равна среднему арифметическому 55 км/ч. ' +
+      'На графике <b>v(t)</b> видно, как скорость меняется на развороте.';
 
     function mount() {
       el('controls').innerHTML = html;
@@ -763,7 +829,7 @@
       });
     }
     return { group: group, update: update, mount: mount, reset: reset,
-      camera: { theta: -1.2, phi: 1.05, dist: 110, target: [32, 4, 0] } };
+      camera: { theta: 1.1, phi: 1.05, dist: 380, target: [180, 100, -40] } };
   }
 
   // ===================== Пример 4: задачи =====================
