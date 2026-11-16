@@ -336,7 +336,6 @@ nav button .nav-emoji { display: block; font-size: 2rem; margin-bottom: 2px; }
   <button onclick="showSection(2)"><span class="nav-emoji">🔗</span>Соответствие</button>
   <button onclick="showSection(3)"><span class="nav-emoji">🧩</span>Лабиринт</button>
   <button onclick="showSection(4)"><span class="nav-emoji">📝</span>Практика</button>
-  <button onclick="showSection(5)"><span class="nav-emoji">📚</span>Домашняя</button>
 </nav>
 
 <!-- ===== SECTION 0: THEORY ===== -->
@@ -675,101 +674,6 @@ nav button .nav-emoji { display: block; font-size: 2rem; margin-bottom: 2px; }
 
     <button class="btn-check-all" onclick="checkAllExercises()">Проверить всё ✔️</button>
     <div class="score-display" id="varScore"></div>
-  </div>
-</div>
-
-<div class="section" id="sec5">
-  <div class="card">
-    <h2><span class="emoji">📚</span>Домашняя работа</h2>
-    <p class="card-desc">Повтори изученный материал и отработай его в тренажёре.</p>
-
-    <div style="text-align:center; margin-bottom: 24px;">
-      <button class="btn-download" onclick="downloadHWDocx()">📄 Скачать домашнее задание (.docx)</button>
-    </div>
-
-    <div class="theory-box">
-      <h3>1. Повтори теорию</h3>
-      <div class="example">
-        <p>1. Что такое прямолинейное равноускоренное движение?<br>
-        2. Что показывает ускорение?<br>
-        3. По какой формуле находят ускорение?<br>
-        4. В каких единицах измеряют ускорение в СИ?<br>
-        5. По какой формуле находят скорость при равноускоренном движении?<br>
-        6. Когда ускорение положительно, а когда отрицательно?</p>
-      </div>
-    </div>
-
-    <div class="theory-box">
-      <h3>2. Отработай в тренажёре</h3>
-      <div class="example">
-        <div class="example-title">Решить задания:</div>
-        <p>• Разминка (вопросы True/False) — 8 вопросов<br>
-        • Соответствие — соедини определения с понятиями об ускорении<br>
-        • Лабиринт — открой все 8 врат и выйди к финишу<br>
-        • Практика — реши все 3 варианта</p>
-      </div>
-      <div class="example">
-        <div class="example-title">Цель:</div>
-        <p>Набери <strong>100%</strong> хотя бы в одном из разделов тренажёра. Если не получается сразу — повтори теорию и попробуй снова!</p>
-      </div>
-    </div>
-
-    <div class="theory-box">
-      <h3>3. Запиши в тетрадь</h3>
-      <div class="example">
-        <div class="example-title">Ускорение — основное:</div>
-        <table class="units-table">
-          <tr><th>Понятие</th><th>Формула / значение</th></tr>
-          <tr><td>Ускорение</td><td>a = (v − v₀) / t</td></tr>
-          <tr><td>Единица ускорения в СИ</td><td>м/с²</td></tr>
-          <tr><td>Скорость при равноускоренном движении</td><td>v = v₀ + at</td></tr>
-          <tr><td>Знак ускорения</td><td>a &gt; 0 — разгон; a &lt; 0 — торможение</td></tr>
-        </table>
-      </div>
-      <div class="example">
-        <div class="example-title">Главный вывод:</div>
-        <p>Ускорение показывает, на какую величину изменяется скорость за единицу времени. При равноускоренном движении ускорение постоянно, а скорость изменяется равномерно.</p>
-      </div>
-    </div>
-
-    <div class="theory-box">
-      <h3>4. Вопросы из учебника (§18)</h3>
-
-      <div class="example">
-        <div class="example-title">Ответь устно</div>
-        <p><strong>1.</strong> Что характеризует ускорение?<br>
-        <strong>2.</strong> В каких единицах измеряется ускорение?<br>
-        <strong>3.</strong> По какой формуле можно определить скорость при прямолинейном равноускоренном движении?<br>
-        <strong>4.</strong> В каком случае ускорение тела положительно; отрицательно?</p>
-      </div>
-      <div class="hw-answer" id="hw1" style="display:none">
-        <p><strong>Примерные ответы:</strong><br>
-        1) Ускорение характеризует быстроту изменения скорости: на какую величину изменяется скорость за единицу времени.<br>
-        2) В СИ ускорение измеряют в метрах на секунду в квадрате (м/с²).<br>
-        3) v = v₀ + at.<br>
-        4) Ускорение положительно, если скорость увеличивается (v &gt; v₀), и отрицательно, если скорость уменьшается (v &lt; v₀).</p>
-      </div>
-      <button class="btn-check" onclick="document.getElementById('hw1').style.display='block'; this.disabled=true;">Показать ответы</button>
-    </div>
-
-    <div class="theory-box">
-      <h3>5. Упражнение 9 (номера 4–7)</h3>
-      <div class="example">
-        <p><strong>4.</strong> С каким ускорением разгоняется автомобиль, если он за 5 с увеличивает свою скорость от 5 до 20 м/с?<br>
-        <strong>5.</strong> Разгоняясь из состояния покоя, велосипедист за 11 с развил скорость 22 м/с. Определите ускорение велосипедиста.<br>
-        <strong>6.</strong> Автомобиль начал двигаться от светофора, и через 5 с его скорость стала 10 м/с. С каким ускорением двигался автомобиль?<br>
-        <strong>7.</strong> Автомобиль, движущийся со скоростью 10 м/с, разгоняется с ускорением 2 м/с². Какой станет его скорость через 5 с?</p>
-      </div>
-      <div class="hw-answer" id="hw2" style="display:none">
-        <p><strong>Ответы:</strong><br>
-        4) a = (20 − 5) : 5 = 3 м/с².<br>
-        5) a = (22 − 0) : 11 = 2 м/с².<br>
-        6) a = (10 − 0) : 5 = 2 м/с².<br>
-        7) v = 10 + 2 · 5 = 20 м/с.</p>
-      </div>
-      <button class="btn-check" onclick="document.getElementById('hw2').style.display='block'; this.disabled=true;">Показать ответы</button>
-    </div>
-
   </div>
 </div>
 
