@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D-визуализация. §18. Шарик на наклонной плоскости</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+:root {
+  --bg:#0b1220; --panel:#111a2e; --panel2:#16213a;
+  --text:#e2e8f0; --muted:#94a3b8;
+  --primary:#3b82f6; --accent:#f97316; --green:#22c55e; --yellow:#facc15;
+  --border:#243352;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Nunito',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; }
+header { padding:20px 28px 12px; border-bottom:1px solid var(--border); background:linear-gradient(135deg,#0f1b33,#0b1220); }
+header h1 { font-size:clamp(1.35rem,3vw,1.9rem); font-weight:800; }
+header p { color:var(--muted); margin-top:2px; }
+.layout { display:grid; grid-template-columns:1fr 360px; height:calc(100vh - 86px); min-height:520px; }
+#viewport { position:relative; overflow:hidden; }
+#viewport canvas { display:block; }
+#viewport .overlay { position:absolute; left:14px; bottom:12px; font-size:.8rem; color:var(--muted); background:rgba(11,18,32,.7); padding:6px 12px; border-radius:8px; border:1px solid var(--border); pointer-events:none; }
+aside { background:var(--panel); border-left:1px solid var(--border); padding:18px; overflow-y:auto; }
+.ctl { margin-bottom:14px; }
+.ctl label { display:flex; justify-content:space-between; font-size:.9rem; color:var(--muted); margin-bottom:6px; font-weight:600; }
+.ctl label b { color:var(--text); }
+input[type=range] { width:100%; accent-color:var(--primary); height:26px; cursor:pointer; }
+.btns { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 16px; }
+.btn { padding:10px 18px; border:1px solid var(--border); background:var(--panel2); color:var(--text); border-radius:10px; font-family:inherit; font-weight:700; font-size:.95rem; cursor:pointer; transition:all .2s; }
+.btn:hover { border-color:var(--primary); transform:translateY(-1px); }
+.btn.primary { background:var(--primary); border-color:var(--primary); color:#fff; }
+.readout { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.stat { background:var(--panel2); border:1px solid var(--border); border-radius:10px; padding:10px 8px; text-align:center; }
+.stat .k { display:block; font-size:.72rem; color:var(--muted); margin-bottom:4px; }
+.stat .v { display:block; font-size:1rem; font-weight:800; color:var(--yellow); }
+.explain { background:var(--panel2); border-left:4px solid var(--primary); border-radius:8px; padding:14px; font-size:.9rem; line-height:1.55; }
+.explain b { color:var(--yellow); }
+#fallback { display:none; position:absolute; inset:0; padding:40px; background:var(--bg); font-size:1.1rem; line-height:1.6; }
+@media (max-width:900px) {
+  .layout { grid-template-columns:1fr; height:auto; }
+  #viewport { height:60vh; min-height:360px; }
+  aside { border-left:none; border-top:1px solid var(--border); }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🧪 3D-визуализация опыта. §18. Шарик на наклонной плоскости</h1>
+  <p>Прямолинейное равноускоренное движение. Ускорение</p>
+</header>
+
+<div class="layout">
+  <div id="viewport">
+    <div class="overlay">Вращай сцену мышью · колесо — масштаб · время замедлено</div>
+    <div id="fallback"><h2>Не удалось загрузить Three.js</h2><p>Нужен доступ к сети (cdnjs.cloudflare.com).</p></div>
+  </div>
+  <aside>
+    <div id="controls"></div>
+    <div class="readout" id="readout">
+      <div class="stat" id="ro1"></div>
+      <div class="stat" id="ro2"></div>
+    </div>
+    <div id="extra"></div>
+    <div class="explain" id="explain"></div>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  if (typeof THREE === 'undefined') {
+    document.getElementById('fallback').style.display = 'block';
+    return;
+  }
+
+  // ===================== сцена =====================
+  var container = document.getElementById('viewport');
+  var renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  container.appendChild(renderer.domElement);
+
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0b1220);
+  scene.fog = new THREE.Fog(0x0b1220, 80, 220);
+
+  var camera = new THREE.PerspectiveCamera(55, 1, 0.1, 500);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  var sun = new THREE.DirectionalLight(0xffffff, 0.95);
+  sun.position.set(-20, 40, 30);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.camera.left = -40; sun.shadow.camera.right = 40;
+  sun.shadow.camera.top = 40; sun.shadow.camera.bottom = -40;
+  sun.shadow.camera.far = 200;
+  scene.add(sun);
+
+  var ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(300, 300),
+    new THREE.MeshStandardMaterial({ color: 0x0f1a2e, roughness: 1 })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+  var grid = new THREE.GridHelper(120, 60, 0x2b3a55, 0x18233c);
+  grid.position.y = 0.02;
+  scene.add(grid);
+
+  // ===================== камера =====================
+  var orbit = { theta: 1.2, phi: 1.1, dist: 45, target: new THREE.Vector3(4.5, 7, -6) };
+  function applyCamera() {
+    var sp = Math.sin(orbit.phi), cp = Math.cos(orbit.phi);
+    camera.position.set(
+      orbit.target.x + orbit.dist * sp * Math.cos(orbit.theta),
+      orbit.target.y + orbit.dist * cp,
+      orbit.target.z + orbit.dist * sp * Math.sin(orbit.theta)
+    );
+    camera.lookAt(orbit.target);
+  }
+  var dragging = false, px = 0, py = 0;
+  renderer.domElement.addEventListener('pointerdown', function (e) {
+    dragging = true; px = e.clientX; py = e.clientY;
+    renderer.domElement.setPointerCapture(e.pointerId);
+  });
+  window.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    orbit.theta -= (e.clientX - px) * 0.005;
+    orbit.phi = Math.max(0.15, Math.min(1.45, orbit.phi - (e.clientY - py) * 0.005));
+    px = e.clientX; py = e.clientY; applyCamera();
+  });
+  window.addEventListener('pointerup', function () { dragging = false; });
+  renderer.domElement.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    orbit.dist = Math.max(10, Math.min(120, orbit.dist * (1 + Math.sign(e.deltaY) * 0.1)));
+    applyCamera();
+  }, { passive: false });
+
+  function resize() {
+    var w = container.clientWidth, h = container.clientHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+  resize(); applyCamera();
+
+  // ===================== помощники =====================
+  function el(id) { return document.getElementById(id); }
+  function fmt(x, d) {
+    d = d === undefined ? 1 : d;
+    var s = Number(x).toFixed(d);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    if (s === '-0') s = '0';
+    return s.replace('.', ',');
+  }
+  function disposeDeep(obj) {
+    obj.traverse(function (o) {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) { if (o.material.map) o.material.map.dispose(); o.material.dispose(); }
+    });
+  }
+  function textSprite(text, opts) {
+    opts = opts || {};
+    var size = opts.size || 24, color = opts.color || '#e2e8f0', scale = opts.scale || 1;
+    var c = document.createElement('canvas');
+    var ctx = c.getContext('2d');
+    ctx.font = '700 ' + size + 'px Nunito, Arial, sans-serif';
+    var w = Math.ceil(ctx.measureText(text).width) + 20;
+    c.width = w; c.height = size + 20;
+    ctx = c.getContext('2d');
+    ctx.font = '700 ' + size + 'px Nunito, Arial, sans-serif';
+    ctx.fillStyle = color; ctx.textBaseline = 'middle';
+    ctx.fillText(text, 10, c.height / 2);
+    var tex = new THREE.CanvasTexture(c);
+    tex.minFilter = THREE.LinearFilter;
+    var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+    sp.scale.set(c.width * 0.045 * scale, c.height * 0.045 * scale, 1);
+    return sp;
+  }
+  function makeBall(color) {
+    var g = new THREE.Group();
+    var ball = new THREE.Mesh(
+      new THREE.SphereGeometry(0.55, 24, 18),
+      new THREE.MeshStandardMaterial({ color: color, roughness: .35, metalness: .15 })
+    );
+    ball.castShadow = true;
+    var stripe = new THREE.Mesh(
+      new THREE.TorusGeometry(0.55, 0.06, 8, 28),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .5 })
+    );
+    stripe.rotation.x = Math.PI / 2;
+    g.add(ball); g.add(stripe);
+    return g;
+  }
+  function makeTrail(color) {
+    var line = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: color }));
+    line.frustumCulled = false;
+    return line;
+  }
+  function updateTrail(line, pts) {
+    line.geometry.dispose();
+    line.geometry = new THREE.BufferGeometry().setFromPoints(pts);
+  }
+
+  // ===================== параметры опыта =====================
+  var G = 9.8, L = 8;
+  var state = { ang1: 30, ang2: 15, t: 0, playing: false };
+  var TIME_SCALE = 0.55;
+
+  function accel(deg) { return G * Math.sin(deg * Math.PI / 180); }
+  function tBottom(deg) { return Math.sqrt(2 * L / accel(deg)); }
+  function rampTop(deg) { return new THREE.Vector3(-10, L * Math.sin(deg * Math.PI / 180), 0); }
+  function surfacePoint(deg, z, s) {
+    var rad = deg * Math.PI / 180;
+    return new THREE.Vector3(-10 + s * Math.cos(rad), L * Math.sin(rad) - s * Math.sin(rad), z);
+  }
+  function ballPoint(deg, z, s) {
+    var rad = deg * Math.PI / 180, p = surfacePoint(deg, z, s);
+    p.x += 0.55 * Math.sin(rad); p.y += 0.55 * Math.cos(rad);
+    return p;
+  }
+
+  // ===================== построение горок =====================
+  var world = new THREE.Group();
+  scene.add(world);
+  var ramps = [];
+
+  function buildRamp(deg, z, color) {
+    var g = new THREE.Group();
+    var rad = deg * Math.PI / 180;
+    var top = new THREE.Vector3(-10, L * Math.sin(rad), z);
+    var bot = new THREE.Vector3(-10 + L * Math.cos(rad), 0, z);
+    var mid = top.clone().add(bot).multiplyScalar(0.5);
+
+    var board = new THREE.Mesh(
+      new THREE.BoxGeometry(L, 0.3, 2.4),
+      new THREE.MeshStandardMaterial({ color: color, roughness: .6, metalness: .1 })
+    );
+    board.position.copy(mid);
+    board.rotation.z = -rad;
+    board.castShadow = true; board.receiveShadow = true;
+    g.add(board);
+
+    // опоры
+    var postMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: .8 });
+    [bot.x, mid.x, top.x].forEach(function (x, idx) {
+      var h = idx === 0 ? 0.15 : (idx === 1 ? mid.y : top.y);
+      if (h < 0.2) return;
+      var post = new THREE.Mesh(new THREE.BoxGeometry(0.35, h, 0.35), postMat);
+      post.position.set(x, h / 2, z);
+      post.castShadow = true;
+      g.add(post);
+    });
+
+    // шарик
+    var ball = makeBall(color);
+    g.add(ball);
+
+    // след
+    var trail = makeTrail(color);
+    g.add(trail);
+
+    // отметки равных промежутков времени
+    var a = accel(deg);
+    var markers = new THREE.Group();
+    for (var k = 1; k <= 4; k++) {
+      var s = 0.5 * a * k * k;
+      if (s > L) break;
+      var p = surfacePoint(deg, z, s);
+      var tick = new THREE.Mesh(
+        new THREE.SphereGeometry(0.13, 12, 10),
+        new THREE.MeshBasicMaterial({ color: 0xffffff })
+      );
+      tick.position.copy(p);
+      markers.add(tick);
+      var lab = textSprite(k + ' с', { size: 22, color: '#e2e8f0', scale: 0.9 });
+      lab.position.set(p.x + 1.1, p.y + 0.6, p.z);
+      markers.add(lab);
+    }
+    g.add(markers);
+
+    world.add(g);
+    return { group: g, ball: ball, trail: trail, deg: deg, z: z, color: color, markers: markers };
+  }
+
+  function rebuildRamps() {
+    ramps.forEach(function (r) { world.remove(r.group); disposeDeep(r.group); });
+    ramps = [];
+    ramps.push(buildRamp(state.ang1, -5.5, 0x3b82f6));
+    ramps.push(buildRamp(state.ang2, 5.5, 0xf97316));
+  }
+
+  // ===================== графики =====================
+  var graphGroup = new THREE.Group();
+  scene.add(graphGroup);
+  var graphs = [];
+
+  function buildGraph(opts) {
+    // плоскость: x от X0 до X0+W (время 0..tMax), y от Y0 до Y0+H (величина 0..yMax)
+    var X0 = opts.x0, W = opts.w, Y0 = opts.y0, H = opts.h;
+    var tMax = opts.tMax, yMax = opts.yMax, z = opts.z;
+    var g = new THREE.Group();
+    var pts = [];
+    function V(x, y) { return new THREE.Vector3(x, y, z); }
+    pts.push(V(X0, Y0), V(X0 + W, Y0));
+    pts.push(V(X0, Y0), V(X0, Y0 + H));
+    var t, v;
+    for (t = 1; t <= tMax; t++) pts.push(V(X0 + W * t / tMax, Y0), V(X0 + W * t / tMax, Y0 + H));
+    for (v = opts.yStep; v < yMax; v += opts.yStep) pts.push(V(X0, Y0 + H * v / yMax), V(X0 + W, Y0 + H * v / yMax));
+    var grid = new THREE.LineSegments(
+      new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({ color: 0x334155 })
+    );
+    grid.frustumCulled = false;
+    g.add(grid);
+
+    var lab;
+    for (t = 0; t <= tMax; t++) {
+      lab = textSprite(fmt(t, 0), { size: 20, color: '#94a3b8', scale: 0.8 });
+      lab.position.set(X0 + W * t / tMax, Y0 - 1.2, z);
+      g.add(lab);
+    }
+    for (v = 0; v <= yMax + 0.01; v += opts.yStep) {
+      lab = textSprite(fmt(v, 0), { size: 20, color: '#94a3b8', scale: 0.8 });
+      lab.position.set(X0 - 1.2, Y0 + H * v / yMax, z);
+      g.add(lab);
+    }
+    lab = textSprite(opts.title, { size: 24, color: opts.titleColor || '#e2e8f0' });
+    lab.position.set(X0 + W / 2, Y0 + H + 1.6, z);
+    g.add(lab);
+    lab = textSprite('t, с', { size: 22, color: '#94a3b8' });
+    lab.position.set(X0 + W + 1.2, Y0, z);
+    g.add(lab);
+
+    graphGroup.add(g);
+    var gr = {
+      group: g, X: function (t) { return X0 + W * t / tMax; },
+      Y: function (v) { return Y0 + H * v / yMax; }, z: z
+    };
+    graphs.push(gr);
+    return gr;
+  }
+
+  var gv = buildGraph({ x0: 4, w: 15, y0: 0, h: 9, tMax: 5, yMax: 10, yStep: 2, z: -18, title: 'v(t), м/с', titleColor: '#60a5fa' });
+  var ga = buildGraph({ x0: 4, w: 15, y0: 12, h: 8, tMax: 5, yMax: 10, yStep: 2, z: -18, title: 'a(t), м/с²', titleColor: '#4ade80' });
+
+  // линии графиков
+  var vLines = [makeTrail(0x60a5fa), makeTrail(0xfb923c)];
+  var aLines = [makeTrail(0x60a5fa), makeTrail(0xfb923c)];
+  var vMarks = [
+    new THREE.Mesh(new THREE.SphereGeometry(0.22, 14, 12), new THREE.MeshBasicMaterial({ color: 0x60a5fa })),
+    new THREE.Mesh(new THREE.SphereGeometry(0.22, 14, 12), new THREE.MeshBasicMaterial({ color: 0xfb923c }))
+  ];
+  gv.group.add(vLines[0]); gv.group.add(vLines[1]);
+  ga.group.add(aLines[0]); ga.group.add(aLines[1]);
+  gv.group.add(vMarks[0]); gv.group.add(vMarks[1]);
+
+  // ===================== обновление =====================
+  function updateVisual() {
+    var t = state.t;
+    var a1 = accel(state.ang1), a2 = accel(state.ang2);
+    var tb1 = tBottom(state.ang1), tb2 = tBottom(state.ang2);
+
+    ramps.forEach(function (r, i) {
+      var deg = i === 0 ? state.ang1 : state.ang2;
+      var a = i === 0 ? a1 : a2;
+      var tb = i === 0 ? tb1 : tb2;
+      var s = Math.min(0.5 * a * t * t, L);
+      r.ball.position.copy(ballPoint(deg, r.z, s));
+      r.ball.rotation.z = -s / 0.55;
+      // след вдоль горки
+      var pts = [];
+      for (var k = 0; k <= 24; k++) {
+        var ss = s * k / 24;
+        pts.push(surfacePoint(deg, r.z, ss).clone().add(new THREE.Vector3(0, 0.12, 0)));
+      }
+      updateTrail(r.trail, pts);
+    });
+
+    // графики
+    [ [0, a1, tb1, vLines[0], aLines[0], vMarks[0]],
+      [1, a2, tb2, vLines[1], aLines[1], vMarks[1]] ].forEach(function (cfg) {
+      var i = cfg[0], a = cfg[1], tb = cfg[2], vl = cfg[3], al = cfg[4], vm = cfg[5];
+      var pv = [];
+      for (var k = 0; k <= 40; k++) {
+        var tt = Math.min(tb * k / 40, 5);
+        pv.push(new THREE.Vector3(gv.X(tt), gv.Y(Math.min(a * tt, 10)), gv.z));
+      }
+      updateTrail(vl, pv);
+      var pa = [];
+      for (var m = 0; m <= 20; m++) {
+        var tm = Math.min(tb * m / 20, 5);
+        pa.push(new THREE.Vector3(ga.X(tm), ga.Y(Math.min(a, 10)), ga.z));
+      }
+      updateTrail(al, pa);
+      var tt2 = Math.min(t, 5);
+      vm.position.set(gv.X(tt2), gv.Y(Math.min(a * tt2, 10)), gv.z);
+    });
+
+    // счётчики
+    var s1 = Math.min(0.5 * a1 * t * t, L), v1 = a1 * t;
+    var s2 = Math.min(0.5 * a2 * t * t, L), v2 = a2 * t;
+    el('ro1').innerHTML = '<span class="k">🔵 Первая горка · a = ' + fmt(a1, 1) + ' м/с²</span>' +
+      '<span class="v">t = ' + fmt(t, 1) + ' с · v = ' + fmt(v1, 1) + ' м/с</span>';
+    el('ro2').innerHTML = '<span class="k">🟠 Вторая горка · a = ' + fmt(a2, 1) + ' м/с²</span>' +
+      '<span class="v">t = ' + fmt(t, 1) + ' с · v = ' + fmt(v2, 1) + ' м/с</span>';
+  }
+
+  function reset() {
+    state.t = 0; state.playing = false;
+    el('startBtn').textContent = '▶ Старт';
+    updateVisual();
+  }
+
+  function loop(ts) {
+    if (state.playing) {
+      if (!loop.last) loop.last = ts;
+      var dt = (ts - loop.last) / 1000; loop.last = ts;
+      state.t += dt * TIME_SCALE;
+      var tb = Math.max(tBottom(state.ang1), tBottom(state.ang2));
+      if (state.t >= tb) {
+        state.t = tb; state.playing = false;
+        el('startBtn').textContent = '▶ Старт';
+      }
+      updateVisual();
+    } else {
+      loop.last = null;
+    }
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  }
+
+  // ===================== управление =====================
+  el('controls').innerHTML =
+    '<div class="btns"><button class="btn primary" id="startBtn">▶ Старт</button>' +
+    '<button class="btn" id="resetBtn">↺ Сброс</button></div>' +
+    '<div class="ctl"><label>Угол первой горки <b id="deg1Label">30°</b></label>' +
+    '<input type="range" id="ang1" min="5" max="60" step="1" value="30"></div>' +
+    '<div class="ctl"><label>Угол второй горки <b id="deg2Label">15°</b></label>' +
+    '<input type="range" id="ang2" min="5" max="60" step="1" value="15"></div>';
+  el('explain').innerHTML =
+    'Опыт из учебника (рис. 45): шарик скатывается с наклонной плоскости. ' +
+    'Чем больше угол, тем больше ускорение: <b>a = g · sin θ</b>. ' +
+    'На горках отмечены положения шарика через 1 с, 2 с, 3 с и 4 с. ' +
+    'Справа — графики <b>v(t)</b> и <b>a(t)</b>: у более крутой горки график скорости круче.';
+
+  el('startBtn').addEventListener('click', function () {
+    if (state.playing) {
+      state.playing = false; this.textContent = '▶ Продолжить';
+    } else {
+      var tb = Math.max(tBottom(state.ang1), tBottom(state.ang2));
+      if (state.t >= tb) state.t = 0;
+      state.playing = true; this.textContent = '⏸ Пауза';
+    }
+    updateVisual();
+  });
+  el('resetBtn').addEventListener('click', reset);
+
+  function onAngle() {
+    state.ang1 = +el('ang1').value;
+    state.ang2 = +el('ang2').value;
+    el('deg1Label').textContent = state.ang1 + '°';
+    el('deg2Label').textContent = state.ang2 + '°';
+    rebuildRamps();
+    reset();
+  }
+  el('ang1').addEventListener('input', onAngle);
+  el('ang2').addEventListener('input', onAngle);
+
+  rebuildRamps();
+  reset();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
