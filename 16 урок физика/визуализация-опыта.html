@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Визуализация опыта. §18. Шарик на наклонной плоскости</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+:root {
+  --bg:#f0f4f8; --card:#ffffff; --primary:#3b82f6; --accent:#f97316;
+  --green:#22c55e; --text:#1e293b; --muted:#64748b; --border:#e2e8f0;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Nunito',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); }
+header {
+  background:linear-gradient(135deg,#06b6d4,#3b82f6); color:#fff;
+  padding:26px 32px; box-shadow:0 4px 20px rgba(59,130,246,.25);
+}
+header h1 { font-size:clamp(1.4rem,3vw,2.1rem); font-weight:800; }
+header p { opacity:.92; margin-top:4px; font-size:1.05rem; }
+.wrap { max-width:980px; margin:0 auto; padding:20px; }
+.card { background:var(--card); border-radius:16px; padding:18px 20px; box-shadow:0 4px 20px rgba(0,0,0,.06); margin-bottom:16px; }
+.controls { display:flex; gap:18px; flex-wrap:wrap; align-items:flex-end; margin-bottom:14px; }
+button.btn {
+  padding:11px 22px; border:none; border-radius:10px; font-family:inherit;
+  font-weight:700; font-size:1rem; cursor:pointer; transition:all .2s;
+}
+button.btn.primary { background:var(--primary); color:#fff; box-shadow:0 4px 14px rgba(59,130,246,.3); }
+button.btn.primary:hover { transform:translateY(-1px); }
+button.btn:not(.primary) { background:#e2e8f0; color:var(--text); }
+button.btn:not(.primary):hover { background:#cbd5e1; }
+.slider { display:flex; flex-direction:column; gap:4px; font-size:.85rem; color:var(--muted); font-weight:600; }
+.slider b { color:var(--text); }
+.slider input { width:170px; accent-color:var(--primary); cursor:pointer; }
+.readouts { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+.ro { background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:10px 14px; }
+.ro h4 { font-size:.85rem; color:var(--muted); margin-bottom:4px; }
+.ro .v { font-size:1.15rem; font-weight:800; }
+.ro .note { font-size:.85rem; color:var(--muted); margin-top:2px; }
+canvas { display:block; width:100%; background:#fff; border:1px solid var(--border); border-radius:12px; }
+.graphs { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.graphs h3 { font-size:1rem; margin-bottom:6px; }
+.note { font-size:.9rem; color:var(--muted); margin-top:10px; line-height:1.5; }
+.legend { display:flex; gap:18px; flex-wrap:wrap; font-size:.85rem; color:var(--muted); margin-top:8px; }
+.legend i { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
+@media (max-width:700px) {
+  .graphs { grid-template-columns:1fr; }
+  .readouts { grid-template-columns:1fr; }
+  .slider input { width:140px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🧪 Визуализация опыта: шарик на наклонной плоскости</h1>
+  <p>§18. Прямолинейное равноускоренное движение. Ускорение</p>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <div class="controls">
+      <button class="btn primary" id="startBtn">▶ Старт</button>
+      <button class="btn" id="resetBtn">↺ Сброс</button>
+      <label class="slider">Угол первой горки: <b id="deg1Label">30°</b>
+        <input type="range" id="ang1" min="5" max="60" step="1" value="30"></label>
+      <label class="slider">Угол второй горки: <b id="deg2Label">15°</b>
+        <input type="range" id="ang2" min="5" max="60" step="1" value="15"></label>
+    </div>
+
+    <div class="readouts">
+      <div class="ro">
+        <h4>🔵 Первая горка</h4>
+        <div class="v" id="ro1">t = 0,0 с · v = 0,0 м/с · s = 0,0 м</div>
+        <div class="note" id="ro1a">a = g · sin 30° = 4,9 м/с²</div>
+      </div>
+      <div class="ro">
+        <h4>🟠 Вторая горка</h4>
+        <div class="v" id="ro2">t = 0,0 с · v = 0,0 м/с · s = 0,0 м</div>
+        <div class="note" id="ro2a">a = g · sin 15° = 2,5 м/с²</div>
+      </div>
+    </div>
+
+    <canvas id="scene" width="900" height="330" style="margin-top:14px"></canvas>
+    <div class="note">
+      Белые точки на горках — положение шарика через 1 с, 2 с, 3 с и 4 с после старта.
+      Чёрная стрелка — скорость (чем длиннее, тем больше). Чем круче горка, тем быстрее растёт скорость.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="graphs">
+      <div>
+        <h3>📈 График зависимости скорости от времени v(t)</h3>
+        <canvas id="gv" width="440" height="240"></canvas>
+      </div>
+      <div>
+        <h3>📊 График зависимости ускорения от времени a(t)</h3>
+        <canvas id="ga" width="440" height="240"></canvas>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i style="background:#3b82f6"></i>первая горка</span>
+      <span><i style="background:#f97316"></i>вторая горка</span>
+    </div>
+    <div class="note">
+      При равноускоренном движении v = v₀ + at, поэтому график скорости — прямая линия,
+      а ускорение — горизонтальная прямая. Угол наклона графика v(t) соответствует ускорению:
+      чем круче горка, тем больше ускорение и тем круче график.
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var G = 9.8;          // м/с²
+  var L = 8;            // длина горки, м
+  var SCALE = 30;       // пикселей в 1 метре
+  var TIME_SCALE = 0.6; // модельных секунд за 1 реальную (замедление)
+
+  var ang1 = 30, ang2 = 15;
+  var t = 0, playing = false, last = null;
+
+  var scene = document.getElementById('scene');
+  var gv = document.getElementById('gv');
+  var ga = document.getElementById('ga');
+
+  function accel(deg) { return G * Math.sin(deg * Math.PI / 180); }
+  function fmt(x, d) {
+    var s = x.toFixed(d === undefined ? 1 : d);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    if (s === '-0') s = '0';
+    return s.replace('.', ',');
+  }
+  function rampStart(i) { return i === 0 ? { x: 90, y: 78 } : { x: 540, y: 78 }; }
+  function rampEnd(i, deg) {
+    var st = rampStart(i), rad = deg * Math.PI / 180;
+    return { x: st.x + L * SCALE * Math.cos(rad), y: st.y + L * SCALE * Math.sin(rad) };
+  }
+  function ballPos(i, s, deg) {
+    var st = rampStart(i), rad = deg * Math.PI / 180;
+    return { x: st.x + s * SCALE * Math.cos(rad), y: st.y + s * SCALE * Math.sin(rad) };
+  }
+  function tBottom(deg) { return Math.sqrt(2 * L / accel(deg)); }
+
+  // ---------------- сцена ----------------
+  function drawScene() {
+    var ctx = scene.getContext('2d');
+    ctx.clearRect(0, 0, scene.width, scene.height);
+
+    // земля
+    ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(20, 282); ctx.lineTo(880, 282); ctx.stroke();
+
+    var conf = [
+      { i: 0, deg: ang1, col: '#3b82f6' },
+      { i: 1, deg: ang2, col: '#f97316' }
+    ];
+
+    conf.forEach(function (c) {
+      var st = rampStart(c.i), en = rampEnd(c.i, c.deg), rad = c.deg * Math.PI / 180;
+      var a = accel(c.deg);
+
+      // опора
+      ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 7; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(en.x, en.y); ctx.lineTo(en.x, 282); ctx.stroke();
+
+      // горка
+      ctx.strokeStyle = c.col; ctx.lineWidth = 9; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(st.x, st.y); ctx.lineTo(en.x, en.y); ctx.stroke();
+
+      // отметки равных промежутков времени
+      ctx.font = '700 12px Nunito, sans-serif'; ctx.textAlign = 'center';
+      for (var k = 1; k <= 4; k++) {
+        var s = 0.5 * a * k * k;
+        if (s > L) break;
+        var p = ballPos(c.i, s, c.deg);
+        ctx.fillStyle = '#fff'; ctx.strokeStyle = c.col; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, 7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#475569';
+        ctx.fillText(k + ' с', p.x + 18 * Math.cos(rad), p.y + 18 * Math.sin(rad) - 7);
+      }
+
+      // шарик
+      var s = Math.min(0.5 * a * t * t, L);
+      var p = ballPos(c.i, s, c.deg);
+
+      // тень
+      ctx.fillStyle = 'rgba(15,23,42,.12)';
+      ctx.beginPath(); ctx.ellipse(p.x, p.y + 15, 14, 5, 0, 0, 7); ctx.fill();
+
+      // корпус шарика
+      var grad = ctx.createRadialGradient(p.x - 5, p.y - 6, 2, p.x, p.y, 16);
+      grad.addColorStop(0, '#ffffff');
+      grad.addColorStop(0.35, c.col);
+      grad.addColorStop(1, c.col);
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 14, 0, 7); ctx.fill();
+      ctx.strokeStyle = 'rgba(15,23,42,.28)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+      // стрелка скорости
+      if (t > 0.01 && s < L) {
+        var v = a * t, vl = Math.min(v * 5, 70);
+        ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x + vl * Math.cos(rad), p.y + vl * Math.sin(rad)); ctx.stroke();
+        // наконечник
+        var ex = p.x + vl * Math.cos(rad), ey = p.y + vl * Math.sin(rad);
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.moveTo(ex + 9 * Math.cos(rad), ey + 9 * Math.sin(rad));
+        ctx.lineTo(ex + 4 * Math.cos(rad + 2.5), ey + 4 * Math.sin(rad + 2.5));
+        ctx.lineTo(ex + 4 * Math.cos(rad - 2.5), ey + 4 * Math.sin(rad - 2.5));
+        ctx.closePath(); ctx.fill();
+      }
+
+      // подпись угла
+      ctx.fillStyle = '#64748b'; ctx.font = '700 13px Nunito, sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(c.deg + '°', st.x - 28, st.y + 24);
+    });
+
+    // финишные флажки
+    ctx.font = '800 12px Nunito, sans-serif';
+    conf.forEach(function (c) {
+      var en = rampEnd(c.i, c.deg);
+      ctx.fillStyle = '#64748b';
+      ctx.fillText('финиш', en.x, en.y + (en.y + 30 > 282 ? -12 : 24));
+    });
+  }
+
+  // ---------------- график ----------------
+  function drawGraph(canvas, opts) {
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+    var x0 = 54, y0 = 20, x1 = W - 16, y1 = H - 40;
+    var xMax = opts.xMax, yMax = opts.yMax;
+
+    // сетка
+    ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+    for (var i = 0; i <= opts.xTicks.length - 1; i++) {
+      var gx = x0 + (opts.xTicks[i] / xMax) * (x1 - x0);
+      ctx.beginPath(); ctx.moveTo(gx, y0); ctx.lineTo(gx, y1); ctx.stroke();
+    }
+    for (var j = 0; j <= opts.yTicks.length - 1; j++) {
+      var gy = y1 - (opts.yTicks[j] / yMax) * (y1 - y0);
+      ctx.beginPath(); ctx.moveTo(x0, gy); ctx.lineTo(x1, gy); ctx.stroke();
+    }
+
+    // оси
+    ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
+
+    // подписи
+    ctx.fillStyle = '#64748b'; ctx.font = '11px Nunito, sans-serif';
+    ctx.textAlign = 'center';
+    opts.xTicks.forEach(function (v) {
+      var gx = x0 + (v / xMax) * (x1 - x0);
+      ctx.fillText(fmt(v, 0), gx, y1 + 15);
+    });
+    ctx.textAlign = 'right';
+    opts.yTicks.forEach(function (v) {
+      var gy = y1 - (v / yMax) * (y1 - y0);
+      ctx.fillText(fmt(v, 0), x0 - 5, gy + 4);
+    });
+    ctx.textAlign = 'left';
+    ctx.fillText(opts.xLabel, x1 - 60, y1 + 30);
+    ctx.save();
+    ctx.translate(12, y0 + 60); ctx.rotate(-Math.PI / 2);
+    ctx.fillText(opts.yLabel, 0, 0);
+    ctx.restore();
+
+    // линии
+    opts.series.forEach(function (s) {
+      ctx.strokeStyle = s.color; ctx.lineWidth = 3; ctx.lineCap = 'round';
+      ctx.beginPath();
+      s.points.forEach(function (p, idx) {
+        var gx = x0 + (p[0] / xMax) * (x1 - x0);
+        var gy = y1 - (p[1] / yMax) * (y1 - y0);
+        if (idx === 0) ctx.moveTo(gx, gy); else ctx.lineTo(gx, gy);
+      });
+      ctx.stroke();
+      // конечный маркер
+      var lastP = s.points[s.points.length - 1];
+      var ex = x0 + (lastP[0] / xMax) * (x1 - x0);
+      var ey = y1 - (lastP[1] / yMax) * (y1 - y0);
+      ctx.fillStyle = s.color;
+      ctx.beginPath(); ctx.arc(ex, ey, 4, 0, 7); ctx.fill();
+    });
+  }
+
+  function drawGraphs() {
+    var a1 = accel(ang1), a2 = accel(ang2);
+    var tMax = Math.min(Math.max(tBottom(ang1), tBottom(ang2)) * 1.08, 6);
+    var vMax = Math.max(a1, a2) * tMax * 1.15;
+    var aMax = Math.max(a1, a2) * 1.3;
+
+    var s1 = [], s2 = [];
+    for (var k = 0; k <= 40; k++) {
+      var tt = tMax * k / 40;
+      s1.push([tt, Math.min(a1 * tt, a1 * tBottom(ang1))]);
+      s2.push([tt, Math.min(a2 * tt, a2 * tBottom(ang2))]);
+    }
+    var h1 = [], h2 = [];
+    for (var m = 0; m <= 20; m++) {
+      var tm = tMax * m / 20;
+      h1.push([tm, a1]); h2.push([tm, a2]);
+    }
+
+    drawGraph(gv, {
+      xMax: tMax, yMax: vMax,
+      xTicks: [0, 1, 2, 3, 4, 5].filter(function (v) { return v <= tMax; }),
+      yTicks: [0, 5, 10, 15, 20].filter(function (v) { return v <= vMax; }),
+      xLabel: 't, с', yLabel: 'v, м/с',
+      series: [
+        { color: '#3b82f6', points: s1 },
+        { color: '#f97316', points: s2 }
+      ]
+    });
+
+    drawGraph(ga, {
+      xMax: tMax, yMax: aMax,
+      xTicks: [0, 1, 2, 3, 4, 5].filter(function (v) { return v <= tMax; }),
+      yTicks: [0, 2, 4, 6, 8, 10].filter(function (v) { return v <= aMax; }),
+      xLabel: 't, с', yLabel: 'a, м/с²',
+      series: [
+        { color: '#3b82f6', points: h1 },
+        { color: '#f97316', points: h2 }
+      ]
+    });
+  }
+
+  // ---------------- обновление ----------------
+  function updateReadouts() {
+    var a1 = accel(ang1), a2 = accel(ang2);
+    var s1 = Math.min(0.5 * a1 * t * t, L), v1 = a1 * t;
+    var s2 = Math.min(0.5 * a2 * t * t, L), v2 = a2 * t;
+    document.getElementById('ro1').textContent = 't = ' + fmt(t, 1) + ' с · v = ' + fmt(v1, 1) + ' м/с · s = ' + fmt(s1, 1) + ' м';
+    document.getElementById('ro2').textContent = 't = ' + fmt(t, 1) + ' с · v = ' + fmt(v2, 1) + ' м/с · s = ' + fmt(s2, 1) + ' м';
+    document.getElementById('ro1a').textContent = 'a = g · sin ' + ang1 + '° = ' + fmt(a1, 1) + ' м/с²';
+    document.getElementById('ro2a').textContent = 'a = g · sin ' + ang2 + '° = ' + fmt(a2, 1) + ' м/с²';
+  }
+
+  function update() {
+    updateReadouts();
+    drawScene();
+    drawGraphs();
+  }
+
+  function reset() {
+    t = 0; playing = false;
+    document.getElementById('startBtn').textContent = '▶ Старт';
+    update();
+  }
+
+  function loop(ts) {
+    if (playing) {
+      if (last === null) last = ts;
+      var dt = (ts - last) / 1000; last = ts;
+      t += dt * TIME_SCALE;
+      var done1 = 0.5 * accel(ang1) * t * t >= L;
+      var done2 = 0.5 * accel(ang2) * t * t >= L;
+      if (done1 && done2) {
+        t = Math.max(tBottom(ang1), tBottom(ang2));
+        playing = false;
+        document.getElementById('startBtn').textContent = '▶ Старт';
+      }
+      update();
+    } else {
+      last = null;
+    }
+    requestAnimationFrame(loop);
+  }
+
+  // ---------------- управление ----------------
+  document.getElementById('startBtn').addEventListener('click', function () {
+    if (playing) {
+      playing = false;
+      this.textContent = '▶ Продолжить';
+    } else {
+      if (t >= Math.max(tBottom(ang1), tBottom(ang2))) t = 0;
+      playing = true;
+      this.textContent = '⏸ Пауза';
+    }
+    update();
+  });
+  document.getElementById('resetBtn').addEventListener('click', reset);
+
+  function onAngle() {
+    ang1 = +document.getElementById('ang1').value;
+    ang2 = +document.getElementById('ang2').value;
+    document.getElementById('deg1Label').textContent = ang1 + '°';
+    document.getElementById('deg2Label').textContent = ang2 + '°';
+    reset();
+  }
+  document.getElementById('ang1').addEventListener('input', onAngle);
+  document.getElementById('ang2').addEventListener('input', onAngle);
+
+  reset();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
