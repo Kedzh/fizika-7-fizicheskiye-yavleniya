@@ -195,10 +195,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .th-box ul{margin:4px 0 4px 18px}
 .th-box li{font-size:.86rem;line-height:1.6;margin-bottom:4px}
 .th-formula{background:var(--primary-light);border-radius:8px;padding:9px 12px;font-weight:800;text-align:center;margin:8px 0;font-size:.88rem;color:var(--primary)}
-.viz-select{padding:9px 12px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-family:inherit;font-weight:700;width:240px;height:38px}
-.viz-select:focus{outline:none;border-color:var(--primary)}
-.viz-open{padding:9px 20px;border:2px solid var(--accent);background:var(--accent);color:#fff;border-radius:10px;font-family:inherit;font-weight:700;margin-left:8px;cursor:pointer;transition:all .3s}
-.viz-open:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(249,115,22,.35)}
 .th-table{width:100%;border-collapse:collapse;margin:8px 0;font-size:.8rem}
 .th-table th,.th-table td{border:1px solid var(--border);padding:6px 8px;text-align:left}
 .th-table th{background:var(--primary-light);font-weight:800}
@@ -1066,10 +1062,6 @@ accel:[
  p:'<strong>№ 4:</strong> a = (20 − 5) : 5 = <strong>3 м/с²</strong>.',
  p2:'<strong>№ 5:</strong> a = (22 − 0) : 11 = <strong>2 м/с²</strong>. <strong>№ 6:</strong> a = (10 − 0) : 5 = <strong>2 м/с²</strong>. <strong>№ 7:</strong> v = 10 + 2 · 5 = <strong>20 м/с</strong>.',
  f:'Сначала находим изменение скорости, потом делим на время.'},
-{h:'🧪 Визуализация опыта',
-  p:'Интерактивные визуализации параграфа из урока 16 (открываются в новой вкладке):'},
- {h:'🧊 Выбрать визуализацию',
-  p:'<select id="vizSel" class="viz-select" onchange="openViz()"><option value="2d" selected>🧪 2D — Шарик на наклонной плоскости</option><option value="3d">🧊 3D — 3D-сцена с шариками, графики v(t) и a(t)</option></select><button class="viz-open" onclick="openViz()">Открыть</button>'},
 {h:'❓ Вопросы из учебника (§18)',
  ul:[
   '<strong>1.</strong> Что характеризует ускорение?',
@@ -1080,10 +1072,6 @@ accel:[
  f:'Домашнее задание по учебнику — §18, вопросы 1–4, упражнение 9.'}
 ]
 };
-function openViz(){
-  const v = document.getElementById('vizSel').value;
-  window.open(v === '3d' ? '../16 урок физика/3d-визуализация.html' : '../16 урок физика/визуализация-опыта.html', '_blank');
-}
 function openTheory(){
   clearTimeout(qAdvanceT);stopQTimer();
   const topic=TOPICS.find(t=>t.id===currentTopic);
