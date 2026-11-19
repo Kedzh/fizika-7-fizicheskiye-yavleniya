@@ -24,11 +24,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .header h1{font-size:1.5rem;font-weight:800}
 .header .subtitle{font-size:.85rem;opacity:.85;margin-top:2px}
 .theme-btn{position:absolute;top:14px;right:12px;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:1.3rem;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.hw-btn{position:relative;top:auto;right:auto;display:flex;align-items:center;justify-content:center;gap:8px;margin:14px auto 0;width:fit-content;background:linear-gradient(135deg,#f59e0b,#f97316);border:3px solid rgba(255,255,255,.85);color:#fff;font-size:.95rem;font-weight:800;padding:12px 28px;border-radius:30px;cursor:pointer;font-family:inherit;box-shadow:0 4px 18px rgba(249,115,22,.5);transition:all .2s}
-.hw-btn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 6px 24px rgba(249,115,22,.6);border-color:#fff}
-.hw-btn:active{transform:scale(.97)}
-.hw-btn{animation:hwPulse 2.2s ease-in-out infinite}
-@keyframes hwPulse{0%,100%{box-shadow:0 4px 18px rgba(249,115,22,.5)}50%{box-shadow:0 4px 26px rgba(249,115,22,.85);transform:translateY(-2px)}}
 .sheet-btn{position:relative;top:auto;right:auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;margin:14px 6px 0;background:rgba(255,255,255,.22);border:3px solid rgba(255,255,255,.6);color:#fff;font-size:.9rem;font-weight:800;padding:11px 20px;border-radius:30px;cursor:pointer;font-family:inherit;transition:all .2s}
 .sheet-btn:active{transform:scale(.97)}
 .sheet-state{display:block;margin:8px auto 0;width:fit-content;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:700;background:rgba(255,255,255,.2)}
@@ -168,22 +163,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .archive-sub{color:var(--text-secondary);font-size:.82rem;margin-top:10px;line-height:1.5;padding:0 12px}
 .topics-sep{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin:6px 0 2px;font-size:.75rem;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--text-secondary)}
 .topics-sep::after{content:'';flex:1;height:2px;background:var(--border);border-radius:2px}
-.homework-content{display:flex;flex-direction:column;gap:10px}
-.hw-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px;border:2px solid var(--border)}
-.hw-card h3{font-size:1rem;font-weight:800;margin-bottom:8px;color:var(--primary)}
-.hw-card .hw-title{font-size:1.15rem;font-weight:800;margin-bottom:10px}
-.hw-card .hw-sub{font-size:.88rem;color:var(--text-secondary);line-height:1.5;margin-bottom:10px}
-.hw-card ul{margin:0 0 10px 18px}
-.hw-card ul li{font-size:.88rem;line-height:1.6}
-.hw-card .hw-formula{background:var(--primary-light);border-radius:8px;padding:10px 12px;font-weight:800;text-align:center;margin:8px 0;font-size:.95rem}
-.hw-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.82rem}
-.hw-table th,.hw-table td{border:1px solid var(--border);padding:6px 8px;text-align:center}
-.hw-table th{background:var(--primary-light);font-weight:800}
-.hw-answer-box{display:none;background:var(--primary-light);border-radius:8px;padding:12px;margin-top:8px;font-size:.85rem;line-height:1.6}
-.hw-answer-box.show{display:block}
-.hw-answer-box strong{color:var(--primary)}
-.hw-show-btn{width:100%;padding:10px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-family:inherit;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px}
-.hw-show-btn:active{transform:scale(.97)}
 .theory-content{display:flex;flex-direction:column;gap:10px;padding-bottom:20px}
 .th-nav{margin-bottom:10px}
 .th-select{width:100%;max-width:520px;padding:11px 14px;border:2px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);font-family:inherit;font-size:.92rem;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
@@ -213,7 +192,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
   <h1>⚛️ Физика 7 класс</h1>
   <div class="subtitle">Тренажёр для 7 класса</div>
   <button class="theme-btn" onclick="toggleTheme()">🌙</button>
-  <button class="hw-btn" onclick="openHWList()">📚 Домашнее задание</button>
   <button class="sheet-btn" id="sheetBtn" onclick="openSheetPanel()">📊 Таблица</button>
   <button class="sheet-btn archive-btn" id="archiveBtn" onclick="goArchive()">🗂️ Архив</button>
   <span class="sheet-state off" id="sheetState">таблица не подключена</span>
@@ -234,7 +212,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
     </div>
     <div class="archive-hero">
       <button class="archive-open" id="archiveOpenBtn" onclick="toggleArchiveGrid()">📚 Задания до Урока 11</button>
-      <div class="archive-sub">Учебные задания по физике за прошлые уроки (уроки 1–11) и домашняя работа. Результаты из архива не отправляются в таблицу и не учитываются в статистике.</div>
+      <div class="archive-sub">Учебные задания по физике за прошлые уроки (уроки 1–11). Результаты из архива не отправляются в таблицу и не учитываются в статистике.</div>
     </div>
     <div class="stats-row" id="archiveStats"></div>
     <div class="menu" id="archiveGrid" style="display:none"></div>
@@ -296,25 +274,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
     </div>
   </div>
 
-  <!-- СПИСОК ДОМАШНИХ ЗАДАНИЙ -->
-  <div class="screen" id="screenHWList">
-    <div class="nav-bar">
-      <button class="nav-btn" onclick="goTopics()">← Назад</button>
-      <div class="nav-title">Домашние задания</div>
-    </div>
-    <div class="grid" id="hwGrid"></div>
   </div>
-
-  <!-- ДОМАШНЕЕ ЗАДАНИЕ -->
-  <div class="screen" id="screenHomework">
-    <div class="nav-bar">
-      <button class="nav-btn" onclick="openHWList()">← К списку ДЗ</button>
-      <div class="nav-title">Домашнее задание</div>
-      <button class="nav-btn" id="hwDocxBtn" onclick="downloadHWDocx()">⬇️ Скачать .docx</button>
-    </div>
-    <div class="homework-content" id="homeworkContent"></div>
-  </div>
-</div>
 
 <div class="confetti-box" id="confettiBox"></div>
 
@@ -791,8 +751,7 @@ states:[
 {h:'📚 Вопросы из учебника (§12)',
  ul:[
  '<strong>1.</strong> В каких агрегатных состояниях может находиться вещество?',
- '<strong>2.</strong> Охарактеризуйте свойства вещества, находящегося в разных агрегатных состояниях.'],
- f:'Домашнее задание по учебнику — §12, вопросы 1 и 2.'}
+ '<strong>2.</strong> Охарактеризуйте свойства вещества, находящегося в разных агрегатных состояниях.']}
 ],
 structure:[
 {h:'🔬 Главный вопрос параграфа',
@@ -822,8 +781,7 @@ structure:[
 {h:'📚 Вопросы из учебника (§13)',
  ul:[
  '<strong>1.</strong> Чем различается молекулярное строение твёрдых тел, жидкостей и газов?',
- '<strong>2.</strong> Почему при нагревании объём твёрдых тел и жидкостей увеличивается?'],
- f:'Домашнее задание по учебнику — §13, вопросы 1 и 2.'}
+ '<strong>2.</strong> Почему при нагревании объём твёрдых тел и жидкостей увеличивается?']}
 ]
 ,
 motion:[
@@ -868,8 +826,7 @@ motion:[
  ul:[
   '<strong>1.</strong> Сформулируйте определение механического движения.',
   '<strong>2.</strong> Почему необходимо указывать, относительно каких тел движется тело?',
-  '<strong>3.</strong> Чем отличаются путь от траектории?'],
- f:'Домашнее задание по учебнику — §14, вопросы 1–3 и ЗАДАНИЕ 12.'}
+  '<strong>3.</strong> Чем отличаются путь от траектории?']}
 ],
 uniform:[
 {h:'🚄 Главный вопрос параграфа',
@@ -918,8 +875,7 @@ uniform:[
   '<strong>2.</strong> Дайте определение равномерного движения.',
   '<strong>3.</strong> Приведите примеры равномерного и неравномерного движения. Обоснуйте свой выбор.',
   '<strong>4.</strong> За каждую секунду тело проходит 2 мм. Можно ли считать его движение равномерным?'],
- p2:'Ответ на вопрос 4: строго говоря — <strong>нельзя</strong>. Мы знаем путь только за секунду, а нужно знать путь за <strong>любые</strong> равные промежутки времени. Это тот же случай, что и с автобусом: информации не хватает.',
- f:'Домашнее задание по учебнику — §15, вопросы 1–3.'}
+ p2:'Ответ на вопрос 4: строго говоря — <strong>нельзя</strong>. Мы знаем путь только за секунду, а нужно знать путь за <strong>любые</strong> равные промежутки времени. Это тот же случай, что и с автобусом: информации не хватает.'}
 ],
 speed:[
 {h:'💨 Главный вопрос параграфа',
@@ -981,8 +937,7 @@ speed:[
   '<strong>4.</strong> Скорость — величина векторная. Что это значит?',
   '<strong>5.</strong> По какой формуле определяют среднюю скорость тела при неравномерном движении?',
   '<strong>6.</strong> Какую скорость имеют в виду, говоря о скорости автомобиля между двумя пунктами; скорости пули в момент вылета из ствола?'],
- p2:'Вопрос после параграфа: используя формулу для расчёта vср, докажите, что единица средней скорости в СИ — метр в секунду.',
- f:'Домашнее задание по учебнику — §16, вопросы 1–6.'}
+ p2:'Вопрос после параграфа: используя формулу для расчёта vср, докажите, что единица средней скорости в СИ — метр в секунду.'}
 ],
 path:[
 {h:'🛣️ Главный вопрос параграфа',
@@ -1028,8 +983,7 @@ path:[
   '<strong>1.</strong> По какой формуле можно определить путь при движении тела: а) равномерном; б) неравномерном?',
   '<strong>2.</strong> По какой формуле можно определить время движения тела: а) при равномерном движении; б) при неравномерном движении?',
   '<strong>3.</strong> Почему для определения скорости тела при равномерном движении по графику зависимости пути от времени можно выбрать любую точку графика?'],
- p2:'«Подумай»: Иван использовал прямую пропорциональность пути времени, а Гоша — пути скорости. Предложите условия задач, которые могли решать ребята.',
- f:'Домашнее задание по учебнику — §17, вопросы 1–3, упражнение 8.'}
+ p2:'«Подумай»: Иван использовал прямую пропорциональность пути времени, а Гоша — пути скорости. Предложите условия задач, которые могли решать ребята.'}
 ],
 accel:[
 {h:'🚀 Главный вопрос параграфа',
@@ -1070,8 +1024,7 @@ accel:[
   '<strong>2.</strong> В каких единицах измеряется ускорение?',
   '<strong>3.</strong> По какой формуле можно определить скорость при прямолинейном равноускоренном движении?',
   '<strong>4.</strong> В каком случае ускорение тела положительно; отрицательно?'],
- p2:'Упражнение 9: № 1–3 — теория, № 4–7 — расчёты, № 8 — по графикам v(t).',
- f:'Домашнее задание по учебнику — §18, вопросы 1–4, упражнение 9.'}
+ p2:'Упражнение 9: № 1–3 — теория, № 4–7 — расчёты, № 8 — по графикам v(t).'}
 ]
 };
 function openTheory(){
@@ -1111,656 +1064,6 @@ function openTheory(){
     boxes.innerHTML+=html;
   });
   showScreen('screenTheory');
-}
-
-// ===== ДОМАШНЕЕ ЗАДАНИЕ =====
-const HOMEWORK={};
-HOMEWORK.measure=`<div class="hw-card">
-  <div class="hw-title">📚 Домашняя работа (Урок 3)</div>
-  <h3>1. Повтори теорию</h3>
-  <ul>
-    <li>Какие физические величины мы измеряли в этом уроке?</li>
-    <li>В каких единицах измеряют длину, массу, время и температуру?</li>
-    <li>Какие приборы измеряют длину, массу, время и температуру?</li>
-    <li>Что такое цена деления шкалы прибора?</li>
-    <li>Как перевести миллиметры в сантиметры и метры, а часы в минуты?</li>
-  </ul>
-</div>
-<div class="hw-card">
-  <h3>2. Отработай в тренажёре</h3>
-  <div class="hw-sub">Пройди «Микс», «Правда или ложь» и «Найди лишнее» по теме «Физические величины и их измерение». Добейся не менее 70% в каждом режиме.</div>
-</div>
-<div class="hw-card">
-  <h3>3. Ответь письменно</h3>
-  <div class="hw-sub"><strong>1.</strong> Заполните пропуски, переведя единицы длины:</div>
-  <table class="hw-table">
-    <tr><th>Физическое тело</th><th>мм</th><th>см</th><th>м</th><th>км</th></tr>
-    <tr><td>Диаметр монеты 10 р.</td><td>22</td><td>?</td><td>?</td><td>?</td></tr>
-    <tr><td>Высота листа А4</td><td>?</td><td>30</td><td>?</td><td>?</td></tr>
-    <tr><td>Высота здания</td><td>?</td><td>?</td><td>35</td><td>?</td></tr>
-  </table>
-  <div class="hw-sub"><strong>2.</strong> Сравните, что больше: 40 мин или ¾ ч? Переведите 2500 м в километры и 180 с в минуты.</div>
-</div>`;
-HOMEWORK.temp=`<div class="hw-card">
-  <div class="hw-title">📚 Домашняя работа (Урок 4)</div>
-  <h3>1. Повтори теорию</h3>
-  <ul>
-    <li>Что такое температура?</li>
-    <li>На каком принципе работает жидкостной термометр?</li>
-    <li>Как устроен жидкостной термометр?</li>
-    <li>Чем датчик температуры отличается от жидкостного термометра?</li>
-    <li>При какой температуре тает лёд? Кипит вода?</li>
-    <li>Как определить цену деления шкалы термометра?</li>
-  </ul>
-</div>
-<div class="hw-card">
-  <h3>2. Отработай в тренажёре</h3>
-  <div class="hw-sub">Пройди «Микс», «Правда или ложь» и «Найди лишнее» по теме «Измерение температуры». Добейся не менее 70% в каждом режиме.</div>
-</div>
-<div class="hw-card">
-  <h3>3. Ответь письменно</h3>
-  <div class="hw-sub">
-    <strong>1.</strong> Выпиши определения: температура, жидкостной термометр, датчик температуры, шкала Цельсия.<br>
-    <strong>2.</strong> Объясни, почему при нагревании столбик жидкости в термометре поднимается, а при охлаждении опускается.
-  </div>
-</div>`;
-HOMEWORK.speed=`<div class="hw-card">
-  <div class="hw-title">📚 Домашняя работа (Урок 5 — Механическое движение)</div>
-  <h3>1. Повтори теорию</h3>
-  <ul>
-    <li>Что такое механическое движение?</li>
-    <li>Что такое тело отсчёта и траектория?</li>
-    <li>Что называют путём? В каких единицах он измеряется?</li>
-    <li>Какое движение называют равномерным? Неравномерным?</li>
-    <li>Что показывает скорость? По какой формуле её находят?</li>
-    <li>Что такое 1 м/с? Как перевести км/ч в м/с?</li>
-  </ul>
-</div>
-<div class="hw-card">
-  <h3>2. Отработай в тренажёре</h3>
-  <div class="hw-sub">Пройди «Микс», «Правда или ложь» и «Найди лишнее» по теме «Механическое движение». Добейся не менее 70% в каждом режиме.</div>
-</div>
-<div class="hw-card">
-  <h3>3. Ответь письменно</h3>
-  <div class="hw-sub">
-    <strong>1.</strong> Вырази скорость в м/с: 36 км/ч; 54 км/ч; 108 км/ч. Вырази скорость в км/ч: 10 м/с; 25 м/с; 340 м/с.<br>
-    <strong>2.</strong> Реши задачи: поезд движется со скоростью 20 м/с — какой путь он пройдёт за 30 с? Автомобиль движется со скоростью 90 км/ч — за какое время он проедет 180 км? Скорость звука 340 м/с — за какое время звук пройдёт 1700 м?
-  </div>
-</div>`;
-HOMEWORK.phenomena=`<div class="hw-card">
-  <div class="hw-title">📚 Домашняя работа (Уроки 1–2)</div>
-  <h3>1. Повтори теорию</h3>
-  <ul>
-    <li>Что такое физическое явление?</li>
-    <li>Чем механическое явление отличается от теплового?</li>
-    <li>Какие признаки имеет электрическое явление?</li>
-    <li>Что общего у магнитного и электрического явлений?</li>
-    <li>Как узнать световое явление, а как — звуковое?</li>
-  </ul>
-</div>
-<div class="hw-card">
-  <h3>2. Отработай в тренажёре</h3>
-  <div class="hw-sub">Пройди «Микс», «Правда или ложь» и «Найди лишнее» по теме «Физические явления». Добейся не менее 70% в каждом режиме.</div>
-</div>
-<div class="hw-card">
-  <h3>3. Ответь письменно</h3>
-  <div class="hw-sub">
-    <strong>1.</strong> Приведи по два примера механических, тепловых, электрических, магнитных, световых и звуковых явлений.<br>
-    <strong>2.</strong> Опиши опыт с расчёской и волосами: что происходит и какой это вид явления.
-  </div>
-</div>`;
-HOMEWORK.tech=`<div class="hw-card">
-  <div class="hw-title">📚 Домашняя работа (Урок 6 — Физика и её влияние на развитие техники)</div>
-  <h3>1. Повтори теорию</h3>
-  <ul>
-    <li>С чего началось техническое развитие человечества?</li>
-    <li>Какие учёные и какие открытия ты знаешь?</li>
-    <li>Как физика влияет на развитие техники, а техника — на развитие физики?</li>
-    <li>Какие достижения отечественной космонавтики ты знаешь?</li>
-    <li>Какие 30 проблем современной физики назвал В. Л. Гинзбург?</li>
-  </ul>
-  <div class="hw-sub">
-    <strong>Учёные и их вклад:</strong> Архимед — законы плавания тел; Птолемей — теория планетных движений; Леонардо да Винчи — первые эксперименты; Галилео Галилей — законы инерции и свободного падения; Исаак Ньютон — классическая механика; Джеймс Максвелл — теория электромагнитного поля; С. П. Королёв — советская космонавтика; В. Л. Гинзбург — 30 проблем современной физики.<br><br>
-    <strong>Ключевые даты:</strong> 4 октября 1957 г. — первый искусственный спутник Земли; 12 апреля 1961 г. — первый полёт человека в космос (Ю. А. Гагарин); 1965 г. — выход человека в открытый космос (А. А. Леонов).
-  </div>
-</div>
-<div class="hw-card">
-  <h3>2. Отработай в тренажёре</h3>
-  <div class="hw-sub">Пройди «Микс», «Правда или ложь» и «Найди лишнее» по теме «Физика и техника». Добейся не менее 70% в каждом режиме.</div>
-</div>
-<div class="hw-card">
-  <h3>3. Ответь письменно (§6)</h3>
-  <div class="hw-sub">
-    <strong>1.</strong> Какое значение имеет физика для развития техники? Покажите это на примерах.<br>
-    <strong>2.</strong> Назовите известные вам имена учёных и открытия, которые они сделали.
-  </div>
-</div>`;
-HOMEWORK.matter=`<div class="hw-card">
-  <div class="hw-title">📚 Домашняя работа (Урок 7 — Строение вещества)</div>
-  <h3>1. Повтори теорию</h3>
-  <ul>
-    <li>Кто предположил, что всё состоит из атомов? Что означает это слово?</li>
-    <li>В чём разница между гипотезой и научной теорией?</li>
-    <li>Какие опыты доказывают, что вещества состоят из мельчайших частиц?</li>
-    <li>Почему при нагревании объём тела увеличивается, а при охлаждении уменьшается?</li>
-    <li>Почему тела кажутся нам сплошными?</li>
-  </ul>
-</div>
-<div class="hw-card">
-  <h3>2. Отработай в тренажёре</h3>
-  <div class="hw-sub">Пройди «Микс», «Правда или ложь» и «Найди лишнее» по теме «Строение вещества». Добейся не менее 70% в каждом режиме.</div>
-</div>
-<div class="hw-card">
-  <h3>3. Ответь письменно</h3>
-  <div class="hw-sub">
-    <strong>1.</strong> Выпиши определения: атом, молекула, гипотеза, тепловое расширение, молекулярная теория, промежутки между частицами.<br>
-    <strong>2.</strong> Опиши опыты из §7 — разбавление краски в воде (рис. 20), тепловое расширение шара и кольца (рис. 21), изменение объёма жидкости при нагревании (рис. 22). Что показывает каждый опыт?
-  </div>
-</div>`;
-HOMEWORK.molecules=`<div class="hw-card">
-  <div class="hw-title">📚 Домашняя работа (Урок 8 — Молекулы)</div>
-  <h3>1. Повтори теорию</h3>
-  <ul>
-    <li>Что представляют собой мельчайшие частицы вещества?</li>
-    <li>Из каких атомов состоит молекула воды и молекула углекислого газа?</li>
-    <li>Какие вещества состоят не из молекул, а из атомов?</li>
-    <li>Как с помощью опыта с масляной плёнкой оценивают размеры молекул?</li>
-    <li>Какие приборы позволили увидеть отдельные атомы и молекулы?</li>
-  </ul>
-</div>
-<div class="hw-card">
-  <h3>2. Отработай в тренажёре</h3>
-  <div class="hw-sub">Пройди «Микс», «Правда или ложь» и «Найди лишнее» по теме «Молекулы». Добейся не менее 70% в каждом режиме.</div>
-</div>
-<div class="hw-card">
-  <h3>3. Ответь письменно</h3>
-  <div class="hw-sub">
-    <strong>1.</strong> Выпиши определения: молекула вещества, атом, элемент, озон, масляная плёнка, туннельный микроскоп.<br>
-    <strong>2.</strong> Ответь на вопросы к §8: из каких частиц состоит молекула водорода и почему наименьшей частицей водорода является молекула, а не атом? Почему масляные плёнки при небольшом количестве масла не могут покрыть всю поверхность водоёма?
-  </div>
-</div>`;
-
-HOMEWORK.diffusion=`<div class="hw-card">
-  <div class="hw-title">📚 Домашняя работа (Урок 9 — Броуновское движение. Диффузия)</div>
-  <h3>1. Повтори теорию</h3>
-  <ul>
-    <li>Что такое броуновская частица и как объясняется броуновское движение?</li>
-    <li>Какое явление называется диффузией и от чего зависит её скорость?</li>
-    <li>Как происходит диффузия в газах, жидкостях и твёрдых телах?</li>
-    <li>Почему твёрдые тела и жидкости не распадаются на отдельные молекулы?</li>
-    <li>При каком условии проявляется притяжение молекул, а при каком — отталкивание?</li>
-  </ul>
-</div>
-<div class="hw-card">
-  <h3>2. Отработай в тренажёре</h3>
-  <div class="hw-sub">Пройди «Микс», «Правда или ложь» и «Найди лишнее» по теме «Броуновское движение. Диффузия». Добейся не менее 70% в каждом режиме.</div>
-</div>
-<div class="hw-card">
-  <h3>3. Ответь письменно</h3>
-  <div class="hw-sub">
-    <strong>1.</strong> Выпиши определения: броуновское движение, броуновская частица, диффузия, притяжение молекул, отталкивание молекул.<br>
-    <strong>2.</strong> Ответь на вопросы к §9: почему нельзя наблюдать броуновское движение чаинок в стакане чая? Почему пятна краски на столе значительно легче удалить сразу, чем спустя некоторое время? Почему штукатурка отваливается, если между ней и кирпичной стеной попадает вода?
-  </div>
-</div>`;
-HOMEWORK.states=`<div class="hw-card">
-  <div class="hw-title">📚 Домашняя работа (Урок 10 — §12. Агрегатные состояния вещества)</div>
-  <h3>1. Повтори теорию</h3>
-  <ul>
-    <li>В каких агрегатных состояниях может находиться вещество?</li>
-    <li>Какими свойствами обладает вещество в каждом состоянии?</li>
-    <li>Как объясняются свойства тел строением и движением молекул?</li>
-    <li>Что такое кристаллы? Приведи примеры.</li>
-    <li>При какой температуре вода превращается в лёд, а свинец — в жидкость?</li>
-  </ul>
-</div>
-<div class="hw-card">
-  <h3>2. Отработай в тренажёре</h3>
-  <div class="hw-sub">Потренируйся в режимах «Микс», «Правда или ложь» и «Найди лишнее» по темам «Строение вещества» и «Молекулы»: добейся не менее 70% в каждом режиме.</div>
-</div>
-<div class="hw-card">
-  <h3>3. Запиши в тетрадь</h3>
-  <table class="hw-table">
-    <tr><th>Состояние</th><th>Свойства</th><th>Движение молекул</th></tr>
-    <tr><td>Твёрдое</td><td>Сохраняет форму и объём, трудно сжать</td><td>Колеблются около определённой точки</td></tr>
-    <tr><td>Жидкое</td><td>Сохраняет объём, легко меняет форму</td><td>Колеблются и время от времени перескакивают</td></tr>
-    <tr><td>Газообразное</td><td>Не имеет формы и объёма, легко сжимается</td><td>Беспорядочно движутся по всему объёму</td></tr>
-  </table>
-  <div class="hw-sub">Вода при температуре выше 0 °C — жидкая, ниже 0 °C — твёрдая (лёд). Свинец становится жидким выше 327 °C.</div>
-</div>
-<div class="hw-card">
-  <h3>4. Ответь письменно (§12)</h3>
-  <div class="hw-sub">
-    <strong>1.</strong> В каких агрегатных состояниях может находиться вещество?<br>
-    <strong>2.</strong> Охарактеризуйте свойства вещества, находящегося в разных агрегатных состояниях.
-  </div>
-</div>
-<div class="hw-card">
-  <h3>5. Реши задачу</h3>
-  <div class="hw-sub">Объясни на основе представлений о молекулярном строении вещества, почему газ легко сжимается (например, воздух в шарике), а жидкость сжать очень трудно.</div>
-</div>`;
-
-HOMEWORK.structure=`<div class="hw-card">
-  <div class="hw-title">📚 Домашняя работа (Урок 11 — §13. Различие в молекулярном строении)</div>
-  <h3>1. Повтори теорию</h3>
-  <ul>
-    <li>Чем различается молекулярное строение твёрдых тел, жидкостей и газов?</li>
-    <li>Почему при нагревании объём твёрдых тел и жидкостей увеличивается?</li>
-    <li>Почему твёрдые тела не разрушаются при нагревании?</li>
-    <li>Как зависит сила притяжения между молекулами от расстояния между ними?</li>
-  </ul>
-</div>
-<div class="hw-card">
-  <h3>2. Отработай в тренажёре</h3>
-  <div class="hw-sub">Потренируйся в режимах «Микс», «Правда или ложь» и «Найди лишнее» по теме «Молекулярное строение состояний»: добейся не менее 70% в каждом режиме.</div>
-</div>
-<div class="hw-card">
-  <h3>3. Запиши в тетрадь</h3>
-  <table class="hw-table">
-    <tr><th>Состояние</th><th>Расстояние</th><th>Притяжение</th><th>Движение молекул</th></tr>
-    <tr><td>Твёрдое</td><td>Очень мало</td><td>Самое сильное</td><td>Колеблются около определённой точки</td></tr>
-    <tr><td>Жидкое</td><td>Мало</td><td>Заметно слабее</td><td>Колеблются и перескакивают</td></tr>
-    <tr><td>Газообразное</td><td>Намного больше размера молекул</td><td>Очень слабое</td><td>Беспорядочно движутся по всему объёму</td></tr>
-  </table>
-  <div class="hw-sub">Главный вывод: свойства вещества определяются расстоянием между молекулами и силой их притяжения. Чем ближе молекулы и чем сильнее притяжение, тем прочнее вещество и тем труднее его сжать.</div>
-</div>
-<div class="hw-card">
-  <h3>4. Ответь письменно (§13)</h3>
-  <div class="hw-sub">
-    <strong>1.</strong> Чем различается молекулярное строение твёрдых тел, жидкостей и газов?<br>
-    <strong>2.</strong> Почему при нагревании объём твёрдых тел и жидкостей увеличивается?
-  </div>
-</div>
-<div class="hw-card">
-  <h3>5. Реши задачу</h3>
-  <div class="hw-sub">Объясни с точки зрения молекулярного строения, почему металлический прут трудно согнуть, а воздушный шарик легко сжать.</div>
-</div>`;
-
-HOMEWORK.motion=`<div class="hw-card">
-  <div class="hw-title">📚 Домашняя работа (Урок 12 — §14. Механическое движение)</div>
-  <h3>1. Повтори теорию</h3>
-  <ul>
-    <li>Сформулируйте определение механического движения.</li>
-    <li>Почему необходимо указывать, относительно каких тел движется тело?</li>
-    <li>Что называется траекторией движения?</li>
-    <li>Чем отличаются путь от траектории?</li>
-    <li>В каких единицах измеряется путь?</li>
-  </ul>
-</div>
-<div class="hw-card">
-  <h3>2. Отработай в тренажёре</h3>
-  <div class="hw-sub">Потренируйся в режимах «Микс», «Правда или ложь» и «Найди лишнее» по теме «Механическое движение». Добейся не менее 70% в каждом режиме.</div>
-</div>
-<div class="hw-card">
-  <h3>3. Запиши в тетрадь</h3>
-  <table class="hw-table">
-    <tr><th>Понятие</th><th>Что это</th><th>Пример</th></tr>
-    <tr><td>Механическое движение</td><td>Изменение положения тела относительно других тел</td><td>Движение автобуса</td></tr>
-    <tr><td>Покой</td><td>Тело неподвижно относительно выбранного тела</td><td>Пассажир в автобусе</td></tr>
-    <tr><td>Траектория</td><td>Воображаемая линия движения тела</td><td>След от колёс автомобиля</td></tr>
-    <tr><td>Путь (s)</td><td>Длина траектории за промежуток времени</td><td>50 м пробежал</td></tr>
-  </table>
-  <div class="hw-sub">Единицы пути: 1 мм = 10⁻³ м; 1 см = 10⁻² м; 1 дм = 10⁻¹ м; 1 км = 10³ м.</div>
-</div>
-<div class="hw-card">
-  <h3>4. Ответь письменно (§14)</h3>
-  <div class="hw-sub">
-    <strong>1.</strong> Сформулируйте определение механического движения.<br>
-    <strong>2.</strong> Почему необходимо указывать, относительно каких тел движется тело?<br>
-    <strong>3.</strong> Чем отличаются путь от траектории?
-  </div>
-</div>
-<div class="hw-card">
-  <h3>5. Реши задачу (ЗАДАНИЕ 12)</h3>
-  <div class="hw-sub">
-    Почему относительно наблюдателя на платформе траектория мяча, падающего в движущемся вагоне, не является прямой вертикальной линией? Изобразите в тетради примерный вид траектории.
-  </div>
-</div>
-<div class="hw-card">
-  <h3>6. Дополнительно (по желанию)</h3>
-  <div class="hw-sub">
-    • Движется ли лёгкий воздушный шарик, уносимый ветром, относительно Земли; относительно ветра? (п. 8)<br>
-    • Движется ли велосипедист относительно седла? (п. 9)<br>
-    • Возраст человека 12 лет — каков он в единицах СИ, если каждый четвёртый год високосный? (п. 10)<br>
-    • Выразите в метрах 30 дюймов, если 1 аршин = 28 дюймов = 16 вершков = 71,12 см. (п. 11)
-  </div>
-</div>`;
-
-HOMEWORK.uniform=`<div class="hw-card">
-  <div class="hw-title">📚 Домашняя работа (Урок 13 — §15. Равномерное и неравномерное движение)</div>
-  <h3>1. Повтори теорию</h3>
-  <ul>
-    <li>Дайте определение равномерного движения.</li>
-    <li>Чем равномерное движение отличается от неравномерного?</li>
-    <li>По каким двум признакам классифицируют движение?</li>
-    <li>Почему по одному часу пути нельзя судить о равномерности движения?</li>
-    <li>Приведите примеры равномерного и неравномерного движения.</li>
-  </ul>
-</div>
-<div class="hw-card">
-  <h3>2. Отработай в тренажёре</h3>
-  <div class="hw-sub">Потренируйся в режимах «Микс», «Правда или ложь» и «Найди лишнее» по теме «Равномерное и неравномерное движение». Добейся не менее 70% в каждом режиме.</div>
-</div>
-<div class="hw-card">
-  <h3>3. Запиши в тетрадь</h3>
-  <table class="hw-table">
-    <tr><th>Признак</th><th>Виды движения</th><th>По чему различаются</th></tr>
-    <tr><td>По форме траектории</td><td>Прямолинейное и криволинейное</td><td>Траектория — прямая или кривая линия</td></tr>
-    <tr><td>По характеру движения</td><td>Равномерное и неравномерное</td><td>За равные промежутки времени равные или разные пути</td></tr>
-  </table>
-  <div class="hw-sub"><strong>Равномерное:</strong> лента транспортёра, ступени эскалатора, тела вдали от небесных тел.<br><strong>Неравномерное:</strong> разгон и торможение поезда, поворот автомобиля, взлёт самолёта, движение лифта.</div>
-</div>
-<div class="hw-card">
-  <h3>4. Ответь письменно (§15)</h3>
-  <div class="hw-sub">
-    <strong>1.</strong> Чем отличаются равномерное и неравномерное движение?<br>
-    <strong>2.</strong> Дайте определение равномерного движения.<br>
-    <strong>3.</strong> Приведите примеры равномерного и неравномерного движения. Обоснуйте свой выбор.
-  </div>
-</div>
-`;
-
-HOMEWORK.speed=`<div class="hw-card">
-  <div class="hw-title">📚 Домашняя работа (Урок 14 — §16. Скорость. Единицы скорости)</div>
-  <h3>1. Повтори теорию</h3>
-  <ul>
-    <li>Что показывает скорость тела при равномерном движении?</li>
-    <li>По какой формуле рассчитывают скорость, если заданы путь и время?</li>
-    <li>Какова единица скорости в СИ? Во сколько раз 1 м/с больше 1 км/ч?</li>
-    <li>Почему скорость — величина векторная? Приведите пример скалярных величин.</li>
-    <li>Чем средняя скорость отличается от мгновенной?</li>
-  </ul>
-</div>
-<div class="hw-card">
-  <h3>2. Отработай в тренажёре</h3>
-  <div class="hw-sub">Потренируйся в режимах «Микс», «Правда или ложь» и «Найди лишнее» по теме «Скорость. Единицы скорости». Добейся не менее 70% в каждом режиме.</div>
-</div>
-<div class="hw-card">
-  <h3>3. Запиши в тетрадь</h3>
-  <table class="hw-table">
-    <tr><th>Понятие</th><th>Формула</th><th>Что это</th></tr>
-    <tr><td>Скорость (равномерное движение)</td><td>v = s / t</td><td>Путь, пройденный за единицу времени</td></tr>
-    <tr><td>Единица скорости в СИ</td><td>м/с</td><td>1 м/с = 3,6 км/ч; 1 км/ч = 10/36 м/с</td></tr>
-    <tr><td>Средняя скорость</td><td>vср = s / t</td><td>Отношение всего пути ко всему времени движения</td></tr>
-    <tr><td>Мгновенная скорость</td><td>—</td><td>Скорость на очень малом промежутке времени</td></tr>
-  </table>
-  <div class="hw-sub"><strong>Векторные</strong> (есть направление): скорость. <strong>Скалярные</strong> (направления нет): время, путь, масса. Спидометр измеряет именно мгновенную скорость.</div>
-</div>
-<div class="hw-card">
-  <h3>4. Ответь письменно (§16)</h3>
-  <div class="hw-sub">
-    <strong>1.</strong> Что показывает скорость тела при равномерном движении?<br>
-    <strong>2.</strong> По какой формуле можно рассчитать скорость тела, если заданы путь и время, за которое он пройден?<br>
-    <strong>3.</strong> Какова единица скорости в СИ?<br>
-    <strong>4.</strong> Скорость — величина векторная. Что это значит?<br>
-    <strong>5.</strong> По какой формуле определяют среднюю скорость тела при неравномерном движении?<br>
-    <strong>6.</strong> Какую скорость имеют в виду, говоря о скорости автомобиля между двумя пунктами; скорости пули в момент вылета из ствола?
-  </div>
-</div>
-<div class="hw-card">
-  <h3>5. Реши задачу</h3>
-  <div class="hw-sub">
-    Автомобиль «Лада Гранта» развивает скорость 160 км/ч, а почтовый голубь летит со скоростью 16 м/с. Сможет ли голубь обогнать автомобиль? Решение запиши двумя способами: переведи 160 км/ч в м/с и 16 м/с в км/ч.
-  </div>
-</div>`;
-
-HOMEWORK.path=`<div class="hw-card">
-  <div class="hw-title">📚 Домашняя работа (Урок 15 — §17. Расчёт пути и времени движения)</div>
-  <h3>1. Повтори теорию</h3>
-  <ul>
-    <li>По какой формуле находят путь при равномерном движении?</li>
-    <li>По какой формуле находят время движения?</li>
-    <li>Как найти путь и время при неравномерном движении?</li>
-    <li>Как выглядит график зависимости пути от времени? А график скорости от времени?</li>
-    <li>Как по графику сравнить скорости двух тел?</li>
-  </ul>
-</div>
-<div class="hw-card">
-  <h3>2. Отработай в тренажёре</h3>
-  <div class="hw-sub">Потренируйся в режимах «Микс», «Правда или ложь» и «Найди лишнее» по теме «Расчёт пути и времени движения». Добейся не менее 70% в каждом режиме.</div>
-</div>
-<div class="hw-card">
-  <h3>3. Запиши в тетрадь</h3>
-  <table class="hw-table">
-    <tr><th>Что найти</th><th>Равномерное движение</th><th>Неравномерное движение</th></tr>
-    <tr><td>Путь</td><td>s = v · t</td><td>s = vср · t</td></tr>
-    <tr><td>Время</td><td>t = s / v</td><td>t = s / vср</td></tr>
-    <tr><td>Скорость</td><td>v = s / t</td><td>vср = s / t</td></tr>
-  </table>
-  <div class="hw-sub"><strong>Графики:</strong> s(t) при равномерном движении — прямая через начало координат (чем круче, тем больше скорость); v(t) — прямая, параллельная оси времени.</div>
-</div>
-<div class="hw-card">
-  <h3>4. Ответь письменно (§17)</h3>
-  <div class="hw-sub">
-    <strong>1.</strong> По какой формуле можно определить путь при движении тела: а) равномерном; б) неравномерном?<br>
-    <strong>2.</strong> По какой формуле можно определить время движения тела: а) при равномерном движении; б) при неравномерном движении?<br>
-    <strong>3.</strong> Почему для определения скорости тела при равномерном движении по графику зависимости пути от времени можно выбрать любую точку графика?<br>
-    <strong>4.</strong> Иван использовал прямую пропорциональность пути времени, а Гоша — пути скорости. Предложите условия задач, которые могли решать ребята.
-  </div>
-</div>
-<div class="hw-card">
-  <h3>5. Реши задачи (упражнение 8)</h3>
-  <div class="hw-sub">
-    <strong>1.</strong> Какой путь проползёт улитка по стволу дерева за 5 мин, если её скорость 1,4 мм/с?<br>
-    <strong>2.</strong> Средняя скорость роста дуба 0,3 м в год. Сколько лет дереву высотой 6 м?<br>
-    <strong>3*.</strong> Первую половину пути из Москвы в Подольск автомобиль ехал со скоростью 90 км/ч. Оставшийся путь 20 км из-за поломки он проехал со скоростью 10 км/ч. Сколько времени двигался автомобиль? С какой постоянной скоростью должен ехать велосипедист, чтобы преодолеть это расстояние за то же время?
-  </div>
-</div>`;
-
-
-// Уроки с домашним заданием (список шире, чем темы для тренировки)
-const HW_TOPICS=[
-  {id:'phenomena',icon:'⚛️',label:'Физические явления (Уроки 1–2)'},
-  {id:'measure',icon:'📏',label:'Физические величины и их измерение (Урок 3)'},
-  {id:'temp',icon:'🌡️',label:'Измерение температуры (Урок 4)'},
-  {id:'tech',icon:'🚀',label:'Физика и техника (Урок 6)'},
-  {id:'matter',icon:'⚛️',label:'Строение вещества (Урок 7)'},
-  {id:'molecules',icon:'🔬',label:'Молекулы (Урок 8)'},
-  {id:'diffusion',icon:'🌊',label:'Броуновское движение. Диффузия (Урок 9)'},
-  {id:'states',icon:'🧊',label:'Агрегатные состояния вещества (Урок 10)'},
-  {id:'structure',icon:'🔬',label:'Молекулярное строение состояний (Урок 11)'}
-  ,{id:'motion',icon:'🚗',label:'Механическое движение (Урок 12)'}
-  ,{id:'uniform',icon:'🚄',label:'Равномерное и неравномерное движение (Урок 13)'}
-  ,{id:'speed',icon:'💨',label:'Скорость. Единицы скорости (Урок 14)'}
-  ,{id:'path',icon:'🛣️',label:'Расчёт пути и времени движения (Урок 15)'}
-];
-function goHomework(){openHWList()}
-function renderHWList(){
-  const g=document.getElementById('hwGrid');g.innerHTML='';
-  HW_TOPICS.forEach(t=>{
-    const c=document.createElement('button');c.className='topic-card';
-    c.innerHTML=`<div class="topic-icon">${t.icon}</div><div class="topic-label">${t.label}</div><div class="topic-sub">Домашнее задание</div>`;
-    c.onclick=()=>showHW(t.id);g.appendChild(c);
-  });
-}
-let currentHWTopic='';
-function showHW(id){
-  currentHWTopic=id;
-  document.getElementById('homeworkContent').innerHTML=HOMEWORK[id]||'';
-  showScreen('screenHomework');
-}
-function openHWList(){renderHWList();showScreen('screenHWList')}
-function backFromHomework(){
-  if(currentTopic){goMenu()}else{goTopics()}
-}
-
-// ===== ЭКСПОРТ ДОМАШНЕГО ЗАДАНИЯ В .DOCX =====
-const DW_BLOCK=new Set(['div','p','section','article','blockquote','pre','ul','ol','table','h1','h2','h3','h4','h5','h6','li']);
-function dwEsc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-function dwRuns(nodes,st,out){
-  for(const n of nodes){
-    if(n.nodeType===3){if(n.nodeValue)out.push({t:n.nodeValue.replace(/\s+/g,' '),s:st});continue}
-    if(n.nodeType!==1)continue;
-    const tag=n.tagName.toLowerCase();
-    if(tag==='br'){out.push({br:1});continue}
-    if(DW_BLOCK.has(tag))continue;
-    if(tag==='strong'||tag==='b'){dwRuns(n.childNodes,Object.assign({},st,{b:1}),out);continue}
-    if(tag==='em'||tag==='i'){dwRuns(n.childNodes,Object.assign({},st,{i:1}),out);continue}
-    if(tag==='u'){dwRuns(n.childNodes,Object.assign({},st,{u:1}),out);continue}
-    dwRuns(n.childNodes,st,out);
-  }
-  return out;
-}
-function dwInline(node){return dwRuns(node.childNodes,{},[])}
-function dwPara(runs,opts){
-  opts=opts||{};
-  const pPr=[];
-  if(opts.style)pPr.push('<w:pStyle w:val="'+opts.style+'"/>');
-  if(opts.space)pPr.push('<w:spacing w:before="180" w:after="60"/>');
-  if(opts.list)pPr.push('<w:ind w:left="360" w:hanging="0"/>');
-  if(opts.align)pPr.push('<w:jc w:val="'+opts.align+'"/>');
-  let body='';
-  if(opts.prefix)body+='<w:r><w:t xml:space="preserve">'+dwEsc(opts.prefix)+'</w:t></w:r>';
-  for(const r of runs){
-    if(r.br){body+='<w:r><w:br/></w:r>';continue}
-    const b=r.s&&r.s.b?'<w:b/>':'',it=r.s&&r.s.i?'<w:i/>':'',u=r.s&&r.s.u?'<w:u w:val="single"/>':'';
-    body+='<w:r>'+((b||it||u)?'<w:rPr>'+b+it+u+'</w:rPr>':'')+'<w:t xml:space="preserve">'+dwEsc(r.t)+'</w:t></w:r>';
-  }
-  return '<w:p>'+(pPr.length?'<w:pPr>'+pPr.join('')+'</w:pPr>':'')+body+'</w:p>';
-}
-function dwList(node,out,ordered){
-  let i=1;
-  for(const n of node.children){
-    if(n.tagName.toLowerCase()!=='li')continue;
-    out.push(dwPara(dwInline(n),{list:true,prefix:(ordered?i+'.  ':'•  ')}));
-    i++;
-  }
-}
-function dwTable(node,out){
-  const trs=[...node.querySelectorAll('tr')].filter(tr=>tr.closest('table')===node);
-  if(!trs.length)return;
-  let cols=1;
-  trs.forEach(tr=>{cols=Math.max(cols,[...tr.children].filter(c=>/^(TD|TH)$/.test(c.tagName)).length)});
-  const edges=['top','left','bottom','right','insideH','insideV'].map(s=>'<w:'+s+' w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/>').join('');
-  let xml='<w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/><w:tblBorders>'+edges+'</w:tblBorders></w:tblPr>';
-  trs.forEach(tr=>{
-    xml+='<w:tr>';
-    [...tr.children].filter(c=>/^(TD|TH)$/.test(c.tagName)).forEach(c=>{
-      const head=/^TH$/.test(c.tagName);
-      const runs=dwInline(c);
-      if(head)runs.forEach(r=>{r.s=Object.assign({},r.s,{b:1})});
-      xml+='<w:tc><w:tcPr><w:tcW w:w="'+Math.floor(5000/cols)+'" w:type="pct"/>'+(head?'<w:shd w:val="clear" w:fill="DBEAFE"/>':'')+'<w:vAlign w:val="center"/></w:tcPr>'+dwPara(runs,{align:'center'})+'</w:tc>';
-    });
-    xml+='</w:tr>';
-  });
-  out.push(xml+'</w:tbl><w:p/>');
-}
-function dwBlocks(node,out,heading){
-  let runs=[];
-  const flush=()=>{
-    const txt=runs.map(r=>r.br?'':(r.t||'')).join('').replace(/[\u00a0]/g,' ').trim();
-    if(txt)out.push(dwPara(runs,{style:heading?'Heading'+Math.min(heading,4):'',space:!!heading}));
-    runs=[];
-  };
-  for(const n of node.childNodes){
-    if(n.nodeType===3){runs.push({t:n.nodeValue.replace(/\s+/g,' ')});continue}
-    if(n.nodeType!==1)continue;
-    const tag=n.tagName.toLowerCase();
-    if(tag==='table'){flush();dwTable(n,out);continue}
-    if(tag==='ul'||tag==='ol'){flush();dwList(n,out,tag==='ol');continue}
-    if(/^h[1-6]$/.test(tag)){flush();out.push(dwPara(dwInline(n),{style:'Heading'+tag[1],space:true}));continue}
-    if(DW_BLOCK.has(tag)){
-      let h=heading||0;
-      if(tag==='div'&&n.classList.contains('hw-title'))h=1;
-      flush();dwBlocks(n,out,h);continue;
-    }
-    runs=runs.concat(dwInline(n));
-  }
-  flush();
-}
-function dwHead(s){return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+s}
-const DW_STYLES=dwHead('<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'+
- '<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="24"/><w:szCs w:val="24"/><w:lang w:val="ru-RU"/></w:rPr></w:rPrDefault>'+
- '<w:pPrDefault><w:pPr><w:spacing w:after="120" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>'+
- '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>'+
- [1,2,3,4].map(i=>'<w:style w:type="paragraph" w:styleId="Heading'+i+'"><w:name w:val="heading '+i+'"/><w:basedOn w:val="Normal"/><w:qFormat/><w:pPr><w:keepNext/><w:spacing w:before="240" w:after="120"/><w:outlineLvl w:val="'+(i-1)+'"/></w:pPr><w:rPr><w:b/><w:sz w:val="'+(34-i*2)+'"/><w:color w:val="1D4ED8"/></w:rPr></w:style>').join('')+
- '</w:styles>');
-function dwCrc32(buf){
-  let c=~0;
-  for(let i=0;i<buf.length;i++){
-    c^=buf[i];
-    for(let k=0;k<8;k++)c=(c>>>1)^(0xEDB88320&-(c&1));
-  }
-  return ~c>>>0;
-}
-function dwZip(files){
-  const enc=new TextEncoder(),chunks=[],cdir=[];
-  let off=0,total=0;
-  for(const f of files){
-    const name=enc.encode(f.name),data=enc.encode(f.data),crc=dwCrc32(data),size=data.length;
-    const lh=new Uint8Array(30+name.length),dv=new DataView(lh.buffer);
-    dv.setUint32(0,0x04034b50,true);dv.setUint16(4,20,true);dv.setUint16(6,0x0800,true);
-    dv.setUint16(8,0,true);dv.setUint16(10,0,true);dv.setUint16(12,0x2100,true);
-    dv.setUint32(14,crc,true);dv.setUint32(18,size,true);dv.setUint32(22,size,true);
-    dv.setUint16(26,name.length,true);dv.setUint16(28,0,true);
-    lh.set(name,30);
-    chunks.push(lh,data);
-    const ch=new Uint8Array(46+name.length),cv=new DataView(ch.buffer);
-    cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);
-    cv.setUint16(8,0x0800,true);cv.setUint16(10,0,true);cv.setUint16(12,0,true);cv.setUint16(14,0x2100,true);
-    cv.setUint32(16,crc,true);cv.setUint32(20,size,true);cv.setUint32(24,size,true);
-    cv.setUint16(28,name.length,true);cv.setUint16(30,0,true);cv.setUint16(32,0,true);
-    cv.setUint16(34,0,true);cv.setUint16(36,0,true);cv.setUint32(38,0,true);cv.setUint32(42,off,true);
-    ch.set(name,46);
-    cdir.push(ch);
-    off+=lh.length+size;total++;
-  }
-  const cdSize=cdir.reduce((a,b)=>a+b.length,0);
-  const eocd=new Uint8Array(22),ev=new DataView(eocd.buffer);
-  ev.setUint32(0,0x06054b50,true);ev.setUint16(4,0,true);ev.setUint16(6,0,true);
-  ev.setUint16(8,total,true);ev.setUint16(10,total,true);
-  ev.setUint32(12,cdSize,true);ev.setUint32(16,off,true);ev.setUint16(20,0,true);
-  return new Blob([...chunks,...cdir,eocd],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-}
-function downloadHWDocx(){
-  const btn=document.getElementById('hwDocxBtn');
-  const root=document.getElementById('homeworkContent');
-  if(!root||!root.innerHTML.trim()){alert('Для этой темы нет домашнего задания');return}
-  try{
-    const t=TOPICS.find(x=>x.id===currentHWTopic);
-    const title=(t?t.label:'Домашнее задание').replace(/[\\/:*?"<>|]/g,'');
-    const blocks=[];
-    dwBlocks(root,blocks);
-    const doc=dwHead('<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+
-      blocks.join('')+
-      '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/>'+
-      '<w:pgMar w:top="1134" w:right="850" w:bottom="1134" w:left="1701" w:header="708" w:footer="708" w:gutter="0"/>'+
-      '<w:cols w:space="708"/></w:sectPr></w:body></w:document>');
-    const types=dwHead('<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
-      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
-      '<Default Extension="xml" ContentType="application/xml"/>'+
-      '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'+
-      '<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'+
-      '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/></Types>');
-    const rels=dwHead('<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
-      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'+
-      '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/></Relationships>');
-    const drels=dwHead('<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
-      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>');
-    const stamp=new Date().toISOString().replace(/\.\d+Z$/,'Z');
-    const core=dwHead('<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" '+
-      'xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" '+
-      'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'+
-      '<dc:title>'+dwEsc(title)+'</dc:title><dc:creator>Тренажёр по физике 7 класс</dc:creator>'+
-      '<cp:lastModifiedBy>Тренажёр по физике 7 класс</cp:lastModifiedBy>'+
-      '<dcterms:created xsi:type="dcterms:W3CDTF">'+stamp+'</dcterms:created>'+
-      '<dcterms:modified xsi:type="dcterms:W3CDTF">'+stamp+'</dcterms:modified></cp:coreProperties>');
-    const blob=dwZip([
-      {name:'[Content_Types].xml',data:types},
-      {name:'_rels/.rels',data:rels},
-      {name:'word/document.xml',data:doc},
-      {name:'word/styles.xml',data:DW_STYLES},
-      {name:'word/_rels/document.xml.rels',data:drels},
-      {name:'docProps/core.xml',data:core}
-    ]);
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;a.download='Домашнее задание - '+title+'.docx';
-    document.body.appendChild(a);a.click();a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),5000);
-    if(btn){const old=btn.textContent;btn.textContent='✅ Файл скачан';setTimeout(()=>btn.textContent=old,2500)}
-  }catch(e){
-    alert('Не удалось создать файл .docx: '+e.message);
-  }
 }
 
 // ===== ДАННЫЕ =====
