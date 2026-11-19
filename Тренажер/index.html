@@ -185,7 +185,9 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .hw-show-btn{width:100%;padding:10px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-family:inherit;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:8px}
 .hw-show-btn:active{transform:scale(.97)}
 .theory-content{display:flex;flex-direction:column;gap:10px;padding-bottom:20px}
-.th-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.th-nav{margin-bottom:10px}
+.th-select{width:100%;max-width:520px;padding:11px 14px;border:2px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);font-family:inherit;font-size:.92rem;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
+.th-select:focus{outline:none;border-color:var(--primary)}
 .th-chip{padding:8px 12px;border:2px solid var(--border);border-radius:10px;background:var(--card);font-family:inherit;font-size:.76rem;font-weight:700;color:var(--text-secondary);cursor:pointer;transition:all .15s;box-shadow:var(--shadow)}
 .th-chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
 .th-chip:active{transform:scale(.96)}
@@ -1077,12 +1079,20 @@ function openTheory(){
   const topic=TOPICS.find(t=>t.id===currentTopic);
   document.getElementById('theoryTitle').textContent=(topic?topic.icon+' ':'')+'Теория';
   const nav=document.getElementById('theoryNav');nav.innerHTML='';
-  [...TOPICS,...ARCHIVE_TOPICS].forEach(t=>{
-    const ch=document.createElement('button');ch.className='th-chip'+(t.id===currentTopic?' on':'');
-    ch.textContent=t.icon+' '+t.label;
-    ch.onclick=()=>{currentTopic=t.id;openTheory()};
-    nav.appendChild(ch);
+  const sel=document.createElement('select');
+  sel.className='th-select';
+  sel.id='theorySelect';
+  const gMain=document.createElement('optgroup');gMain.label='Текущие темы';
+  const gArc=document.createElement('optgroup');gArc.label='Архивные темы';
+  [...TOPICS,...ARCHIVE_TOPICS].forEach((t,i)=>{
+    const o=document.createElement('option');
+    o.value=t.id;o.textContent=t.icon+' '+t.label;
+    if(t.id===currentTopic)o.selected=true;
+    (i<TOPICS.length?gMain:gArc).appendChild(o);
   });
+  sel.appendChild(gMain);sel.appendChild(gArc);
+  sel.onchange=()=>{currentTopic=sel.value;openTheory()};
+  nav.appendChild(sel);
   const boxes=document.getElementById('theoryBoxes');boxes.innerHTML='';
   const blocks=THEORY[currentTopic]||[];
   blocks.forEach(b=>{
