@@ -116,15 +116,15 @@ select{padding:10px 12px;border:1px solid var(--border);border-radius:10px;backg
   ramp.position.set(RAMP_X0 + RAMP_LEN*Math.cos(RAMP_ANGLE)/2, RAMP_H/2, TRACK_Z);
   ramp.castShadow=true; ramp.receiveShadow=true; world.add(ramp);
 
-  // ramp support
-  var support = new THREE.Mesh(new THREE.BoxGeometry(0.5, RAMP_H, 4), new THREE.MeshStandardMaterial({color:0x334155, roughness:0.8}));
-  support.position.set(RAMP_X0 + RAMP_LEN*Math.cos(RAMP_ANGLE)-0.25, RAMP_H/2, TRACK_Z);
-  support.castShadow=true; support.receiveShadow=true; world.add(support);
-
   // horizontal track
   var track = new THREE.Mesh(new THREE.BoxGeometry(TRACK_LEN, 0.4, 4.4), new THREE.MeshStandardMaterial({color:0x334155, roughness:0.8}));
   track.position.set(RAMP_X0 + RAMP_LEN*Math.cos(RAMP_ANGLE) + TRACK_LEN/2, -0.2, TRACK_Z);
   track.receiveShadow=true; world.add(track);
+
+  // side rails
+  function rail(x,len){var r=new THREE.Mesh(new THREE.BoxGeometry(len,0.3,0.2), new THREE.MeshStandardMaterial({color:0x64748b})); r.position.set(x,0.15,TRACK_Z+2.3); r.receiveShadow=true; world.add(r);
+    var r2=r.clone(); r2.position.z=TRACK_Z-2.3; world.add(r2);}
+  rail(RAMP_X0 + RAMP_LEN*Math.cos(RAMP_ANGLE) + TRACK_LEN/2, TRACK_LEN);
 
   // cart
   var cartGroup = new THREE.Group(); world.add(cartGroup);
