@@ -126,11 +126,6 @@ select{padding:10px 12px;border:1px solid var(--border);border-radius:10px;backg
   track.position.set(RAMP_X0 + RAMP_LEN*Math.cos(RAMP_ANGLE) + TRACK_LEN/2, -0.2, TRACK_Z);
   track.receiveShadow=true; world.add(track);
 
-  // side rails
-  function rail(x,len){var r=new THREE.Mesh(new THREE.BoxGeometry(len,0.3,0.2), new THREE.MeshStandardMaterial({color:0x64748b})); r.position.set(x,0.15,TRACK_Z+2.3); r.receiveShadow=true; world.add(r);
-    var r2=r.clone(); r2.position.z=TRACK_Z-2.3; world.add(r2);}
-  rail(RAMP_X0 + RAMP_LEN*Math.cos(RAMP_ANGLE) + TRACK_LEN/2, TRACK_LEN);
-
   // cart
   var cartGroup = new THREE.Group(); world.add(cartGroup);
   var cartBody = new THREE.Mesh(new THREE.BoxGeometry(1.6,0.7,1.2), new THREE.MeshStandardMaterial({color:0x3b82f6, roughness:0.4, metalness:0.1}));
