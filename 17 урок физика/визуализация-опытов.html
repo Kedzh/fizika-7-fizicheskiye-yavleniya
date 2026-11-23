@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Визуализация опытов — §19 Инерция</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+:root{--bg:#0b1220;--panel:#111a2e;--panel2:#16213a;--text:#e2e8f0;--muted:#94a3b8;--primary:#3b82f6;--accent:#f97316;--green:#22c55e;--yellow:#facc15;--red:#ef4444;--border:#243352}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+header{padding:20px 28px 12px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,#0f1b33,#0b1220)}
+header h1{font-size:clamp(1.35rem,3vw,1.9rem);font-weight:800}
+header p{color:var(--muted);margin-top:2px}
+.tabs{display:flex;gap:10px;padding:14px 28px;border-bottom:1px solid var(--border);background:#0d1628;flex-wrap:wrap}
+.tab{padding:10px 18px;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;font-family:inherit;font-weight:700;font-size:.95rem;cursor:pointer;transition:all .2s}
+.tab:hover{border-color:var(--primary);transform:translateY(-1px)}
+.tab.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.layout{display:grid;grid-template-columns:1fr 360px;min-height:calc(100vh - 150px)}
+#viewport{position:relative;overflow:hidden;background:linear-gradient(180deg,#0b1220,#0f1a30)}
+#viewport canvas{display:block;width:100%;height:100%}
+#viewport .overlay{position:absolute;left:14px;bottom:12px;font-size:.8rem;color:var(--muted);background:rgba(11,18,32,.7);padding:6px 12px;border-radius:8px;border:1px solid var(--border);pointer-events:none}
+aside{background:var(--panel);border-left:1px solid var(--border);padding:18px;overflow-y:auto}
+.ctl{margin-bottom:14px}
+.ctl label{display:flex;justify-content:space-between;font-size:.9rem;color:var(--muted);margin-bottom:6px;font-weight:600}
+.ctl label b{color:var(--text)}
+select,input[type=range]{width:100%;accent-color:var(--primary)}
+select{padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--panel2);color:var(--text);font-family:inherit;font-weight:700}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 16px}
+.btn{padding:10px 18px;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;font-family:inherit;font-weight:700;font-size:.95rem;cursor:pointer;transition:all .2s}
+.btn:hover{border-color:var(--primary);transform:translateY(-1px)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.readout{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.stat{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:10px 8px;text-align:center}
+.stat .k{display:block;font-size:.72rem;color:var(--muted);margin-bottom:4px}
+.stat .v{display:block;font-size:1rem;font-weight:800;color:var(--yellow)}
+.stat.wide{grid-column:1/-1}
+.explain{background:var(--panel2);border-left:4px solid var(--primary);border-radius:8px;padding:14px;font-size:.9rem;line-height:1.55}
+.explain b{color:var(--yellow)}
+@media (max-width:900px){.layout{grid-template-columns:1fr}.layout #viewport{height:55vh;min-height:360px}aside{border-left:none;border-top:1px solid var(--border)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🧪 Визуализация опытов. §19. Инерция</h1>
+  <p>Почему тела меняют скорость и что происходит при отсутствии действия других тел</p>
+</header>
+<div class="tabs">
+  <button class="tab active" data-mode="cart" onclick="setMode('cart')">1) Тележка и поверхность</button>
+  <button class="tab" data-mode="checkers" onclick="setMode('checkers')">2) Шашки и лист бумаги</button>
+</div>
+<div class="layout">
+  <div id="viewport">
+    <canvas id="cv"></canvas>
+    <div class="overlay" id="overlay">Нажми «Старт», чтобы увидеть опыт</div>
+  </div>
+  <aside>
+    <div id="controls"></div>
+    <div class="readout" id="readout"></div>
+    <div class="explain" id="explain"></div>
+  </aside>
+</div>
+<script>
+
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let W=800,H=500, DPR=Math.min(window.devicePixelRatio||1,2);
+function resize(){
+  const r = document.getElementById('viewport').getBoundingClientRect();
+  W = Math.max(320, Math.floor(r.width));
+  H = Math.max(320, Math.floor(r.height));
+  cv.width = Math.floor(W*DPR); cv.height = Math.floor(H*DPR);
+  cv.style.width=W+'px'; cv.style.height=H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize', ()=>{ resize(); draw(); });
+resize();
+
+let mode = 'cart';
+let anim = null;
+let lastT = 0;
+
+// ===== MODE 1: CART =====
+const surfaces = {
+  sandHill: { name:'Горка песка', a:5.5, color:'#d97706', rough:true, desc:'Песок сильно тормозит тележку — она быстро останавливается.' },
+  sandFlat:{ name:'Разровненный песок', a:2.2, color:'#f59e0b', rough:true, desc:'Трение меньше, чем у горки песка — тележка проезжает дальше.' },
+  smooth:  { name:'Гладкая поверхность', a:0.45, color:'#60a5fa', rough:false, desc:'Трение очень маленькое — тележка долго сохраняет скорость. Если бы трения не было совсем, она ехала бы равномерно и прямолинейно.' }
+};
+let cartState = { surface:'sandHill', t:0, running:false, done:false, x:0, v:0 };
+const V0 = 3.2; // m/s at bottom of ramp (illustrative)
+
+function cartReset(){
+  cartState.t=0; cartState.running=false; cartState.done=false; cartState.x=0; cartState.v=V0;
+  stopAnim(); updateReadout(); draw();
+}
+function cartStart(){
+  if (cartState.done) cartReset();
+  cartState.running = !cartState.running;
+  document.getElementById('startBtn').textContent = cartState.running ? '⏸ Пауза' : '▶ Старт';
+  if (cartState.running) { lastT = 0; anim = requestAnimationFrame(cartLoop); }
+  else stopAnim();
+}
+function stopAnim(){ if(anim){ cancelAnimationFrame(anim); anim=null; } }
+function cartLoop(ts){
+  if(!cartState.running) return;
+  if(!lastT) lastT=ts;
+  const dt = Math.min(0.033, (ts-lastT)/1000);
+  lastT=ts;
+  const a = surfaces[cartState.surface].a;
+  cartState.t += dt;
+  cartState.v = Math.max(0, V0 - a*cartState.t);
+  cartState.x = V0*cartState.t - 0.5*a*cartState.t*cartState.t;
+  const maxX = V0*V0/(2*a);
+  if (cartState.v <= 0) { cartState.v=0; cartState.x=maxX; cartState.running=false; cartState.done=true; document.getElementById('startBtn').textContent='▶ Старт'; }
+  updateReadout(); draw();
+  if(cartState.running) anim = requestAnimationFrame(cartLoop);
+}
+
+function drawCartScene(){
+  ctx.clearRect(0,0,W,H);
+  // background
+  const g = ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#0b1220'); g.addColorStop(1,'#13203a');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+
+  const groundY = H*0.72;
+  const rampLeft = W*0.08, rampRight = W*0.38, rampTopY = H*0.32;
+  const surf = surfaces[cartState.surface];
+
+  // ground
+  ctx.fillStyle='#18243d'; ctx.fillRect(0,groundY,W,H-groundY);
+
+  // horizontal surface area
+  ctx.fillStyle = surf.color; ctx.globalAlpha = 0.25; ctx.fillRect(rampRight, groundY-8, W-rampRight-30, 8); ctx.globalAlpha=1;
+  ctx.strokeStyle = surf.color; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(rampRight,groundY); ctx.lineTo(W-30,groundY); ctx.stroke();
+
+  // sand texture
+  if(surf.rough){
+    ctx.fillStyle=surf.color; ctx.globalAlpha=0.35;
+    for(let x=rampRight+10; x<W-40; x+=14){ for(let y=groundY+6; y<groundY+26; y+=10){ ctx.beginPath(); ctx.arc(x+((y%20)?3:0), y, 1.8, 0, Math.PI*2); ctx.fill(); } }
+    ctx.globalAlpha=1;
+  }
+
+  // ramp
+  ctx.fillStyle='#334155';
+  ctx.beginPath(); ctx.moveTo(rampLeft,groundY); ctx.lineTo(rampRight,groundY); ctx.lineTo(rampRight,rampTopY); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle='#64748b'; ctx.lineWidth=3; ctx.stroke();
+
+  // ramp surface line
+  ctx.strokeStyle='#94a3b8'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(rampLeft,groundY); ctx.lineTo(rampRight,rampTopY); ctx.stroke();
+
+  // scale marks on horizontal
+  const pxPerM = (W - rampRight - 80) / 5.5; // 5.5 m range
+  ctx.fillStyle='#94a3b8'; ctx.font='12px Nunito'; ctx.textAlign='center';
+  for(let m=0;m<=5;m++){
+    const x = rampRight + m*pxPerM;
+    ctx.fillRect(x-1,groundY,2,10);
+    ctx.fillText(m+' м', x, groundY+24);
+  }
+
+  // cart position
+  const a = surf.a;
+  const maxX = V0*V0/(2*a);
+  const dist = Math.min(cartState.x, maxX);
+  const cartX = rampRight + dist*pxPerM;
+  const cartY = groundY - 18;
+
+  // trail
+  ctx.strokeStyle = surf.color; ctx.lineWidth=3; ctx.globalAlpha=0.5;
+  ctx.beginPath(); ctx.moveTo(rampRight, groundY-2); ctx.lineTo(cartX, groundY-2); ctx.stroke(); ctx.globalAlpha=1;
+
+  // cart body
+  ctx.fillStyle='#3b82f6';
+  roundRect(ctx, cartX-28, cartY-22, 56, 28, 6, true, false);
+  ctx.fillStyle='#1d4ed8'; roundRect(ctx, cartX-22, cartY-18, 44, 10, 4, true, false);
+  // wheels
+  ctx.fillStyle='#e2e8f0';
+  ctx.beginPath(); ctx.arc(cartX-14, cartY+8, 7, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cartX+14, cartY+8, 7, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle='#334155';
+  ctx.beginPath(); ctx.arc(cartX-14, cartY+8, 3, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cartX+14, cartY+8, 3, 0, Math.PI*2); ctx.fill();
+
+  // flag on cart showing speed
+  ctx.strokeStyle='#facc15'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cartX+10, cartY-22); ctx.lineTo(cartX+10, cartY-42); ctx.stroke();
+  ctx.fillStyle='#facc15'; ctx.beginPath(); ctx.moveTo(cartX+10,cartY-42); ctx.lineTo(cartX+34,cartY-35); ctx.lineTo(cartX+10,cartY-28); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#0b1220'; ctx.font='bold 11px Nunito'; ctx.textAlign='left'; ctx.fillText('v', cartX+15, cartY-33);
+
+  // labels
+  ctx.fillStyle='#e2e8f0'; ctx.font='bold 14px Nunito'; ctx.textAlign='left';
+  ctx.fillText('Наклонная плоскость', rampLeft, rampTopY-14);
+  ctx.fillStyle=surf.color; ctx.fillText('Поверхность: ' + surf.name, rampRight+10, groundY-18);
+
+  // stop marker
+  const stopX = rampRight + maxX*pxPerM;
+  ctx.strokeStyle='#22c55e'; ctx.lineWidth=2; ctx.setLineDash([6,5]);
+  ctx.beginPath(); ctx.moveTo(stopX, groundY-60); ctx.lineTo(stopX, groundY); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#22c55e'; ctx.font='bold 13px Nunito'; ctx.textAlign='center';
+  ctx.fillText('остановка', stopX, groundY-66);
+}
+
+function roundRect(ctx,x,y,w,h,r,fill,stroke){
+  ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+  if(fill) ctx.fill(); if(stroke) ctx.stroke();
+}
+
+// ===== MODE 2: CHECKERS =====
+let chkState = { speed:'fast', t:0, running:false, done:false, paperX:0, stackX:0, stackV:0, wobble:0 };
+function chkReset(){
+  chkState.t=0; chkState.running=false; chkState.done=false; chkState.paperX=0; chkState.stackX=0; chkState.stackV=0; chkState.wobble=0;
+  stopAnim(); updateReadout(); draw();
+}
+function chkStart(){
+  if (chkState.done) chkReset();
+  chkState.running = !chkState.running;
+  document.getElementById('startBtn').textContent = chkState.running ? '⏸ Пауза' : '▶ Старт';
+  if (chkState.running) { lastT=0; anim = requestAnimationFrame(chkLoop); }
+  else stopAnim();
+}
+function chkLoop(ts){
+  if(!chkState.running) return;
+  if(!lastT) lastT=ts;
+  const dt = Math.min(0.033, (ts-lastT)/1000);
+  lastT=ts;
+  chkState.t += dt;
+  const fast = chkState.speed === 'fast';
+  const paperSpeed = fast ? 900 : 120; // px/s
+  const frictionAccel = fast ? 180 : 1200; // how much paper drags stack (px/s^2) - fast pull gives short impulse
+  const maxPaper = W*0.55;
+  // paper moves
+  if (chkState.paperX < maxPaper) chkState.paperX += paperSpeed*dt;
+  else chkState.paperX = maxPaper;
+  // stack: gets friction from paper while overlapping
+  const paperLeft = W*0.25 - chkState.paperX;
+  const paperRight = paperLeft + W*0.38;
+  const stackCenter = W*0.55 + chkState.stackX;
+  const overlap = stackCenter > paperLeft && stackCenter < paperRight + 40;
+  if (overlap) {
+    // friction pulls stack in direction of paper (left, negative)
+    const pull = fast ? -frictionAccel*dt*0.18 : -frictionAccel*dt*0.55;
+    chkState.stackV += pull;
+  }
+  // friction on table (small) slows stack
+  if (Math.abs(chkState.stackV) > 0) {
+    const sign = Math.sign(chkState.stackV);
+    chkState.stackV -= sign * 300 * dt;
+    if (Math.sign(chkState.stackV) !== sign) chkState.stackV = 0;
+  }
+  chkState.stackX += chkState.stackV*dt;
+  // wobble decays
+  if (fast && chkState.t < 0.25) chkState.wobble = Math.sin(chkState.t*60)*3*(0.25-chkState.t);
+  else chkState.wobble *= 0.9;
+  // finish
+  if (chkState.paperX >= maxPaper && Math.abs(chkState.stackV) < 1) {
+    chkState.running=false; chkState.done=true; chkState.stackV=0;
+    document.getElementById('startBtn').textContent='▶ Старт';
+  }
+  updateReadout(); draw();
+  if (chkState.running) anim = requestAnimationFrame(chkLoop);
+}
+
+function drawCheckersScene(){
+  ctx.clearRect(0,0,W,H);
+  const g = ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#0b1220'); g.addColorStop(1,'#13203a');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+
+  const tableY = H*0.68;
+  // table
+  ctx.fillStyle='#3b2a1a'; ctx.fillRect(0,tableY,W,H-tableY);
+  ctx.fillStyle='#5c3d22'; ctx.fillRect(0,tableY,W,14);
+  ctx.strokeStyle='#7c5430'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,tableY); ctx.lineTo(W,tableY); ctx.stroke();
+
+  // paper
+  const paperW = W*0.38, paperH = 8;
+  const paperX = W*0.25 - chkState.paperX;
+  const paperY = tableY - paperH;
+  ctx.fillStyle='#e5e7eb';
+  roundRect(ctx, paperX, paperY, paperW, paperH, 2, true, false);
+  ctx.strokeStyle='#94a3b8'; ctx.lineWidth=1; ctx.strokeRect(paperX,paperY,paperW,paperH);
+  ctx.fillStyle='#64748b'; ctx.font='12px Nunito'; ctx.textAlign='center';
+  ctx.fillText('лист бумаги', paperX+paperW/2, paperY-6);
+
+  // pull arrow
+  if (chkState.running || chkState.done) {
+    ctx.strokeStyle='#f97316'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(paperX+20, paperY+paperH/2); ctx.lineTo(paperX-30, paperY+paperH/2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(paperX-30,paperY+paperH/2); ctx.lineTo(paperX-18,paperY+paperH/2-6); ctx.lineTo(paperX-18,paperY+paperH/2+6); ctx.closePath(); ctx.fillStyle='#f97316'; ctx.fill();
+  }
+
+  // checkers stack (3)
+  const baseX = W*0.55 + chkState.stackX;
+  const baseY = tableY;
+  const colors = ['#1e293b','#ef4444','#1e293b'];
+  const colors2 = ['#334155','#f87171','#334155'];
+  for(let i=0;i<3;i++){
+    const cy = baseY - 10 - i*20 + (i>0 ? chkState.wobble*(i*0.5) : 0);
+    const cx = baseX + (i>0 ? chkState.wobble*(i*0.3) : 0);
+    // checker body
+    ctx.fillStyle = colors[i];
+    ctx.beginPath(); ctx.ellipse(cx, cy, 34, 10, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = colors2[i];
+    ctx.beginPath(); ctx.ellipse(cx, cy-4, 34, 10, 0, Math.PI, Math.PI*2); ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2; ctx.stroke();
+    // ring
+    ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.ellipse(cx, cy-4, 22, 6, 0, 0, Math.PI*2); ctx.stroke();
+  }
+
+  // labels
+  ctx.fillStyle='#e2e8f0'; ctx.font='bold 14px Nunito'; ctx.textAlign='left';
+  ctx.fillText('Стопка шашек', baseX-50, baseY-90);
+
+  // result hint
+  ctx.textAlign='center'; ctx.font='bold 15px Nunito';
+  if (chkState.done) {
+    if (chkState.speed === 'fast') {
+      ctx.fillStyle='#22c55e'; ctx.fillText('Шашки почти остались на месте — это инерция!', W/2, H*0.18);
+    } else {
+      ctx.fillStyle='#f97316'; ctx.fillText('При медленном вытягивании трение успевает сдвинуть шашки.', W/2, H*0.18);
+    }
+  } else {
+    ctx.fillStyle='#94a3b8'; ctx.fillText(chkState.speed==='fast' ? 'Режим: резкий рывок' : 'Режим: медленное вытягивание', W/2, H*0.18);
+  }
+}
+
+// ===== UI / CONTROL =====
+function setMode(m){
+  mode = m;
+  stopAnim();
+  cartState.running=false; chkState.running=false;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.mode===m));
+  renderControls(); updateReadout(); draw();
+}
+
+function renderControls(){
+  const c = document.getElementById('controls');
+  if (mode === 'cart') {
+    c.innerHTML = `
+      <div class="btns"><button class="btn primary" id="startBtn" onclick="cartStart()">▶ Старт</button><button class="btn" onclick="cartReset()">↺ Сброс</button></div>
+      <div class="ctl"><label>Поверхность <b id="surfLabel"></b></label>
+        <select id="surfSel" onchange="cartState.surface=this.value; cartReset(); renderControls();">
+          <option value="sandHill">Горка песка</option>
+          <option value="sandFlat">Разровненный песок</option>
+          <option value="smooth">Гладкая поверхность</option>
+        </select>
+      </div>`;
+    document.getElementById('surfSel').value = cartState.surface;
+    document.getElementById('surfLabel').textContent = surfaces[cartState.surface].name;
+    document.getElementById('explain').innerHTML = '<b>Опыт из §19 (рис. 47):</b> тележка скатывается с наклонной плоскости на горизонтальную поверхность. ' + surfaces[cartState.surface].desc + '<br><br><b>Вывод:</b> чем меньше действие других тел (трение), тем дольше тело сохраняет скорость. Если бы трения не было совсем, тело двигалось бы равномерно и прямолинейно — это закон инерции.';
+  } else {
+    c.innerHTML = `
+      <div class="btns"><button class="btn primary" id="startBtn" onclick="chkStart()">▶ Старт</button><button class="btn" onclick="chkReset()">↺ Сброс</button></div>
+      <div class="ctl"><label>Как тянуть лист <b id="spdLabel"></b></label>
+        <select id="spdSel" onchange="chkState.speed=this.value; chkReset(); renderControls();">
+          <option value="fast">Резко (быстро)</option>
+          <option value="slow">Медленно</option>
+        </select>
+      </div>`;
+    document.getElementById('spdSel').value = chkState.speed;
+    document.getElementById('spdLabel').textContent = chkState.speed==='fast' ? 'Резко' : 'Медленно';
+    document.getElementById('explain').innerHTML = '<b>Задание 16 из §19:</b> на лист бумаги поставлена стопка шашек. При резком выдёргивании листа шашки почти остаются на месте: по инерции они стремятся сохранить состояние покоя, а трение действует на них слишком короткое время.<br><br>При медленном вытягивании трение успевает передать шашкам скорость, и они сдвигаются вместе с листом.';
+  }
+}
+
+function updateReadout(){
+  const r = document.getElementById('readout');
+  if (mode === 'cart') {
+    const a = surfaces[cartState.surface].a;
+    const maxX = V0*V0/(2*a);
+    const dist = Math.min(cartState.x, maxX);
+    r.innerHTML = `
+      <div class="stat"><span class="k">Скорость</span><span class="v">${cartState.v.toFixed(2)} м/с</span></div>
+      <div class="stat"><span class="k">Путь по горизонтали</span><span class="v">${dist.toFixed(2)} м</span></div>
+      <div class="stat"><span class="k">Время</span><span class="v">${cartState.t.toFixed(2)} с</span></div>
+      <div class="stat"><span class="k">Путь до остановки</span><span class="v">${maxX.toFixed(2)} м</span></div>`;
+  } else {
+    r.innerHTML = `
+      <div class="stat"><span class="k">Режим</span><span class="v">${chkState.speed==='fast'?'Резкий рывок':'Медленно'}</span></div>
+      <div class="stat"><span class="k">Время</span><span class="v">${chkState.t.toFixed(2)} с</span></div>
+      <div class="stat wide"><span class="k">Смещение шашек</span><span class="v">${Math.abs(chkState.stackX).toFixed(0)} px</span></div>`;
+  }
+}
+
+function draw(){
+  resize();
+  if (mode === 'cart') drawCartScene();
+  else drawCheckersScene();
+}
+
+window.addEventListener('resize', ()=>{ resize(); draw(); });
+renderControls(); updateReadout(); draw();
+</script>
+</body>
+</html>
