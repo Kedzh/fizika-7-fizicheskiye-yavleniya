@@ -122,9 +122,18 @@ select{padding:10px 12px;border:1px solid var(--border);border-radius:10px;backg
   track.receiveShadow=true; world.add(track);
 
   // side rails
-  function rail(x,len){var r=new THREE.Mesh(new THREE.BoxGeometry(len,0.3,0.2), new THREE.MeshStandardMaterial({color:0x64748b})); r.position.set(x,0.15,TRACK_Z+2.3); r.receiveShadow=true; world.add(r);
-    var r2=r.clone(); r2.position.z=TRACK_Z-2.3; world.add(r2);}
-  rail(RAMP_X0 + RAMP_LEN*Math.cos(RAMP_ANGLE) + TRACK_LEN/2, TRACK_LEN);
+  var rails = [];
+  function buildRails(){
+    rails.forEach(r=>{world.remove(r); r.geometry.dispose();});
+    rails = [];
+    var x = RAMP_X0 + RAMP_LEN*Math.cos(RAMP_ANGLE) + TRACK_LEN/2;
+    var len = TRACK_LEN;
+    for(var side of [2.3,-2.3]){
+      var r=new THREE.Mesh(new THREE.BoxGeometry(len,0.3,0.2), new THREE.MeshStandardMaterial({color:0x64748b}));
+      r.position.set(x,0.15,TRACK_Z+side); r.receiveShadow=true; world.add(r); rails.push(r);
+    }
+  }
+  buildRails();
 
   // cart
   var cartGroup = new THREE.Group(); world.add(cartGroup);
@@ -310,9 +319,27 @@ select{padding:10px 12px;border:1px solid var(--border);border-radius:10px;backg
       + '<option value="sandFlat">Разровненный песок</option>'
       + '<option value="smooth">Гладкая поверхность</option>'
       + '</select></div>'
+      + '<div class="ctl"><label>Угол спуска <b id="angLabel"></b></label>'
+      + '<input type="range" id="angRange" min="10" max="30" step="1" value="'+Math.round(RAMP_ANGLE*180/Math.PI)+'"></div>'
 ;
     document.getElementById('surfSel').value = surfaceKey;
     document.getElementById('surfSel').addEventListener('change', function(e){ surfaceKey=e.target.value; resetSim(); renderControls(); });
+    document.getElementById('angLabel').textContent = Math.round(RAMP_ANGLE*180/Math.PI) + '°';
+    document.getElementById('angRange').addEventListener('input', function(e){ document.getElementById('angLabel').textContent = e.target.value + '°'; });
+    document.getElementById('angRange').addEventListener('change', function(e){
+      var deg = +e.target.value;
+      RAMP_ANGLE = deg*Math.PI/180;
+      RAMP_H = RAMP_LEN*Math.sin(RAMP_ANGLE);
+      rampLenHoriz = RAMP_LEN*Math.cos(RAMP_ANGLE);
+      rampEndX = RAMP_X0 + rampLenHoriz;
+      rampAcc = gAcc*Math.sin(RAMP_ANGLE)*0.55;
+      ramp.rotation.z = -RAMP_ANGLE;
+      ramp.position.set(RAMP_X0 + rampLenHoriz/2, RAMP_H/2, TRACK_Z);
+      track.position.set(RAMP_X0 + rampLenHoriz + TRACK_LEN/2, -0.2, TRACK_Z);
+      buildRails();
+      resetSim();
+      renderControls();
+    });
 
     document.getElementById('surfName').textContent = SURFACES[surfaceKey].name;
     document.getElementById('explain').innerHTML = '<b>Опыт §19 (рис. 47):</b> тележка скатывается с наклонной плоскости на горизонтальную поверхность. ' +
