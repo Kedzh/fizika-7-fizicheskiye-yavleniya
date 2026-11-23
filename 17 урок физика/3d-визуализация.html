@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D-визуализация — §19 Инерция</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+:root{--bg:#0b1220;--panel:#111a2e;--panel2:#16213a;--text:#e2e8f0;--muted:#94a3b8;--primary:#3b82f6;--accent:#f97316;--green:#22c55e;--yellow:#facc15;--border:#243352}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+header{padding:20px 28px 12px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,#0f1b33,#0b1220)}
+header h1{font-size:clamp(1.35rem,3vw,1.9rem);font-weight:800}
+header p{color:var(--muted);margin-top:2px}
+.layout{display:grid;grid-template-columns:1fr 360px;height:calc(100vh - 86px);min-height:520px}
+#viewport{position:relative;overflow:hidden}
+#viewport canvas{display:block}
+#viewport .overlay{position:absolute;left:14px;bottom:12px;font-size:.8rem;color:var(--muted);background:rgba(11,18,32,.7);padding:6px 12px;border-radius:8px;border:1px solid var(--border);pointer-events:none}
+aside{background:var(--panel);border-left:1px solid var(--border);padding:18px;overflow-y:auto}
+.ctl{margin-bottom:14px}
+.ctl label{display:flex;justify-content:space-between;font-size:.9rem;color:var(--muted);margin-bottom:6px;font-weight:600}
+.ctl label b{color:var(--text)}
+select,input[type=range]{width:100%;accent-color:var(--primary)}
+select{padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--panel2);color:var(--text);font-family:inherit;font-weight:700}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 16px}
+.btn{padding:10px 18px;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;font-family:inherit;font-weight:700;font-size:.95rem;cursor:pointer;transition:all .2s}
+.btn:hover{border-color:var(--primary);transform:translateY(-1px)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.readout{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.stat{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:10px 8px;text-align:center}
+.stat .k{display:block;font-size:.72rem;color:var(--muted);margin-bottom:4px}
+.stat .v{display:block;font-size:1rem;font-weight:800;color:var(--yellow)}
+.explain{background:var(--panel2);border-left:4px solid var(--primary);border-radius:8px;padding:14px;font-size:.9rem;line-height:1.55}
+.explain b{color:var(--yellow)}
+#fallback{display:none;position:absolute;inset:0;padding:40px;background:var(--bg);font-size:1.1rem;line-height:1.6}
+@media (max-width:900px){.layout{grid-template-columns:1fr;height:auto}#viewport{height:60vh;min-height:360px}aside{border-left:none;border-top:1px solid var(--border)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🧊 3D-визуализация опытов. §19. Инерция</h1>
+  <p>Тележка, поверхность и поведение песка — физика в движении</p>
+</header>
+<div class="layout">
+  <div id="viewport">
+    <div class="overlay">Вращай сцену мышью · колесо — масштаб</div>
+    <div id="fallback"><h2>Не удалось загрузить Three.js</h2><p>Нужен доступ к сети (cdnjs.cloudflare.com).</p></div>
+  </div>
+  <aside>
+    <div id="controls"></div>
+    <div class="readout">
+      <div class="stat"><span class="k">Скорость тележки</span><span class="v" id="rv">0,00 м/с</span></div>
+      <div class="stat"><span class="k">Путь</span><span class="v" id="rs">0,00 м</span></div>
+      <div class="stat"><span class="k">Время</span><span class="v" id="rt">0,00 с</span></div>
+      <div class="stat"><span class="k">Поверхность</span><span class="v" id="rsurf">—</span></div>
+    </div>
+    <div class="explain" id="explain"></div>
+  </aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  if(typeof THREE==='undefined'){document.getElementById('fallback').style.display='block';return;}
+
+  var container = document.getElementById('viewport');
+  var renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  container.appendChild(renderer.domElement);
+
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0b1220);
+  scene.fog = new THREE.Fog(0x0b1220, 60, 180);
+
+  var camera = new THREE.PerspectiveCamera(55, 1, 0.1, 500);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  var sun = new THREE.DirectionalLight(0xffffff, 0.95);
+  sun.position.set(-30, 45, 35); sun.castShadow = true;
+  sun.shadow.mapSize.set(2048,2048);
+  sun.shadow.camera.left=-50; sun.shadow.camera.right=50; sun.shadow.camera.top=40; sun.shadow.camera.bottom=-40; sun.shadow.camera.far=200;
+  scene.add(sun);
+
+  var ground = new THREE.Mesh(new THREE.PlaneGeometry(300,300), new THREE.MeshStandardMaterial({color:0x0f1a2e, roughness:1}));
+  ground.rotation.x = -Math.PI/2; ground.receiveShadow=true; scene.add(ground);
+  var grid = new THREE.GridHelper(120,60,0x2b3a55,0x18233c); grid.position.y=0.02; scene.add(grid);
+
+  // orbit
+  var orbit = { theta: 0.9, phi: 1.05, dist: 32, target: new THREE.Vector3(6, 2, 0) };
+  function applyCamera(){
+    var sp=Math.sin(orbit.phi), cp=Math.cos(orbit.phi);
+    camera.position.set(orbit.target.x+orbit.dist*sp*Math.cos(orbit.theta), orbit.target.y+orbit.dist*cp, orbit.target.z+orbit.dist*sp*Math.sin(orbit.theta));
+    camera.lookAt(orbit.target);
+  }
+  var dragging=false,px=0,py=0;
+  renderer.domElement.addEventListener('pointerdown',e=>{dragging=true;px=e.clientX;py=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});
+  window.addEventListener('pointermove',e=>{if(!dragging)return; orbit.theta-=(e.clientX-px)*0.005; orbit.phi=Math.max(0.2,Math.min(1.45,orbit.phi-(e.clientY-py)*0.005)); px=e.clientX;py=e.clientY; applyCamera();});
+  window.addEventListener('pointerup',()=>{dragging=false});
+  renderer.domElement.addEventListener('wheel',e=>{e.preventDefault(); orbit.dist=Math.max(10,Math.min(90,orbit.dist*(1+Math.sign(e.deltaY)*0.08))); applyCamera();},{passive:false});
+
+  function resize(){var w=container.clientWidth,h=container.clientHeight; renderer.setSize(w,h); camera.aspect=w/h; camera.updateProjectionMatrix();}
+  window.addEventListener('resize',resize); resize(); applyCamera();
+
+  // ===== world =====
+  var world = new THREE.Group(); scene.add(world);
+  var RAMP_ANGLE = 18 * Math.PI/180;
+  var RAMP_LEN = 10;
+  var RAMP_H = RAMP_LEN * Math.sin(RAMP_ANGLE);
+  var RAMP_X0 = -8; // top of ramp x
+  var TRACK_Z = 0;
+  var TRACK_LEN = 26;
+
+  // ramp
+  var ramp = new THREE.Mesh(new THREE.BoxGeometry(RAMP_LEN, 0.4, 4), new THREE.MeshStandardMaterial({color:0x475569, roughness:0.7}));
+  ramp.rotation.z = -RAMP_ANGLE;
+  ramp.position.set(RAMP_X0 + RAMP_LEN*Math.cos(RAMP_ANGLE)/2, RAMP_H/2, TRACK_Z);
+  ramp.castShadow=true; ramp.receiveShadow=true; world.add(ramp);
+
+  // ramp support
+  var support = new THREE.Mesh(new THREE.BoxGeometry(0.5, RAMP_H, 4), new THREE.MeshStandardMaterial({color:0x334155, roughness:0.8}));
+  support.position.set(RAMP_X0 + RAMP_LEN*Math.cos(RAMP_ANGLE)-0.25, RAMP_H/2, TRACK_Z);
+  support.castShadow=true; support.receiveShadow=true; world.add(support);
+
+  // horizontal track
+  var track = new THREE.Mesh(new THREE.BoxGeometry(TRACK_LEN, 0.4, 4.4), new THREE.MeshStandardMaterial({color:0x334155, roughness:0.8}));
+  track.position.set(RAMP_X0 + RAMP_LEN*Math.cos(RAMP_ANGLE) + TRACK_LEN/2, -0.2, TRACK_Z);
+  track.receiveShadow=true; world.add(track);
+
+  // side rails
+  function rail(x,len){var r=new THREE.Mesh(new THREE.BoxGeometry(len,0.3,0.2), new THREE.MeshStandardMaterial({color:0x64748b})); r.position.set(x,0.15,TRACK_Z+2.3); r.receiveShadow=true; world.add(r);
+    var r2=r.clone(); r2.position.z=TRACK_Z-2.3; world.add(r2);}
+  rail(RAMP_X0 + RAMP_LEN*Math.cos(RAMP_ANGLE) + TRACK_LEN/2, TRACK_LEN);
+
+  // cart
+  var cartGroup = new THREE.Group(); world.add(cartGroup);
+  var cartBody = new THREE.Mesh(new THREE.BoxGeometry(1.6,0.7,1.2), new THREE.MeshStandardMaterial({color:0x3b82f6, roughness:0.4, metalness:0.1}));
+  cartBody.position.y = 0.55; cartBody.castShadow=true; cartGroup.add(cartBody);
+  var cartCab = new THREE.Mesh(new THREE.BoxGeometry(0.8,0.5,1.0), new THREE.MeshStandardMaterial({color:0x60a5fa, roughness:0.3}));
+  cartCab.position.set(-0.2,1.05,0); cartCab.castShadow=true; cartGroup.add(cartCab);
+  function wheel(z){var w=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.28,0.18,16), new THREE.MeshStandardMaterial({color:0x1e293b, roughness:0.8}));
+    w.rotation.x=Math.PI/2; w.position.set(0,0.28,z); w.castShadow=true; cartGroup.add(w); return w;}
+  var wFL=wheel(0.7), wFR=wheel(-0.7), wBL=wheel(0.7), wBR=wheel(-0.7);
+  wBL.position.x=-0.45; wBR.position.x=-0.45; wFL.position.x=0.45; wFR.position.x=0.45;
+
+  // sand particles
+  var sandGroup = new THREE.Group(); world.add(sandGroup);
+  var sandGrains = []; // {mesh, pos, vel, r, active}
+  var sandMat = new THREE.MeshStandardMaterial({color:0xeab308, roughness:0.95});
+  var sandMat2 = new THREE.MeshStandardMaterial({color:0xd97706, roughness:0.95});
+  var sandGeom = new THREE.SphereGeometry(1,6,5);
+
+  var SURFACES = {
+    sandHill: { name:'Горка песка', baseFriction:0.8, sandDrag:6.5, color:'#eab308', count:220, mode:'pile' },
+    sandFlat: { name:'Разровненный песок', baseFriction:0.4, sandDrag:2.5, color:'#f59e0b', count:140, mode:'flat' },
+    smooth:   { name:'Гладкая поверхность', baseFriction:0.06, sandDrag:0.0, color:'#60a5fa', count:0, mode:'none' }
+  };
+  var surfaceKey = 'sandHill';
+
+  function clearSand(){ sandGrains.forEach(g=>{sandGroup.remove(g.mesh);}); sandGrains.length=0; }
+
+  function makeSand(){
+    clearSand();
+    var cfg = SURFACES[surfaceKey];
+    var n = cfg.count;
+    var startX = RAMP_X0 + RAMP_LEN*Math.cos(RAMP_ANGLE) + 5;
+    for(var i=0;i<n;i++){
+      var r = 0.08 + Math.random()*0.07;
+      var m = new THREE.Mesh(sandGeom, (i%3===0)?sandMat2:sandMat.clone());
+      m.scale.setScalar(r);
+      m.castShadow=true; m.receiveShadow=true;
+      var px,py,pz;
+      if(cfg.mode==='pile'){
+        // pile centered around startX+3
+        var cx = startX + 3.5, spread=2.2;
+        px = cx + (Math.random()*2-1)*spread;
+        pz = (Math.random()*2-1)*1.6;
+        var dx = (px-cx)/spread, dz=pz/1.8;
+        var h = Math.max(0, 1.3*(1 - (dx*dx+dz*dz)));
+        py = 0.02 + r + Math.random()*h;
+      } else { // flat
+        px = startX + Math.random()*14;
+        pz = (Math.random()*2-1)*1.7;
+        py = 0.02 + r + Math.random()*0.05;
+      }
+      m.position.set(px,py,pz);
+      sandGroup.add(m);
+      sandGrains.push({mesh:m, pos:new THREE.Vector3(px,py,pz), vel:new THREE.Vector3(0,0,0), r:r, rest:true});
+    }
+  }
+
+  // ===== simulation =====
+  var sim = { t:0, running:false, done:false, s:0, v:0, onRamp:true };
+  var rampLenHoriz = RAMP_LEN*Math.cos(RAMP_ANGLE);
+  var rampEndX = RAMP_X0 + rampLenHoriz;
+  var gAcc = 9.8;
+  var rampAcc = gAcc * Math.sin(RAMP_ANGLE) * 0.55; // scaled for demo
+
+  function cartPosAt(s){
+    // s = distance along ramp then horizontal from ramp top
+    var p = new THREE.Vector3();
+    if (s <= RAMP_LEN){
+      p.x = RAMP_X0 + s*Math.cos(RAMP_ANGLE);
+      p.y = RAMP_H - s*Math.sin(RAMP_ANGLE);
+      p.z = TRACK_Z;
+      return {p:p, rot:-RAMP_ANGLE, onRamp:true};
+    } else {
+      var sh = s - RAMP_LEN;
+      p.x = rampEndX + sh;
+      p.y = 0;
+      p.z = TRACK_Z;
+      return {p:p, rot:0, onRamp:false};
+    }
+  }
+
+  function resetSim(){
+    sim.t=0; sim.running=false; sim.done=false; sim.s=0; sim.v=0; sim.onRamp=true;
+    makeSand(); placeCart(); updateReadout(); document.getElementById('startBtn').textContent='▶ Старт';
+  }
+
+  function placeCart(){
+    var c = cartPosAt(sim.s);
+    cartGroup.position.copy(c.p);
+    cartGroup.rotation.z = c.rot;
+    // wheel spin
+    var wr = sim.s / 0.28;
+    [wFL,wFR,wBL,wBR].forEach(w=>{ w.rotation.y = wr; });
+  }
+
+  function startPause(){
+    if(sim.done) resetSim();
+    sim.running = !sim.running;
+    document.getElementById('startBtn').textContent = sim.running ? '⏸ Пауза' : '▶ Старт';
+  }
+
+  function updateReadout(){
+    document.getElementById('rv').textContent = sim.v.toFixed(2).replace('.',',') + ' м/с';
+    var distHoriz = sim.s <= RAMP_LEN ? 0 : (sim.s - RAMP_LEN);
+    document.getElementById('rs').textContent = distHoriz.toFixed(2).replace('.',',') + ' м';
+    document.getElementById('rt').textContent = sim.t.toFixed(2).replace('.',',') + ' с';
+    document.getElementById('rsurf').textContent = SURFACES[surfaceKey].name;
+  }
+
+  function step(dt){
+    if(!sim.running || sim.done) return;
+    sim.t += dt;
+    var cfg = SURFACES[surfaceKey];
+
+    // cart physics
+    var cinfo = cartPosAt(sim.s);
+    if (cinfo.onRamp){
+      sim.v += rampAcc * dt;
+      sim.s += sim.v * dt;
+      if (sim.s >= RAMP_LEN){ sim.s = RAMP_LEN + 0.001; }
+    } else {
+      // base friction
+      var decel = cfg.baseFriction * 2.2;
+      // sand drag: grains near cart front
+      var cartX = cinfo.p.x, cartFront = cartX + 0.9;
+      var drag = 0;
+      for(var i=0;i<sandGrains.length;i++){
+        var g = sandGrains[i];
+        var dx = g.pos.x - cartFront;
+        var dz = g.pos.z - TRACK_Z;
+        if (dx > -0.2 && dx < 0.5 && Math.abs(dz) < 1.1 && g.pos.y < 0.8) {
+          drag += cfg.sandDrag * 0.012;
+          // push grain
+          g.vel.x += (2.5 + sim.v*1.2) * dt * 60 * 0.02;
+          g.vel.y += (1.5 + sim.v*0.6) * dt * 60 * 0.02;
+          g.vel.z += (dz*2.0) * dt * 60 * 0.02;
+          g.rest = false;
+        }
+      }
+      decel += drag;
+      sim.v -= decel * dt;
+      if (sim.v < 0) sim.v = 0;
+      sim.s += sim.v * dt;
+      if (sim.v <= 0.01 && sim.s > RAMP_LEN+0.1){ sim.v=0; sim.running=false; sim.done=true; document.getElementById('startBtn').textContent='▶ Старт'; }
+    }
+
+    // sand physics
+    var groundY = 0.02;
+    for(var i=0;i<sandGrains.length;i++){
+      var g = sandGrains[i];
+      if (g.rest) continue;
+      g.vel.y -= 9.8 * dt;
+      g.vel.x *= (1 - 1.5*dt);
+      g.vel.z *= (1 - 1.5*dt);
+      g.pos.x += g.vel.x * dt;
+      g.pos.y += g.vel.y * dt;
+      g.pos.z += g.vel.z * dt;
+      // floor
+      if (g.pos.y < groundY + g.r){ g.pos.y = groundY + g.r; g.vel.y *= -0.25; g.vel.x *= 0.7; g.vel.z *= 0.7; if(Math.abs(g.vel.y)<0.15 && g.vel.length()<0.2){ g.vel.set(0,0,0); g.rest=true; } }
+      // keep on track roughly
+      if (g.pos.z > 2.0){ g.pos.z=2.0; g.vel.z*=-0.3; }
+      if (g.pos.z < -2.0){ g.pos.z=-2.0; g.vel.z*=-0.3; }
+      g.mesh.position.copy(g.pos);
+    }
+
+    placeCart();
+    updateReadout();
+  }
+
+  // ===== UI =====
+  window.startPause=startPause; window.resetSim=resetSim; window.step=step; window.sim=sim; window.sandGrains=sandGrains; window.getLast=function(){return last}; window.setLast=function(v){last=v}; window.setSurface=function(k){surfaceKey=k}; window.RAMP_LEN=RAMP_LEN; window.makeSand=makeSand; window.SURFACES=SURFACES; window.getSurfaceKey=function(){return surfaceKey};
+  function renderControls(){
+    var c = document.getElementById('controls');
+    c.innerHTML = ''
+      + '<div class="btns"><button class="btn primary" id="startBtn" onclick="startPause()">▶ Старт</button>'
+      + '<button class="btn" onclick="resetSim()">↺ Сброс</button></div>'
+      + '<div class="ctl"><label>Поверхность на пути <b id="surfName"></b></label>'
+      + '<select id="surfSel">'
+      + '<option value="sandHill">Горка песка</option>'
+      + '<option value="sandFlat">Разровненный песок</option>'
+      + '<option value="smooth">Гладкая поверхность</option>'
+      + '</select></div>'
+;
+    document.getElementById('surfSel').value = surfaceKey;
+    document.getElementById('surfSel').addEventListener('change', function(e){ surfaceKey=e.target.value; resetSim(); renderControls(); });
+
+    document.getElementById('surfName').textContent = SURFACES[surfaceKey].name;
+    document.getElementById('explain').innerHTML = '<b>Опыт §19 (рис. 47):</b> тележка скатывается с наклонной плоскости на горизонтальную поверхность. ' +
+      'На пути может быть горка песка, разровненный песок или гладкая поверхность.<br><br>' +
+      '<b>Физика в модели:</b> на горке тележка разгоняется под действием составляющей силы тяжести. На горизонтали её тормозит трение; зёрна песка — это отдельные частицы, которые получают импульс при столкновении с тележкой и разлетаются.<br><br>' +
+      '<b>Вывод:</b> чем меньше действие других тел, тем дольше тележка сохраняет скорость. При отсутствии трения она двигалась бы равномерно и прямолинейно (закон инерции).';
+  }
+
+  // ===== loop =====
+  var last = 0;
+  function loop(ts){
+    requestAnimationFrame(loop);
+    if(!last) last=ts;
+    var dt = Math.min(0.033, (ts-last)/1000); last=ts;
+    step(dt);
+    renderer.render(scene, camera);
+  }
+
+  renderControls();
+  resetSim();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
